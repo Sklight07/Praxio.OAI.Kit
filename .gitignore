@@ -2,10 +2,29 @@ node_modules/
 *.log
 .DS_Store
 
+# Windows
+Thumbs.db
+desktop.ini
+
+# npm build artifacts
+*.tgz
+
 # Gerado pelo adapter Cursor — commitar se Cursor for IDE ativa (ver oai-kit.yaml)
 .cursor/rules/
 
 # Arquivos locais do kit (por dev, não versionados)
 .mcp.json
 .claude/.local-config.json
+.claude/settings.local.json
 oai-kit.yaml
+
+# .oai-flow — artifacts gerados em runtime por ticket (não fazem parte do kit)
+# Os diretórios são mantidos via .gitkeep; apenas o conteúdo gerado é ignorado.
+.oai-flow/analysis/*
+.oai-flow/delivery/*
+.oai-flow/design/*
+.oai-flow/discovery/*
+!.oai-flow/**/.gitkeep
+
+# Documentos de planejamento local (uso temporário durante dev)
+planejamento.md
