@@ -1,0 +1,2 @@
+# metrics-feed.jsonl — append-only, uma linha JSON por ticket encerrado
+# Formato: {"ticket_id":"ADO-NNN","type":"bug|feat","severity":"P1|P2|P3|P4","stack":".NET|Node|React","cycle_time_hours":N,"speckit_match":true|false,"rework_count":N,"files_changed":N,"tests_written":N,"date":"YYYY-MM-DD"}

@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "azure-devops": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@azure-devops/mcp@latest",
+        "${AZURE_DEVOPS_ORG}",
+        "--authentication",
+        "${AZDO_AUTH_MODE:-azcli}"
+      ],
+      "env": {
+        "PERSONAL_ACCESS_TOKEN": "${PERSONAL_ACCESS_TOKEN:-}"
+      }
+    }
+  }
+}

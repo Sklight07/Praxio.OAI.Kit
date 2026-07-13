@@ -1,0 +1,2003 @@
+<title>Praxio OAI Kit v2.0 — Guia de Uso</title>
+<style>
+/* ─── Tokens ─────────────────────────────────────────────────────────────── */
+:root {
+  --bg:          #F8F7F5;
+  --bg-side:     #EEECE7;
+  --bg-card:     #FFFFFF;
+  --fg:          #181816;
+  --fg-muted:    #6B6560;
+  --border:      #DDD9D1;
+  --accent:      #D63D06;
+  --accent-dim:  #F5E9E5;
+
+  --dev:         #1D5BBD;
+  --dev-bg:      #EBF2FD;
+  --dev-border:  #C0D2F0;
+
+  --qa:          #0D7A55;
+  --qa-bg:       #E6F5EE;
+  --qa-border:   #A3D4BC;
+
+  --po:          #6B21A8;
+  --po-bg:       #F3EAFB;
+  --po-border:   #D0B0EE;
+
+  --auto-bg:     #D1FAE5;
+  --auto-fg:     #065F46;
+  --manual-bg:   #FEF3C7;
+  --manual-fg:   #78350F;
+
+  --code-bg:     #EFEDE8;
+  --code-fg:     #C0320A;
+
+  --sidebar-w:   240px;
+  --header-h:    52px;
+
+  --ff-mono: 'Courier New', Courier, monospace;
+  --ff-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:          #111110;
+    --bg-side:     #0C0C0B;
+    --bg-card:     #1C1B18;
+    --fg:          #EEECEA;
+    --fg-muted:    #8A8680;
+    --border:      #2E2C28;
+    --accent:      #F05820;
+    --accent-dim:  #2A1408;
+
+    --dev:         #6AABF7;
+    --dev-bg:      #0E1929;
+    --dev-border:  #1E3560;
+
+    --qa:          #3ECFA0;
+    --qa-bg:       #081E14;
+    --qa-border:   #14453A;
+
+    --po:          #C490F0;
+    --po-bg:       #190D2A;
+    --po-border:   #3D1A6A;
+
+    --auto-bg:     #052E16;
+    --auto-fg:     #6EE7B7;
+    --manual-bg:   #1C1200;
+    --manual-fg:   #FCD34D;
+
+    --code-bg:     #1C1B18;
+    --code-fg:     #F07040;
+  }
+}
+
+:root[data-theme="light"] {
+  --bg: #F8F7F5; --bg-side: #EEECE7; --bg-card: #FFFFFF;
+  --fg: #181816; --fg-muted: #6B6560; --border: #DDD9D1;
+  --accent: #D63D06; --accent-dim: #F5E9E5;
+  --dev: #1D5BBD; --dev-bg: #EBF2FD; --dev-border: #C0D2F0;
+  --qa: #0D7A55; --qa-bg: #E6F5EE; --qa-border: #A3D4BC;
+  --po: #6B21A8; --po-bg: #F3EAFB; --po-border: #D0B0EE;
+  --auto-bg: #D1FAE5; --auto-fg: #065F46;
+  --manual-bg: #FEF3C7; --manual-fg: #78350F;
+  --code-bg: #EFEDE8; --code-fg: #C0320A;
+}
+
+:root[data-theme="dark"] {
+  --bg: #111110; --bg-side: #0C0C0B; --bg-card: #1C1B18;
+  --fg: #EEECEA; --fg-muted: #8A8680; --border: #2E2C28;
+  --accent: #F05820; --accent-dim: #2A1408;
+  --dev: #6AABF7; --dev-bg: #0E1929; --dev-border: #1E3560;
+  --qa: #3ECFA0; --qa-bg: #081E14; --qa-border: #14453A;
+  --po: #C490F0; --po-bg: #190D2A; --po-border: #3D1A6A;
+  --auto-bg: #052E16; --auto-fg: #6EE7B7;
+  --manual-bg: #1C1200; --manual-fg: #FCD34D;
+  --code-bg: #1C1B18; --code-fg: #F07040;
+}
+
+/* ─── Reset & base ───────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  font-family: var(--ff-body);
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.6;
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  grid-template-rows: var(--header-h) 1fr;
+  min-height: 100vh;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+/* ─── Header ─────────────────────────────────────────────────────────────── */
+.site-header {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 24px;
+  background: var(--bg-side);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.site-logo {
+  font-family: var(--ff-mono);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--fg);
+  letter-spacing: -0.02em;
+}
+.site-logo span { color: var(--accent); }
+
+.site-version {
+  font-family: var(--ff-mono);
+  font-size: 0.7rem;
+  background: var(--accent-dim);
+  color: var(--accent);
+  padding: 2px 7px;
+  border-radius: 3px;
+  letter-spacing: 0.04em;
+}
+
+.header-jumps {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
+.header-jump {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.header-jump.dev { background: var(--dev-bg); color: var(--dev); border: 1px solid var(--dev-border); }
+.header-jump.qa  { background: var(--qa-bg);  color: var(--qa);  border: 1px solid var(--qa-border); }
+.header-jump.po  { background: var(--po-bg);  color: var(--po);  border: 1px solid var(--po-border); }
+.header-jump:hover { filter: brightness(0.93); }
+
+.theme-toggle {
+  margin-left: 8px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--fg-muted);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 4px 8px;
+  line-height: 1;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ─── Sidebar ─────────────────────────────────────────────────────────────── */
+.sidebar {
+  grid-column: 1;
+  grid-row: 2;
+  background: var(--bg-side);
+  border-right: 1px solid var(--border);
+  position: sticky;
+  top: var(--header-h);
+  height: calc(100vh - var(--header-h));
+  overflow-y: auto;
+  padding: 20px 0 40px;
+}
+
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.nav-group { margin-bottom: 4px; }
+
+.nav-label {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  padding: 10px 20px 4px;
+}
+
+.nav-link {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--fg-muted);
+  padding: 5px 20px;
+  border-left: 2px solid transparent;
+  text-decoration: none;
+  transition: color 0.1s, background 0.1s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nav-link:hover { color: var(--fg); background: var(--bg); text-decoration: none; }
+.nav-link.active { color: var(--accent); border-left-color: var(--accent); background: var(--bg); }
+
+.nav-link.dev-link.active { color: var(--dev); border-left-color: var(--dev); }
+.nav-link.qa-link.active  { color: var(--qa);  border-left-color: var(--qa); }
+.nav-link.po-link.active  { color: var(--po);  border-left-color: var(--po); }
+
+.nav-link.sub {
+  padding-left: 32px;
+  font-size: 0.78rem;
+}
+
+.nav-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 12px 20px;
+}
+
+/* ─── Main content ───────────────────────────────────────────────────────── */
+.main {
+  grid-column: 2;
+  grid-row: 2;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+.content-section {
+  padding: 48px 56px;
+  border-bottom: 1px solid var(--border);
+  max-width: 860px;
+}
+
+.content-section:last-child { border-bottom: none; }
+
+/* Profile section headers */
+.profile-section {
+  border-left: 4px solid var(--border);
+}
+.profile-section.dev { border-left-color: var(--dev); }
+.profile-section.qa  { border-left-color: var(--qa); }
+.profile-section.po  { border-left-color: var(--po); }
+
+/* ─── Typography ─────────────────────────────────────────────────────────── */
+h1 {
+  font-family: var(--ff-mono);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+  text-wrap: balance;
+  margin-bottom: 8px;
+}
+
+h2 {
+  font-family: var(--ff-mono);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+  text-wrap: balance;
+  margin-bottom: 16px;
+  margin-top: 40px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+h2:first-child { margin-top: 0; }
+
+h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--fg);
+  margin-bottom: 8px;
+  margin-top: 28px;
+  text-wrap: balance;
+}
+h3:first-child { margin-top: 0; }
+
+h4 {
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--fg-muted);
+  margin-bottom: 6px;
+  margin-top: 16px;
+}
+
+p { margin-bottom: 12px; font-size: 0.9rem; max-width: 65ch; }
+p:last-child { margin-bottom: 0; }
+
+ul, ol { padding-left: 1.4em; font-size: 0.9rem; margin-bottom: 12px; }
+li { margin-bottom: 4px; }
+li:last-child { margin-bottom: 0; }
+
+.lead {
+  font-size: 0.95rem;
+  color: var(--fg-muted);
+  margin-bottom: 32px;
+  max-width: 65ch;
+}
+
+/* ─── Section eyebrow ─────────────────────────────────────────────────────── */
+.eyebrow {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.eyebrow.dev { color: var(--dev); }
+.eyebrow.qa  { color: var(--qa); }
+.eyebrow.po  { color: var(--po); }
+.eyebrow.shared { color: var(--accent); }
+
+/* ─── Profile badge ───────────────────────────────────────────────────────── */
+.profile-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 3px;
+}
+.profile-badge.dev { background: var(--dev-bg); color: var(--dev); border: 1px solid var(--dev-border); }
+.profile-badge.qa  { background: var(--qa-bg);  color: var(--qa);  border: 1px solid var(--qa-border); }
+.profile-badge.po  { background: var(--po-bg);  color: var(--po);  border: 1px solid var(--po-border); }
+.profile-badge.shared { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-dim); }
+
+/* ─── Code ────────────────────────────────────────────────────────────────── */
+code {
+  font-family: var(--ff-mono);
+  font-size: 0.82em;
+  background: var(--code-bg);
+  color: var(--code-fg);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+pre {
+  font-family: var(--ff-mono);
+  font-size: 0.82rem;
+  background: var(--code-bg);
+  color: var(--fg);
+  padding: 16px 20px;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 12px 0;
+  line-height: 1.55;
+  border: 1px solid var(--border);
+}
+pre code { background: none; color: inherit; padding: 0; font-size: 1em; }
+
+/* ─── Cards ───────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+
+.cmd-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.cmd-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--code-bg);
+}
+
+.cmd-name {
+  font-family: var(--ff-mono);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--fg);
+  background: none;
+  padding: 0;
+}
+
+.cmd-body { padding: 16px 20px; }
+
+.cmd-when {
+  font-size: 0.8rem;
+  color: var(--fg-muted);
+  margin-bottom: 10px;
+  font-style: italic;
+}
+.cmd-when strong { color: var(--fg); font-style: normal; }
+
+.cmd-desc { font-size: 0.88rem; margin-bottom: 14px; }
+
+.cmd-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.cmd-auto, .cmd-manual {
+  border-radius: 4px;
+  padding: 10px 14px;
+}
+.cmd-auto {
+  background: var(--auto-bg);
+  color: var(--auto-fg);
+}
+.cmd-manual {
+  background: var(--manual-bg);
+  color: var(--manual-fg);
+}
+
+.cmd-auto ul, .cmd-manual ul {
+  margin: 0;
+  padding-left: 1.2em;
+  font-size: 0.8rem;
+}
+.cmd-auto li, .cmd-manual li { margin-bottom: 2px; }
+
+.badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 3px;
+  margin-bottom: 6px;
+}
+.badge-auto { background: var(--auto-fg); color: var(--auto-bg); }
+.badge-manual { background: var(--manual-fg); color: var(--manual-bg); }
+
+/* ─── Agents grid ─────────────────────────────────────────────────────────── */
+.agents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.agent-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px 16px;
+}
+
+.agent-name {
+  font-family: var(--ff-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 6px;
+  display: block;
+  word-break: break-all;
+}
+
+.agent-desc { font-size: 0.82rem; color: var(--fg-muted); line-height: 1.45; margin: 0; }
+
+/* ─── Flow diagram ────────────────────────────────────────────────────────── */
+.flow {
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+  gap: 0;
+  margin: 20px 0;
+}
+
+.flow-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.flow-box {
+  border-radius: 5px;
+  padding: 7px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+}
+
+.flow-box.cmd {
+  font-family: var(--ff-mono);
+  font-size: 0.72rem;
+  background: var(--code-bg);
+  color: var(--code-fg);
+  border-color: var(--border);
+}
+
+.flow-box.cp {
+  background: var(--accent-dim);
+  color: var(--accent);
+  border-color: var(--accent);
+  font-size: 0.72rem;
+}
+
+.flow-box.start, .flow-box.end {
+  background: var(--bg-side);
+  color: var(--fg-muted);
+  font-size: 0.75rem;
+}
+
+.flow-arrow {
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  color: var(--fg-muted);
+  font-size: 0.9rem;
+  align-self: center;
+  padding-bottom: 20px;
+}
+
+.flow-label {
+  font-size: 0.65rem;
+  color: var(--fg-muted);
+  text-align: center;
+  max-width: 90px;
+  line-height: 1.3;
+}
+
+/* ─── Table ───────────────────────────────────────────────────────────────── */
+.table-wrap { overflow-x: auto; margin: 16px 0; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+th {
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--fg-muted);
+  padding: 8px 12px;
+  border-bottom: 2px solid var(--border);
+  background: var(--bg-side);
+  white-space: nowrap;
+}
+
+td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  font-size: 0.84rem;
+}
+
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--bg-side); }
+
+/* ─── Callouts ────────────────────────────────────────────────────────────── */
+.callout {
+  border-left: 3px solid var(--border);
+  padding: 12px 16px;
+  margin: 16px 0;
+  border-radius: 0 4px 4px 0;
+  font-size: 0.86rem;
+}
+.callout.info { border-color: var(--dev); background: var(--dev-bg); }
+.callout.warn { border-color: #D97706; background: var(--manual-bg); color: var(--manual-fg); }
+.callout p { max-width: none; margin-bottom: 0; font-size: inherit; }
+.callout strong { font-weight: 700; }
+
+/* ─── Steps list ──────────────────────────────────────────────────────────── */
+.steps { list-style: none; padding: 0; margin: 16px 0; }
+.steps li {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  font-size: 0.88rem;
+}
+.step-num {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--bg);
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+
+/* ─── Practices list ──────────────────────────────────────────────────────── */
+.practices { list-style: none; padding: 0; }
+.practices li {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.88rem;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.practices li:last-child { border-bottom: none; }
+.practice-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+  font-family: var(--ff-mono);
+}
+.practices .pi-dev { background: var(--dev-bg); color: var(--dev); }
+.practices .pi-qa  { background: var(--qa-bg);  color: var(--qa); }
+.practices .pi-po  { background: var(--po-bg);  color: var(--po); }
+
+/* ─── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  body {
+    grid-template-columns: 1fr;
+    grid-template-rows: var(--header-h) auto 1fr;
+  }
+  .sidebar {
+    grid-column: 1; grid-row: 2;
+    position: static;
+    height: auto;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 8px 12px;
+    gap: 4px;
+    overflow-x: auto;
+  }
+  .sidebar .nav-group { display: flex; flex-wrap: wrap; gap: 4px; }
+  .sidebar .nav-label { display: none; }
+  .sidebar .nav-link { white-space: nowrap; padding: 4px 10px; border-left: none; border-bottom: 2px solid transparent; font-size: 0.76rem; }
+  .sidebar .nav-link.sub { display: none; }
+  .sidebar .nav-divider { display: none; }
+  .main { grid-column: 1; grid-row: 3; }
+  .content-section { padding: 32px 24px; }
+  .cmd-split { grid-template-columns: 1fr; }
+  .header-jumps { display: none; }
+  .flow { flex-direction: column; align-items: flex-start; }
+  .flow-arrow { transform: rotate(90deg); padding: 4px 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+</style>
+
+<!-- HEADER -->
+<header class="site-header">
+  <span class="site-logo">praxio-<span>oai-kit</span></span>
+  <span class="site-version">v2.0</span>
+  <nav class="header-jumps" aria-label="Perfis">
+    <a class="header-jump dev" href="#dev">DEV</a>
+    <a class="header-jump qa"  href="#qa">QA</a>
+    <a class="header-jump po"  href="#po">PO</a>
+  </nav>
+  <button class="theme-toggle" id="themeToggle" aria-label="Alternar tema">◑</button>
+</header>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" aria-label="Navegação do guia">
+  <div class="nav-group">
+    <span class="nav-label">Início</span>
+    <a class="nav-link" href="#install">Instalação & Setup</a>
+    <a class="nav-link sub" href="#prereqs">Pré-requisitos</a>
+    <a class="nav-link sub" href="#install-profiles">Instalar por perfil</a>
+    <a class="nav-link sub" href="#setup-mcp">Configurar MCP Azure</a>
+    <a class="nav-link sub" href="#first-use">Primeiro uso no repo</a>
+  </div>
+
+  <div class="nav-divider"></div>
+
+  <div class="nav-group">
+    <span class="nav-label">DEV</span>
+    <a class="nav-link dev-link" href="#dev">Visão geral</a>
+    <a class="nav-link dev-link sub" href="#dev-commands">Comandos</a>
+    <a class="nav-link dev-link sub" href="#dev-agents">Agentes</a>
+    <a class="nav-link dev-link sub" href="#dev-bug-flow">Fluxo: Bug</a>
+    <a class="nav-link dev-link sub" href="#dev-feature-flow">Fluxo: Feature</a>
+    <a class="nav-link dev-link sub" href="#dev-auto-manual">Auto vs Manual</a>
+    <a class="nav-link dev-link sub" href="#dev-practices">Boas práticas</a>
+  </div>
+
+  <div class="nav-divider"></div>
+
+  <div class="nav-group">
+    <span class="nav-label">QA</span>
+    <a class="nav-link qa-link" href="#qa">Visão geral</a>
+    <a class="nav-link qa-link sub" href="#qa-commands">Comandos</a>
+    <a class="nav-link qa-link sub" href="#qa-agents">Agentes</a>
+    <a class="nav-link qa-link sub" href="#qa-flow">Fluxo QA</a>
+    <a class="nav-link qa-link sub" href="#qa-knowledge">Base de conhecimento</a>
+    <a class="nav-link qa-link sub" href="#qa-mcp">MCP & IDEs</a>
+    <a class="nav-link qa-link sub" href="#qa-auto-manual">Auto vs Manual</a>
+    <a class="nav-link qa-link sub" href="#qa-practices">Boas práticas</a>
+  </div>
+
+  <div class="nav-divider"></div>
+
+  <div class="nav-group">
+    <span class="nav-label">PO</span>
+    <a class="nav-link po-link" href="#po">Visão geral</a>
+    <a class="nav-link po-link sub" href="#po-commands">Comandos</a>
+    <a class="nav-link po-link sub" href="#po-agents">Agentes</a>
+    <a class="nav-link po-link sub" href="#po-flow">Fluxo PO</a>
+    <a class="nav-link po-link sub" href="#po-auto-manual">Auto vs Manual</a>
+    <a class="nav-link po-link sub" href="#po-practices">Boas práticas</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     INSTALAÇÃO
+═══════════════════════════════════════════════════════════════════════════ -->
+<section class="content-section" id="install">
+  <div class="eyebrow shared">Configuração</div>
+  <h1>Instalação &amp; Setup</h1>
+  <p class="lead">O OAI Kit é um pacote npm que instala agentes de IA, comandos slash e protocolos de trabalho diretamente no repositório da equipe. Ele é agnóstico de IDE: suporta Claude Code e Cursor.</p>
+
+  <!-- PREREQS -->
+  <h2 id="prereqs">Pré-requisitos</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Requisito</th><th>Versão mínima</th><th>Observação</th></tr></thead>
+      <tbody>
+        <tr><td>Node.js</td><td>18+</td><td>Necessário para rodar o CLI do kit</td></tr>
+        <tr><td>Claude Code <em>ou</em> Cursor</td><td>Qualquer versão recente</td><td>Pelo menos uma IDE com suporte a agentes/rules</td></tr>
+        <tr><td>Acesso ao Azure DevOps</td><td>—</td><td>Personal Access Token (PAT) para integração MCP</td></tr>
+        <tr><td>Git</td><td>2.x+</td><td>O kit cria branches e commits no padrão Praxio</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- INSTALL BY PROFILE -->
+  <h2 id="install-profiles">Instalação por perfil</h2>
+  <p>Rode o wizard interativo na raiz do repositório. Você escolhe quais IDEs e quais perfis instalar.</p>
+
+  <pre><code># Primeira instalação no repositório
+npx praxio-oai-kit init</code></pre>
+
+  <p>O wizard pergunta:</p>
+  <ol>
+    <li><strong>IDE(s):</strong> Claude Code, Cursor, ou ambas</li>
+    <li><strong>Perfil(is):</strong> developer, qa, po (seleção múltipla)</li>
+    <li><strong>Organização Azure DevOps</strong> (URL base)</li>
+  </ol>
+
+  <p>O que acontece automaticamente após o init:</p>
+  <ul>
+    <li>O adaptador Claude gera os arquivos em <code>.claude/agents/</code> e <code>.claude/commands/</code></li>
+    <li>Se Cursor foi selecionado, o adaptador gera as regras em <code>.cursor/rules/*.mdc</code></li>
+    <li>O <code>.gitignore</code> é atualizado: <code>.mcp.json</code> e <code>.claude/.local-config.json</code> são excluídos; <code>.cursor/rules/</code> entra no gitignore <strong>apenas</strong> se Cursor <em>não</em> foi selecionado</li>
+    <li>Um template <code>.mcp.json.template</code> é criado para guiar a configuração do Azure DevOps</li>
+  </ul>
+
+  <h3>Adicionar um perfil depois</h3>
+  <pre><code># Já tem developer, quer adicionar QA
+npx praxio-oai-kit profile add qa
+
+# Adicionar PO também
+npx praxio-oai-kit profile add po</code></pre>
+
+  <h3>Adicionar uma IDE depois</h3>
+  <pre><code># Já usa Claude Code, quer adicionar Cursor
+npx praxio-oai-kit ide add cursor</code></pre>
+  <p>Isso gera as rules em <code>.cursor/rules/</code> e <strong>remove</strong> essa pasta do <code>.gitignore</code>, para que as rules sejam versionadas e compartilhadas com o time.</p>
+
+  <h3>Atualizar o kit</h3>
+  <pre><code>npx praxio-oai-kit update</code></pre>
+  <p>Aplica a versão mais recente do kit preservando sua configuração local (<code>oai-kit.yaml</code>).</p>
+
+  <!-- SETUP MCP -->
+  <h2 id="setup-mcp">Configurar MCP Azure DevOps</h2>
+  <p>A integração com Azure DevOps usa o <code>@azure-devops/mcp</code>. Sem ela, os agentes ainda funcionam, mas exibem planos para criação manual em vez de criar automaticamente no Azure.</p>
+
+  <h3>Claude Code</h3>
+  <pre><code># Gera .mcp.json na raiz do projeto
+npx praxio-oai-kit setup-mcp</code></pre>
+  <p>Edite o <code>.mcp.json</code> gerado e preencha seu PAT (Personal Access Token) do Azure DevOps. O arquivo já está no <code>.gitignore</code> — cada dev mantém o seu localmente.</p>
+
+  <div class="callout warn">
+    <p><strong>Cursor:</strong> O <code>setup-mcp</code> atual gera apenas o <code>.mcp.json</code> para Claude Code. Para usar com Cursor, copie as configurações do MCP para as <em>Settings &gt; MCP Servers</em> do Cursor manualmente, usando o template em <code>.mcp.json.template</code>. Suporte nativo via <code>.cursor/mcp.json</code> está previsto em versões futuras do kit.</p>
+  </div>
+
+  <!-- FIRST USE -->
+  <h2 id="first-use">Primeiro uso no repositório</h2>
+  <p>Após instalar o kit em um repositório novo, rode o bootstrap para gerar a memória institucional inicial (Speckit):</p>
+
+  <h3>No Claude Code</h3>
+  <pre><code>/oai-kit-bootstrap-repo {NOME_DO_SISTEMA}</code></pre>
+
+  <p>O agente:</p>
+  <ul>
+    <li>Lê a estrutura do projeto, entrypoints e convenções de código</li>
+    <li>Gera os arquivos do <code>.speckit/</code> (domain, architecture, known-issues, decisions, business-rules)</li>
+    <li>Posta um comentário inicial no Azure DevOps para rastrear o onboarding</li>
+  </ul>
+
+  <div class="callout info">
+    <p><strong>Manutenção semanal:</strong> Use <code>/oai-kit-update-speckit</code> para manter o Speckit atualizado com mudanças recentes no código. O Speckit é a fonte primária de contexto — agentes o consultam antes de qualquer investigação.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     DEV PROFILE
+═══════════════════════════════════════════════════════════════════════════ -->
+<section class="content-section profile-section dev" id="dev">
+  <div class="eyebrow dev">Perfil Developer</div>
+  <h1>Developer</h1>
+  <p class="lead">O perfil DEV cobre o ciclo completo de desenvolvimento: da investigação de um bug até o deploy, passando por geração de patch, validação de testes, abertura de PR e quality gates. Também suporta features novas e revisão de PRs de colegas.</p>
+
+  <!-- DEV COMMANDS -->
+  <h2 id="dev-commands">Comandos disponíveis</h2>
+  <p>Use no Claude Code digitando o comando diretamente. No Cursor, os agentes são ativados contextualmente pelas rules — você pode invocar qualquer um pelo chat descrevendo o que precisa.</p>
+
+  <!-- analyze-bug -->
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <code class="cmd-name">/oai-kit-analyze-bug {ID}</code>
+      <span class="profile-badge dev">DEV</span>
+    </div>
+    <div class="cmd-body">
+      <p class="cmd-when"><strong>Quando usar:</strong> Início de qualquer correção de bug — antes de tocar no código.</p>
+      <p class="cmd-desc">Investiga o root cause do bug com evidências de código (arquivo:linha obrigatório). Calcula o blast radius da correção: módulos afetados, integrações, banco de dados e risco classificado.</p>
+      <div class="cmd-split">
+        <div class="cmd-auto">
+          <span class="badge badge-auto">Automático</span>
+          <ul>
+            <li>Lê o Speckit e a hierarquia da task no Azure</li>
+            <li>Localiza root cause com evidência de arquivo:linha</li>
+            <li>Gera BugReport + ImpactReport em <code>.oai-flow/analysis/</code></li>
+            <li>Valida contra policies e ADRs</li>
+            <li>Pergunta confirmação de sigla do módulo</li>
+          </ul>
+        </div>
+        <div class="cmd-manual">
+          <span class="badge badge-manual">Manual (CP1)</span>
+          <ul>
+            <li>Aprovar root cause e estratégia de correção</li>
+            <li>Confirmar sigla do módulo se solicitado</li>
+            <li>Só avança para generate-fix após aprovação</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- generate-fix -->
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <code class="cmd-name">/oai-kit-generate-fix {ID}</code>
+      <span class="profile-badge dev">DEV</span>
+    </div>
+    <div class="cmd-body">
+      <p class="cmd-when"><strong>Quando usar:</strong> Após aprovação do CP1 (root cause confirmado).</p>
+      <p class="cmd-desc">Gera o patch mínimo seguindo RED→GREEN: exibe o plano antes de escrever código, escreve o teste que falha, implementa o mínimo, exibe Gate Pré-Commit com todos os arquivos alterados antes de commitar.</p>
+      <div class="cmd-split">
+        <div class="cmd-auto">
+          <span class="badge badge-auto">Automático</span>
+          <ul>
+            <li>Propõe branch no padrão Praxio</li>
+            <li>Exibe plano de implementação antes de escrever código</li>
+            <li>Escreve teste RED antes do código</li>
+            <li>Implementa patch mínimo (GREEN)</li>
+            <li>Valida arquitetura condicionalmente (se risco alto)</li>
+            <li>Exibe Gate Pré-Commit (arquivos + mensagem) antes de commitar</li>
+            <li>Salva Patch em <code>.oai-flow/delivery/</code></li>
+          </ul>
+        </div>
+        <div class="cmd-manual">
+          <span class="badge badge-manual">Manual (2 gates + CP2)</span>
+          <ul>
+            <li>Aprovar plano antes de implementar</li>
+            <li>Aprovar Gate Pré-Commit antes de commitar</li>
+            <li>CP2: aprovar patch gerado para prosseguir para testes</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- run-regression -->
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <code class="cmd-name">/oai-kit-run-regression {ID}</code>
+      <span class="profile-badge dev">DEV</span>
+    </div>
+    <div class="cmd-body">
+      <p class="cmd-when"><strong>Quando usar:</strong> Após aprovação do CP2 (patch aprovado), antes de abrir o PR.</p>
+      <p class="cmd-desc">Valida a suíte de testes: confirma que o teste RED agora passa (GREEN), verifica cobertura complementar e executa o gate check de qualidade.</p>
+      <div class="cmd-split">
+        <div class="cmd-auto">
+          <span class="badge badge-auto">Automático</span>
+          <ul>
+            <li>Verifica RED→GREEN do teste gerado</li>
+            <li>Analisa cobertura dos módulos afetados</li>
+            <li>Escreve testes complementares se necessário</li>
+            <li>Gera ValidationReport em <code>.oai-flow/delivery/</code></li>
+          </ul>
+        </div>
+        <div class="cmd-manual">
+          <span class="badge badge-manual">Manual</span>
+          <ul>
+            <li>Executar os testes localmente</li>
+            <li>Confirmar se os resultados batem com o esperado</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- open-pr -->
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <code class="cmd-name">/oai-kit-open-pr {ID}</code>
+      <span class="profile-badge dev">DEV</span>
+    </div>
+    <div class="cmd-body">
+      <p class="cmd-when"><strong>Quando usar:</strong> Após validação de testes — hora de submeter o trabalho.</p>
+      <p class="cmd-desc">Cria o PR no Azure DevOps com título e descrição no padrão Praxio (igual à primeira linha do commit), linka às tasks e preenche automaticamente o fechamento de desenvolvimento.</p>
+      <div class="cmd-split">
+        <div class="cmd-auto">
+          <span class="badge badge-auto">Automático</span>
+          <ul>
+            <li>Título = primeira linha do commit</li>
+            <li>Descrição = commit completo + arquivos + como testar</li>
+            <li>Linka PR às tasks do Azure</li>
+            <li>Preenche Task de Fechamento Dev</li>
+            <li>Salva PR em <code>.oai-flow/delivery/</code></li>
+          </ul>
+        </div>
+        <div class="cmd-manual">
+          <span class="badge badge-manual">Manual (CP3)</span>
+          <ul>
+            <li>Revisar o PR criado no Azure DevOps</li>
+            <li>Aguardar aprovação do code review</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- release-check -->
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <code class="cmd-name">/oai-kit-release-check {ID}</code>
+      <span class="profile-badge dev">DEV</span>
+    </div>
+    <div class="cmd-body">
+      <p class="cmd-when"><strong>Quando usar:</strong> Após aprovação do PR — antes do deploy.</p>
+      <p class="cmd-desc">Verifica quality gates, janela de release (horário permitido, freeze ativo?) e gera o release package. Após deploy confirmado, aciona o learning agent para atualizar o Speckit e fechar a task.</p>
+      <div class="cmd-split">
+        <div class="cmd-auto">
+          <span class="badge badge-auto">Automático</span>
+          <ul>
+            <li>Verifica todos os quality gates da release policy</li>
+            <li>Valida janela de release e freeze ativo</li>
+            <li>Gera ReleasePackage + plano de rollback</li>
+            <li>Pós-deploy: atualiza Speckit (Known Issues, ADRs)</li>
+            <li>Fecha tasks de dev e QA no Azure</li>
+            <li>Salva métricas em <code>.speckit/incidents/metrics-feed.jsonl</code></li>
+          </ul>
+        </div>
+        <div class="cmd-manual">
+          <span class="badge badge-manual">Manual</span>
+          <ul>
+            <li>Executar o deploy</li>
+            <li>Confirmar sucesso do deploy ao agente</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- feature -->
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <code class="cmd-name">/oai-kit-feature {ID}</code>
+      <span class="profile-badge dev">DEV</span>
+    </div>
+    <div class="cmd-body">
+      <p class="cmd-when"><strong>Quando usar:</strong> Feature nova — sem bug prévio investigado.</p>
+      <p class="cmd-desc">Fluxo completo de feature: lê a US no Azure, extrai critérios de aceite, propõe escopo (CP1), detalha plano de tasks (CP2), implementa, abre PR e conduz até o release. Pede confirmação da sigla do módulo antes de criar branch.</p>
+      <div class="cmd-split">
+        <div class="cmd-auto">
+          <span class="badge badge-auto">Automático</span>
+          <ul>
+            <li>Busca US + critérios de aceite no Azure via MCP</li>
+            <li>Propõe escopo, exibe plano e aguarda aprovação</li>
+            <li>Gera plano de tasks com estimativas (Large)</li>
+            <li>Por task: exibe o que vai implementar e aguarda ok</li>
+            <li>Implementa seguindo RED→GREEN</li>
+            <li>Gate Pré-Commit: exibe arquivos alterados + mensagem e aguarda ok</li>
+            <li>Branch, commits e PR no padrão Praxio</li>
+            <li>Gate Pós-Implementação: exibe resumo antes de abrir PR</li>
+          </ul>
+        </div>
+        <div class="cmd-manual">
+          <span class="badge badge-manual">Manual (5 gates)</span>
+          <ul>
+            <li>CP1: aprovar escopo da feature</li>
+            <li>CP2: aprovar plano de tasks (Large)</li>
+            <li>Gate por task: aprovar plano antes de implementar</li>
+            <li>Gate Pré-Commit: aprovar arquivos e mensagem antes de commitar</li>
+            <li>Gate Pós-Implementação: aprovar antes do PR</li>
+            <li>CP3: aprovar o PR no Azure</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- refine-card -->
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <code class="cmd-name">/oai-kit-refine-card {ID}</code>
+      <span class="profile-badge dev">DEV</span>
+    </div>
+    <div class="cmd-body">
+      <p class="cmd-when"><strong>Quando usar:</strong> Cerimônia de refinamento — analisa a task antes da sprint.</p>
+      <p class="cmd-desc">Lê a task no Azure, consulta o Speckit, identifica impactos técnicos, riscos e dependências. Posta um comentário estruturado diretamente na task no Azure para servir de contexto durante a cerimônia.</p>
+      <div class="cmd-split">
+        <div class="cmd-auto">
+          <span class="badge badge-auto">Automático</span>
+          <ul>
+            <li>Navega hierarquia da task (Epic → Feature → US)</li>
+            <li>Extrai SIM/PSE da Feature</li>
+            <li>Consulta Speckit para contexto técnico</li>
+            <li>Posta análise como comentário no Azure via MCP</li>
+          </ul>
+        </div>
+        <div class="cmd-manual">
+          <span class="badge badge-manual">Manual</span>
+          <ul>
+            <li>Revisar e complementar o comentário postado</li>
+            <li>Conduzir a discussão de refinamento com o time</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- review-pr -->
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <code class="cmd-name">/oai-kit-review-pr {N}</code>
+      <span class="profile-badge dev">DEV</span>
+    </div>
+    <div class="cmd-body">
+      <p class="cmd-when"><strong>Quando usar:</strong> Para revisar o PR de um colega antes de aprovar.</p>
+      <p class="cmd-desc">Revisa o PR sob 4 dimensões: funcionalidade (critérios de aceite atendidos?), qualidade de código (policies, anti-patterns), padrões Praxio (branch, commit, PR title) e testes. Emite parecer com pontos de atenção.</p>
+      <div class="cmd-split">
+        <div class="cmd-auto">
+          <span class="badge badge-auto">Automático</span>
+          <ul>
+            <li>Lê o PR e a US vinculada no Azure</li>
+            <li>Verifica conformidade com coding-principles.md</li>
+            <li>Identifica violações de security-policy.md</li>
+            <li>Checa padrões de branch/commit/PR title</li>
+          </ul>
+        </div>
+        <div class="cmd-manual">
+          <span class="badge badge-manual">Manual</span>
+          <ul>
+            <li>Decisão final de aprovar ou reprovar o PR</li>
+            <li>Comunicar feedback ao autor</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Comandos compartilhados (todos os perfis)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Comando</th><th>Quando usar</th><th>O que faz</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>/oai-kit-bootstrap-repo {NOME}</code></td>
+          <td>Primeiro acesso a um repositório novo</td>
+          <td>Gera o Speckit inicial com visão geral, arquitetura e convenções do sistema</td>
+        </tr>
+        <tr>
+          <td><code>/oai-kit-update-speckit</code></td>
+          <td>Semanalmente ou após mudanças significativas</td>
+          <td>Atualiza Known Issues, Anti-Patterns, ADRs e métricas no Speckit com base em PRs e commits recentes</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- DEV AGENTS -->
+  <h2 id="dev-agents">Agentes do perfil DEV</h2>
+  <p>Os agentes operam em segundo plano, ativados pelos comandos. Você não precisa invocá-los diretamente — os comandos os orquestram. No Claude Code, aparecem em <code>.claude/agents/</code>.</p>
+
+  <div class="agents-grid">
+    <div class="agent-card">
+      <span class="agent-name">oai-kit-bug-investigator</span>
+      <p class="agent-desc">Root cause com evidências de arquivo:linha. Lê Speckit e hierarquia Azure antes de analisar o código.</p>
+    </div>
+    <div class="agent-card">
+      <span class="agent-name">oai-kit-impact-analyzer</span>
+      <p class="agent-desc">Blast radius do fix: módulos, integrações, banco de dados e classificação de risco.</p>
+    </div>
+    <div class="agent-card">
+      <span class="agent-name">oai-kit-architecture-agent</span>
+      <p class="agent-desc">Acionado condicionalmente em fixes de risco alto. Valida patch contra ADRs e policies antes da implementação.</p>
+    </div>
+    <div class="agent-card">
+      <span class="agent-name">oai-kit-builder-agent</span>
+      <p class="agent-desc">Escreve teste RED, implementa o mínimo para GREEN. Cria branch e commit no padrão Praxio.</p>
+    </div>
+    <div class="agent-card">
+      <span class="agent-name">oai-kit-test-validator</span>
+      <p class="agent-desc">Confirma RED→GREEN, analisa cobertura dos módulos afetados e escreve testes complementares.</p>
+    </div>
+    <div class="agent-card">
+      <span class="agent-name">oai-kit-azure-card-refiner</span>
+      <p class="agent-desc">Análise técnica de tasks no refinamento. Posta comentário estruturado na task do Azure via MCP.</p>
+    </div>
+    <div class="agent-card">
+      <span class="agent-name">oai-kit-pr-generator</span>
+      <p class="agent-desc">Gera PR no Azure com título, descrição e linkagem às tasks. Preenche Task de Fechamento Dev.</p>
+    </div>
+    <div class="agent-card">
+      <span class="agent-name">oai-kit-pr-reviewer</span>
+      <p class="agent-desc">Revisão de PRs de colegas: funcionalidade, qualidade, padrões Praxio e cobertura de testes.</p>
+    </div>
+    <div class="agent-card">
+      <span class="agent-name">oai-kit-release-agent</span>
+      <p class="agent-desc">Verifica quality gates e janela de release. Gera ReleasePackage + plano de rollback.</p>
+    </div>
+    <div class="agent-card">
+      <span class="agent-name">oai-kit-learning-agent</span>
+      <p class="agent-desc">Pós-deploy: atualiza Speckit (Known Issues, ADRs, métricas) e fecha tasks no Azure.</p>
+    </div>
+  </div>
+
+  <!-- BUG FLOW -->
+  <h2 id="dev-bug-flow">Fluxo: Correção de Bug</h2>
+  <p>Três checkpoints humanos obrigatórios — o ciclo não avança sem aprovação explícita.</p>
+
+  <div class="flow" role="img" aria-label="Fluxo de correção de bug">
+    <div class="flow-step">
+      <div class="flow-box start">Task Azure</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cmd">/analyze-bug</div>
+      <div class="flow-label">Root cause + blast radius</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cp">CP1</div>
+      <div class="flow-label">Aprovar root cause</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cmd">/generate-fix</div>
+      <div class="flow-label">Branch + patch RED→GREEN</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cp">CP2</div>
+      <div class="flow-label">Aprovar patch</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cmd">/run-regression</div>
+      <div class="flow-label">Validar testes</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cmd">/open-pr</div>
+      <div class="flow-label">PR + fechamento dev</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cp">CP3</div>
+      <div class="flow-label">Aprovação do PR</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cmd">/release-check</div>
+      <div class="flow-label">Gates + deploy</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box end">Speckit atualizado</div>
+    </div>
+  </div>
+
+  <!-- FEATURE FLOW -->
+  <h2 id="dev-feature-flow">Fluxo: Feature Nova</h2>
+  <p>Use <code>/oai-kit-feature {ID}</code> para o fluxo completo. O comando orquestra todos os agentes e mantém os mesmos 3 checkpoints.</p>
+
+  <div class="flow" role="img" aria-label="Fluxo de feature nova">
+    <div class="flow-step">
+      <div class="flow-box start">US no Azure</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cmd">/feature</div>
+      <div class="flow-label">Lê US + critérios de aceite</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cp">CP1</div>
+      <div class="flow-label">Aprovar escopo</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cmd">Plano de tasks</div>
+      <div class="flow-label">Estimativas + dependências</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cp">CP2</div>
+      <div class="flow-label">Aprovar plano</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cmd">Implementação</div>
+      <div class="flow-label">RED→GREEN por critério</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cmd">/open-pr</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cp">CP3</div>
+      <div class="flow-label">Aprovação do PR</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cmd">/release-check</div>
+    </div>
+  </div>
+
+  <!-- DEV AUTO VS MANUAL -->
+  <h2 id="dev-auto-manual">Automático vs Manual — DEV</h2>
+
+  <div class="callout info">
+    <p><strong>Gates de confirmação obrigatórios:</strong> todo agente que realiza ações (escrever código, commitar, criar PR, atualizar Speckit) para, exibe o que vai fazer e aguarda uma resposta explícita do dev ("sim", "pode", "ok") antes de prosseguir. Silêncio ou contexto implícito nunca são interpretados como aprovação.</p>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Ação</th><th>Automático</th><th>Precisa do dev</th></tr></thead>
+      <tbody>
+        <tr><td>Buscar task e hierarquia no Azure</td><td>Sim — via MCP</td><td>Não</td></tr>
+        <tr><td>Ler anexos da task no Azure</td><td>Tenta automaticamente via MCP; para e reporta se não conseguir</td><td>Fornecer conteúdo/caminho se falhar, ou "não tenho anexo para fornecer"</td></tr>
+        <tr><td>Investigar root cause com arquivo:linha</td><td>Sim</td><td>Não</td></tr>
+        <tr><td>Confirmar sigla do módulo</td><td>Pergunta antes de criar branch</td><td>Confirmar ou corrigir</td></tr>
+        <tr><td>Criar branch no padrão Praxio</td><td>Sim, após confirmar sigla</td><td>Não</td></tr>
+        <tr><td>Exibir plano de implementação</td><td>Sim — sempre antes de escrever código</td><td><strong>Aprovação explícita obrigatória</strong></td></tr>
+        <tr><td>Escrever teste RED</td><td>Sim — após aprovação do plano</td><td>Não</td></tr>
+        <tr><td>Implementar patch mínimo</td><td>Sim — após aprovação do plano</td><td>Não</td></tr>
+        <tr><td>Gate Pré-Commit (arquivos + mensagem)</td><td>Exibe lista completa antes de commitar</td><td><strong>Aprovação explícita obrigatória</strong></td></tr>
+        <tr><td>Executar commit</td><td>Sim — após aprovação do Gate Pré-Commit</td><td>Não</td></tr>
+        <tr><td>Plano de testes complementares</td><td>Exibe o que vai escrever</td><td><strong>Aprovação explícita obrigatória</strong></td></tr>
+        <tr><td>Exibir prévia do PR (título + descrição)</td><td>Sim — sempre antes de criar no Azure</td><td><strong>Aprovação explícita obrigatória</strong></td></tr>
+        <tr><td>Criar PR no Azure</td><td>Sim — após aprovação da prévia</td><td>Não</td></tr>
+        <tr><td>Preencher Task Fechamento Dev</td><td>Sim — via MCP</td><td>Não</td></tr>
+        <tr><td>Verificar quality gates</td><td>Sim</td><td>Não</td></tr>
+        <tr><td>Executar o deploy</td><td>Não</td><td>Dev executa e confirma</td></tr>
+        <tr><td>Exibir plano de atualização do Speckit</td><td>Sim — antes de escrever nos arquivos</td><td><strong>Aprovação explícita obrigatória</strong></td></tr>
+        <tr><td>Atualizar Speckit pós-deploy</td><td>Sim — após aprovação do plano</td><td>Não</td></tr>
+        <tr><td>Fechar tasks no Azure pós-deploy</td><td>Sim — via MCP</td><td>Não</td></tr>
+        <tr><td>Checkpoints (CP1, CP2, CP3) e todos os gates</td><td>Nunca — bloqueadores humanos</td><td>Sempre obrigatório</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- DEV BEST PRACTICES -->
+  <h2 id="dev-practices">Boas práticas — DEV</h2>
+  <ul class="practices">
+    <li>
+      <span class="practice-icon pi-dev">1</span>
+      <div><strong>Nunca pule o analyze-bug.</strong> Mesmo que o bug pareça óbvio, a análise garante que o blast radius foi considerado e que a sigla do módulo está correta. Fixes sem análise tendem a gerar efeitos colaterais.</div>
+    </li>
+    <li>
+      <span class="practice-icon pi-dev">2</span>
+      <div><strong>Speckit First.</strong> Os agentes consultam <code>.speckit/</code> antes de qualquer busca no código. Mantenha-o atualizado com <code>/oai-kit-update-speckit</code> semanalmente — isso melhora a qualidade das análises de toda a equipe.</div>
+    </li>
+    <li>
+      <span class="practice-icon pi-dev">3</span>
+      <div><strong>Minimum Viable Patch.</strong> O builder-agent só implementa o mínimo. Não peça refactoring durante um fix de bug — abra uma task separada. Patches pequenos têm blast radius menor e são mais fáceis de revisar.</div>
+    </li>
+    <li>
+      <span class="practice-icon pi-dev">4</span>
+      <div><strong>Policies são hard stops.</strong> Os arquivos em <code>.oai-kit/policies/</code> são bloqueadores absolutos. Se um agente recusar uma ação com base em policy, não tente contornar — a policy existe por um motivo arquitetural ou de segurança.</div>
+    </li>
+    <li>
+      <span class="practice-icon pi-dev">5</span>
+      <div><strong>Multi-repo: confirme antes.</strong> Se a task envolver mais de um repositório (ex: mudança de contrato de API), o agente perguntará o caminho local do outro repo. Forneça — ou diga que não é necessário. O agente nunca modifica outro repo sem confirmação explícita.</div>
+    </li>
+    <li>
+      <span class="practice-icon pi-dev">6</span>
+      <div><strong>Confirme o deploy antes de fechar.</strong> O <code>/oai-kit-release-check</code> aguarda sua confirmação de que o deploy foi bem-sucedido antes de acionar o learning agent. Não confirme automaticamente — verifique os logs.</div>
+    </li>
+  </ul>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     QA PROFILE
+═══════════════════════════════════════════════════════════════════════════ -->
+<section class="content-section profile-section qa" id="qa">
+  <div class="eyebrow qa">Perfil QA</div>
+  <h1>Quality Assurance</h1>
+  <p class="lead">O perfil QA cobre planejamento de testes, refinamento, regressão, validação de critérios de aceite e documentação de defeitos — tudo integrado ao Azure DevOps via MCP. A base de conhecimento QA se alimenta automaticamente a cada plano criado.</p>
+
+  <!-- QA COMMANDS -->
+  <h2 id="qa-commands">Comandos disponíveis</h2>
+
+  <!-- qa-plan -->
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <code class="cmd-name">/oai-kit-qa-plan {ID}</code>
+      <span class="profile-badge qa">QA</span>
+    </div>
+    <div class="cmd-body">
+      <p class="cmd-when"><strong>Quando usar:</strong> Para criar ou atualizar um plano de testes — em Refinamento (sem PR) ou em Execução (PR já existe).</p>
+      <p class="cmd-desc">Pergunta o modo (Refinamento ou Execução) e se é criação ou atualização. Busca a US e critérios de aceite no Azure, cruza com o código (se PR existir) e gera cenários de teste numerados (CTxx.xx) com passos, resultado esperado e evidência. Cria os Test Cases no Azure via MCP.</p>
+      <div class="cmd-split">
+        <div class="cmd-auto">
+          <span class="badge badge-auto">Automático</span>
+          <ul>
+            <li>Busca US + critérios de aceite no Azure</li>
+            <li>Valida consistência: cada critério tem CT?</li>
+            <li>Gera cenários: principal, alternativo, erro</li>
+            <li>Cria Test Cases no Azure (steps em XML)</li>
+            <li>Oferece salvar índice da suíte em <code>.oai-kit/knowledge/qa/test-suites/</code></li>
+          </ul>
+        </div>
+        <div class="cmd-manual">
+          <span class="badge badge-manual">Manual</span>
+          <ul>
+            <li>Confirmar área, sprint e nome da suíte</li>
+            <li>Revisar cenários gerados antes de salvar</li>
+            <li>Decidir se salva o índice localmente</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- qa-refine-card -->
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <code class="cmd-name">/oai-kit-qa-refine-card {ID}</code>
+      <span class="profile-badge qa">QA</span>
+    </div>
+    <div class="cmd-body">
+      <p class="cmd-when"><strong>Quando usar:</strong> Cerimônia de refinamento — perspectiva QA sobre a task.</p>
+      <p class="cmd-desc">Analisa a task sob a ótica de qualidade: identifica lacunas nos critérios de aceite, cenários de borda não cobertos, dependências de dados de teste e riscos de regressão. Posta análise como comentário na task do Azure.</p>
+      <div class="cmd-split">
+        <div class="cmd-auto">
+          <span class="badge badge-auto">Automático</span>
+          <ul>
+            <li>Navega hierarquia da task no Azure</li>
+            <li>Identifica lacunas nos critérios de aceite</li>
+            <li>Sugere cenários de borda e risco de regressão</li>
+            <li>Posta análise como comentário no Azure via MCP</li>
+          </ul>
+        </div>
+        <div class="cmd-manual">
+          <span class="badge badge-manual">Manual</span>
+          <ul>
+            <li>Complementar o comentário com contexto adicional</li>
+            <li>Conduzir discussão de QA no refinamento</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- qa-regression -->
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <code class="cmd-name">/oai-kit-qa-regression {ID_PR}</code>
+      <span class="profile-badge qa">QA</span>
+    </div>
+    <div class="cmd-body">
+      <p class="cmd-when"><strong>Quando usar:</strong> PR aberto — para saber o que precisa ser testado por regressão.</p>
+      <p class="cmd-desc">Analisa os arquivos alterados no PR e mapeia quais suítes e cenários de regressão devem ser executados, consultando o índice em <code>.oai-kit/knowledge/qa/test-suites/</code>. Quanto mais suítes indexadas, mais preciso o mapeamento.</p>
+      <div class="cmd-split">
+        <div class="cmd-auto">
+          <span class="badge badge-auto">Automático</span>
+          <ul>
+            <li>Lê arquivos alterados no PR via MCP</li>
+            <li>Consulta índice de suítes na knowledge base</li>
+            <li>Mapeia: arquivo alterado → módulo → suítes relacionadas</li>
+            <li>Prioriza CTs por risco (Alta → Média → Baixa)</li>
+          </ul>
+        </div>
+        <div class="cmd-manual">
+          <span class="badge badge-manual">Manual</span>
+          <ul>
+            <li>Executar os cenários mapeados</li>
+            <li>Registrar resultados no Azure</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- qa-validate -->
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <code class="cmd-name">/oai-kit-qa-validate {ID}</code>
+      <span class="profile-badge qa">QA</span>
+    </div>
+    <div class="cmd-body">
+      <p class="cmd-when"><strong>Quando usar:</strong> Para verificar se o código implementado no PR cobre todos os critérios de aceite da US.</p>
+      <p class="cmd-desc">Cruza critérios de aceite da US com o diff do PR. Identifica critérios sem cobertura, comportamentos implementados não descritos na US, e emite um parecer de conformidade.</p>
+      <div class="cmd-split">
+        <div class="cmd-auto">
+          <span class="badge badge-auto">Automático</span>
+          <ul>
+            <li>Busca US + critérios no Azure</li>
+            <li>Lê diff do PR</li>
+            <li>Cruza cada critério com o código</li>
+            <li>Emite: ✅ Coberto / ⚠️ Parcial / ❌ Não coberto</li>
+          </ul>
+        </div>
+        <div class="cmd-manual">
+          <span class="badge badge-manual">Manual</span>
+          <ul>
+            <li>Decidir se reprova o PR com base no parecer</li>
+            <li>Comunicar ao dev critérios não cobertos</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- qa-bug -->
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <code class="cmd-name">/oai-kit-qa-bug {ID}</code>
+      <span class="profile-badge qa">QA</span>
+    </div>
+    <div class="cmd-body">
+      <p class="cmd-when"><strong>Quando usar:</strong> Quando encontrar um defeito durante execução de testes.</p>
+      <p class="cmd-desc">Estrutura o defeito encontrado: qual CT falhou, comportamento esperado vs real, evidência. Cria uma Task de Ajuste no Azure vinculada à US com título <code>[AJUSTE] CTxx.xx — descrição</code>.</p>
+      <div class="cmd-split">
+        <div class="cmd-auto">
+          <span class="badge badge-auto">Automático</span>
+          <ul>
+            <li>Estrutura o defeito com campos padronizados</li>
+            <li>Cria Task tipo "Ajuste" no Azure via MCP</li>
+            <li>Vincula à US de origem</li>
+            <li>Define prioridade com base no risco</li>
+          </ul>
+        </div>
+        <div class="cmd-manual">
+          <span class="badge badge-manual">Manual</span>
+          <ul>
+            <li>Fornecer descrição do defeito e evidência</li>
+            <li>Informar o CT onde foi encontrado</li>
+            <li>Confirmar prioridade</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QA AGENTS -->
+  <h2 id="qa-agents">Agentes do perfil QA</h2>
+  <div class="agents-grid">
+    <div class="agent-card">
+      <span class="agent-name">oai-kit-qa-planner</span>
+      <p class="agent-desc">Cria e atualiza planos de teste no Azure. Suporta Refinamento e Execução. Valida consistência US↔CT antes de gerar.</p>
+    </div>
+    <div class="agent-card">
+      <span class="agent-name">oai-kit-qa-refiner</span>
+      <p class="agent-desc">Perspectiva QA no refinamento: lacunas em critérios de aceite, cenários de borda, riscos de regressão.</p>
+    </div>
+    <div class="agent-card">
+      <span class="agent-name">oai-kit-regression-planner</span>
+      <p class="agent-desc">Mapeia suítes de regressão a executar com base nos arquivos alterados no PR. Usa o índice em <code>knowledge/qa/test-suites/</code>.</p>
+    </div>
+    <div class="agent-card">
+      <span class="agent-name">oai-kit-acceptance-validator</span>
+      <p class="agent-desc">Valida se todos os critérios de aceite da US foram implementados no PR. Emite parecer por critério.</p>
+    </div>
+    <div class="agent-card">
+      <span class="agent-name">oai-kit-bug-analyzer</span>
+      <p class="agent-desc">Estrutura defeitos reportados e documenta para abertura de Task de Ajuste no Azure.</p>
+    </div>
+  </div>
+
+  <!-- QA FLOW -->
+  <h2 id="qa-flow">Fluxo QA por fase</h2>
+
+  <h3>Fase de Refinamento</h3>
+  <div class="flow">
+    <div class="flow-step"><div class="flow-box start">US no Azure</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cmd">/qa-refine-card</div>
+      <div class="flow-label">Análise QA + comentário</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cmd">/qa-plan</div>
+      <div class="flow-label">Modo: Refinamento</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box end">Test Cases criados no Azure</div>
+    </div>
+  </div>
+
+  <h3>Fase de Execução (PR aberto)</h3>
+  <div class="flow">
+    <div class="flow-step"><div class="flow-box start">PR aberto</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cmd">/qa-regression</div>
+      <div class="flow-label">Mapeia suítes a executar</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cmd">/qa-plan</div>
+      <div class="flow-label">Modo: Execução</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cmd">/qa-validate</div>
+      <div class="flow-label">Critérios atendidos?</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cmd">/qa-bug</div>
+      <div class="flow-label">Se defeito encontrado</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box end">PR aprovado ou ajuste</div>
+    </div>
+  </div>
+
+  <!-- QA KNOWLEDGE BASE -->
+  <h2 id="qa-knowledge">Base de conhecimento QA</h2>
+  <p>A knowledge base fica em <code>.oai-kit/knowledge/qa/</code> e alimenta os agentes de planejamento e regressão. Quanto mais rica, mais preciso o mapeamento automático de regressão.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Pasta</th><th>O que armazenar</th><th>Quem preenche</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>test-suites/</code></td>
+          <td>Índice de suítes criadas: IDs Azure, escopo (US/módulo/sprint), CTs e arquivos relacionados</td>
+          <td>Automático — agente oferece salvar após criar no Azure</td>
+        </tr>
+        <tr>
+          <td><code>processes/</code></td>
+          <td>Processos de teste do time: como testar módulos específicos, pré-condições globais, dados de ambiente</td>
+          <td>Manual — QA cria e edita os <code>.md</code> conforme necessário</td>
+        </tr>
+        <tr>
+          <td><code>documentation/</code></td>
+          <td>Documentação de referência: fluxos de negócio, regras de aceite globais, glossário de teste</td>
+          <td>Manual — QA importa documentação existente</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout info">
+    <p><strong>Loop automático:</strong> após confirmar a criação de um plano no Azure, o agente pergunta se quer salvar o índice da suíte em <code>test-suites/{modulo}-{nome-suite}.md</code>. Esse arquivo é lido pelo <code>regression-planner</code> em futuros PRs para mapear automaticamente o que precisa ser retestado.</p>
+  </div>
+
+  <!-- QA MCP -->
+  <h2 id="qa-mcp">MCP Azure DevOps — QA</h2>
+  <p>A integração MCP permite criar Test Cases, Test Plans e Tasks diretamente no Azure sem sair do chat.</p>
+
+  <h3>Claude Code</h3>
+  <pre><code>npx praxio-oai-kit setup-mcp
+# Edite .mcp.json com seu PAT do Azure DevOps</code></pre>
+
+  <h3>Cursor</h3>
+  <p>Suporte nativo via <code>.cursor/mcp.json</code> está previsto em versões futuras. Enquanto isso:</p>
+  <ol>
+    <li>Abra as <strong>Settings</strong> do Cursor</li>
+    <li>Vá em <strong>MCP Servers</strong></li>
+    <li>Adicione manualmente a configuração do <code>.mcp.json.template</code> (na raiz do projeto)</li>
+    <li>Preencha seu PAT do Azure DevOps no campo <code>env.AZURE_DEVOPS_PAT</code></li>
+  </ol>
+
+  <div class="callout warn">
+    <p><strong>Sem MCP:</strong> os agentes ainda funcionam. Exibem o plano completo com instruções para criação manual no Azure e geram os arquivos de índice localmente com IDs marcados como <code>[pendente]</code> para atualização posterior.</p>
+  </div>
+
+  <!-- QA AUTO VS MANUAL -->
+  <h2 id="qa-auto-manual">Automático vs Manual — QA</h2>
+
+  <div class="callout info">
+    <p><strong>Gates de confirmação obrigatórios:</strong> todo agente que realiza ações no Azure ou salva arquivos locais exibe o que vai fazer e aguarda resposta explícita do QA antes de prosseguir. Silêncio não é aprovação.</p>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Ação</th><th>Automático</th><th>Precisa do QA</th></tr></thead>
+      <tbody>
+        <tr><td>Buscar US e critérios no Azure</td><td>Sim — via MCP</td><td>Não</td></tr>
+        <tr><td>Ler anexos da task no Azure</td><td>Tenta automaticamente via MCP; para e reporta se não conseguir</td><td>Fornecer conteúdo/caminho se falhar, ou "não tenho anexo para fornecer"</td></tr>
+        <tr><td>Validar consistência US↔CT</td><td>Sim — antes de gerar plano</td><td>Decidir se continua com lacunas</td></tr>
+        <tr><td>Gerar cenários de teste</td><td>Sim — principal, alternativo, erro</td><td>Revisar o plano gerado</td></tr>
+        <tr><td>Prévia dos Test Cases antes de criar no Azure</td><td>Exibe lista completa de CTs antes de criar</td><td><strong>Aprovação explícita obrigatória</strong></td></tr>
+        <tr><td>Criar Test Cases no Azure</td><td>Sim — após aprovação da prévia</td><td>Não</td></tr>
+        <tr><td>Salvar índice da suíte localmente</td><td>Pergunta após criação no Azure</td><td>Confirmar ou recusar</td></tr>
+        <tr><td>Mapear suítes de regressão</td><td>Sim — via índice de test-suites</td><td>Executar os testes mapeados</td></tr>
+        <tr><td>Criar Task de Ajuste no Azure</td><td>Sim — via MCP</td><td>Fornecer descrição, evidência e confirmar</td></tr>
+        <tr><td>Popular <code>processes/</code> e <code>documentation/</code></td><td>Não</td><td>QA cria os .md manualmente</td></tr>
+        <tr><td>Executar testes</td><td>Nunca</td><td>Sempre executado pelo QA</td></tr>
+        <tr><td>Aprovar ou reprovar PR</td><td>Nunca</td><td>Sempre decisão humana</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- QA BEST PRACTICES -->
+  <h2 id="qa-practices">Boas práticas — QA</h2>
+  <ul class="practices">
+    <li>
+      <span class="practice-icon pi-qa">1</span>
+      <div><strong>Salve o índice da suíte sempre que criar um plano.</strong> O agente pergunta após criar no Azure — confirme. Isso torna o mapeamento de regressão progressivamente mais preciso a cada sprint.</div>
+    </li>
+    <li>
+      <span class="practice-icon pi-qa">2</span>
+      <div><strong>Use Refinamento para antecipar cenários de borda.</strong> Executar <code>/oai-kit-qa-refine-card</code> e <code>/oai-kit-qa-plan</code> no modo Refinamento antes da sprint reduz surpresas na execução e deixa os desenvolvedores cientes dos casos de teste desde o início.</div>
+    </li>
+    <li>
+      <span class="practice-icon pi-qa">3</span>
+      <div><strong>Revise cenários antes de salvar.</strong> O agente gera uma boa cobertura, mas você conhece nuances de ambiente e dados de teste que ele não conhece. Adicione pré-condições específicas antes de confirmar a criação no Azure.</div>
+    </li>
+    <li>
+      <span class="practice-icon pi-qa">4</span>
+      <div><strong>Popule <code>processes/</code> com contexto de ambiente.</strong> Documente: como preparar dados de teste, credenciais de homologação, ordem de execução de suítes. Os agentes leem essa pasta antes de planejar — informações lá evitam perguntas repetitivas.</div>
+    </li>
+    <li>
+      <span class="practice-icon pi-qa">5</span>
+      <div><strong>Use <code>/qa-validate</code> antes de aprovar PRs críticos.</strong> Especialmente em features com muitos critérios de aceite — o agente cruza cada um com o código do PR e destaca o que ficou de fora.</div>
+    </li>
+  </ul>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     PO PROFILE
+═══════════════════════════════════════════════════════════════════════════ -->
+<section class="content-section profile-section po" id="po">
+  <div class="eyebrow po">Perfil PO</div>
+  <h1>Product Owner</h1>
+  <p class="lead">O perfil PO cobre documentação de demandas, prototipação, refinamento e verificação visual de entregas. Os agentes trabalham integrados ao Azure DevOps para criar e preencher work items no padrão Praxio.</p>
+
+  <!-- PO COMMANDS -->
+  <h2 id="po-commands">Comandos disponíveis</h2>
+
+  <!-- po-document -->
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <code class="cmd-name">/oai-kit-po-document {ID}</code>
+      <span class="profile-badge po">PO</span>
+    </div>
+    <div class="cmd-body">
+      <p class="cmd-when"><strong>Quando usar:</strong> Para documentar uma demanda nova ou complementar uma US existente com descrição, critérios de aceite e DoR.</p>
+      <p class="cmd-desc">Lê o contexto da demanda (SIM/PSE, Feature e inputs do PO), gera descrição estruturada, critérios de aceite em linguagem testável e checklist de DoR (Definition of Ready). Atualiza a work item no Azure via MCP.</p>
+      <div class="cmd-split">
+        <div class="cmd-auto">
+          <span class="badge badge-auto">Automático</span>
+          <ul>
+            <li>Lê Feature e contexto de negócio no Azure</li>
+            <li>Consulta templates em <code>knowledge/po/demand-templates/</code></li>
+            <li>Gera descrição + critérios de aceite</li>
+            <li>Checklist DoR preenchido</li>
+            <li>Posta/atualiza a work item no Azure via MCP</li>
+          </ul>
+        </div>
+        <div class="cmd-manual">
+          <span class="badge badge-manual">Manual</span>
+          <ul>
+            <li>Fornecer contexto de negócio e restrições</li>
+            <li>Revisar e aprovar antes de preencher no Azure</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- po-prototype -->
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <code class="cmd-name">/oai-kit-po-prototype {ID}</code>
+      <span class="profile-badge po">PO</span>
+    </div>
+    <div class="cmd-body">
+      <p class="cmd-when"><strong>Quando usar:</strong> Para especificar o comportamento visual e de interação de uma tela ou fluxo.</p>
+      <p class="cmd-desc">Com base na US e nos padrões visuais em <code>knowledge/po/visual-patterns/</code>, gera especificação de protótipo: fluxo de telas, estados, mensagens de erro e regras de validação visual. Serve de referência para DEV e QA.</p>
+      <div class="cmd-split">
+        <div class="cmd-auto">
+          <span class="badge badge-auto">Automático</span>
+          <ul>
+            <li>Lê padrões visuais da knowledge base</li>
+            <li>Gera especificação de estados da tela</li>
+            <li>Descreve fluxo de interação e validações</li>
+            <li>Salva spec em <code>.oai-flow/discovery/{ID}-prototype.md</code></li>
+          </ul>
+        </div>
+        <div class="cmd-manual">
+          <span class="badge badge-manual">Manual</span>
+          <ul>
+            <li>Descrever o objetivo da tela e restrições de negócio</li>
+            <li>Revisar especificação antes de compartilhar com o time</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- po-refine-card -->
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <code class="cmd-name">/oai-kit-po-refine-card {ID}</code>
+      <span class="profile-badge po">PO</span>
+    </div>
+    <div class="cmd-body">
+      <p class="cmd-when"><strong>Quando usar:</strong> Cerimônia de refinamento — análise da task sob perspectiva de produto.</p>
+      <p class="cmd-desc">Analisa a task no Azure, verifica se a US está pronta para desenvolvimento (DoR), identifica dependências de produto e ambiguidades nos critérios de aceite. Posta análise como comentário na task do Azure.</p>
+      <div class="cmd-split">
+        <div class="cmd-auto">
+          <span class="badge badge-auto">Automático</span>
+          <ul>
+            <li>Verifica completude do DoR da US</li>
+            <li>Identifica critérios ambíguos ou ausentes</li>
+            <li>Mapeia dependências de outras US ou sistemas</li>
+            <li>Posta análise como comentário no Azure via MCP</li>
+          </ul>
+        </div>
+        <div class="cmd-manual">
+          <span class="badge badge-manual">Manual</span>
+          <ul>
+            <li>Complementar análise com contexto de negócio</li>
+            <li>Resolver dependências identificadas</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- po-scan-visual -->
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <code class="cmd-name">/oai-kit-po-scan-visual {ID}</code>
+      <span class="profile-badge po">PO</span>
+    </div>
+    <div class="cmd-body">
+      <p class="cmd-when"><strong>Quando usar:</strong> Após entrega de uma tela — para verificar se implementação segue os padrões visuais definidos.</p>
+      <p class="cmd-desc">Compara a implementação entregue (via PR ou screenshots) com os padrões visuais em <code>knowledge/po/visual-patterns/</code> e a especificação de protótipo. Emite relatório de conformidade visual.</p>
+      <div class="cmd-split">
+        <div class="cmd-auto">
+          <span class="badge badge-auto">Automático</span>
+          <ul>
+            <li>Lê padrões visuais da knowledge base</li>
+            <li>Compara com a especificação do protótipo</li>
+            <li>Lista desvios encontrados por categoria</li>
+            <li>Emite: ✅ Conforme / ⚠️ Desvio / ❌ Não conforme</li>
+          </ul>
+        </div>
+        <div class="cmd-manual">
+          <span class="badge badge-manual">Manual</span>
+          <ul>
+            <li>Fornecer screenshots ou descrever a tela entregue</li>
+            <li>Decidir se aceita desvios ou solicita ajuste</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PO AGENTS -->
+  <h2 id="po-agents">Agentes do perfil PO</h2>
+  <div class="agents-grid">
+    <div class="agent-card">
+      <span class="agent-name">oai-kit-po-demand</span>
+      <p class="agent-desc">Documenta demandas: gera descrição estruturada, critérios de aceite testáveis e checklist DoR para work items no Azure.</p>
+    </div>
+    <div class="agent-card">
+      <span class="agent-name">oai-kit-po-prototype</span>
+      <p class="agent-desc">Especificação de protótipos: estados de tela, fluxo de interação, validações e mensagens de erro com base nos padrões visuais.</p>
+    </div>
+    <div class="agent-card">
+      <span class="agent-name">oai-kit-po-refine-card</span>
+      <p class="agent-desc">Perspectiva de produto no refinamento: verifica DoR, identifica ambiguidades em critérios de aceite e dependências não mapeadas.</p>
+    </div>
+    <div class="agent-card">
+      <span class="agent-name">oai-kit-po-scan-visual</span>
+      <p class="agent-desc">Varredura de conformidade visual: compara entrega com padrões e especificação do protótipo, emite parecer por componente.</p>
+    </div>
+  </div>
+
+  <!-- PO FLOW -->
+  <h2 id="po-flow">Fluxo PO</h2>
+
+  <div class="flow">
+    <div class="flow-step"><div class="flow-box start">Demanda (SIM/PSE)</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cmd">/po-document</div>
+      <div class="flow-label">US + critérios + DoR</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cmd">/po-prototype</div>
+      <div class="flow-label">Spec visual e interação</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cmd">/po-refine-card</div>
+      <div class="flow-label">Análise PO no refinamento</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box start">Sprint em andamento</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cmd">/po-scan-visual</div>
+      <div class="flow-label">Conformidade visual da entrega</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><div class="flow-box end">Aceite</div></div>
+  </div>
+
+  <h3>Base de conhecimento PO</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Pasta</th><th>O que armazenar</th><th>Quem preenche</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>visual-patterns/</code></td>
+          <td>Guia de componentes visuais, paleta, tipografia, espaçamento, estados de componentes</td>
+          <td>Manual — PO/Design importa o design system</td>
+        </tr>
+        <tr>
+          <td><code>demand-templates/</code></td>
+          <td>Templates de US por tipo de demanda (CRUD, integração, relatório, etc.)</td>
+          <td>Manual — PO cria templates recorrentes</td>
+        </tr>
+        <tr>
+          <td><code>project-context/</code></td>
+          <td>Objetivos de produto, personas, regras de negócio globais, restrições de mercado</td>
+          <td>Manual — PO mantém atualizado por sprint</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PO AUTO VS MANUAL -->
+  <h2 id="po-auto-manual">Automático vs Manual — PO</h2>
+
+  <div class="callout info">
+    <p><strong>Gates de confirmação obrigatórios:</strong> todo agente que cria no Azure ou salva arquivos locais exibe o que vai fazer e aguarda resposta explícita do PO antes de prosseguir. Silêncio não é aprovação.</p>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Ação</th><th>Automático</th><th>Precisa do PO</th></tr></thead>
+      <tbody>
+        <tr><td>Buscar contexto de negócio no Azure</td><td>Sim — via MCP</td><td>Não</td></tr>
+        <tr><td>Ler anexos da task no Azure</td><td>Tenta automaticamente via MCP; para e reporta se não conseguir</td><td>Fornecer conteúdo/caminho se falhar, ou "não tenho anexo para fornecer"</td></tr>
+        <tr><td>Gerar descrição e critérios de aceite</td><td>Sim — com base no contexto</td><td>Revisar o rascunho gerado</td></tr>
+        <tr><td>Verificar DoR</td><td>Sim — checklist automático</td><td>Completar itens faltantes</td></tr>
+        <tr><td>Preencher work item no Azure</td><td>Exibe prévia e aguarda confirmação</td><td><strong>Aprovação explícita obrigatória</strong></td></tr>
+        <tr><td>Gerar spec do protótipo</td><td>Sim — baseado em visual-patterns</td><td>Descrever objetivo e restrições</td></tr>
+        <tr><td>Salvar protótipo HTML</td><td>Exibe resumo das telas/interações geradas</td><td><strong>Aprovação explícita obrigatória</strong></td></tr>
+        <tr><td>Extrair padrões visuais (scan-visual)</td><td>Exibe todos os tokens extraídos</td><td><strong>Aprovação explícita antes de salvar</strong></td></tr>
+        <tr><td>Salvar tokens em visual-patterns/</td><td>Sim — após aprovação dos tokens</td><td>Não</td></tr>
+        <tr><td>Verificar conformidade visual</td><td>Sim — cruza com padrões e spec</td><td>Fornecer screenshots ou descrição</td></tr>
+        <tr><td>popular <code>demand-templates/</code> e <code>project-context/</code></td><td>Não</td><td>PO cria manualmente</td></tr>
+        <tr><td>Decisão de aceite</td><td>Nunca</td><td>Sempre decisão do PO</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PO BEST PRACTICES -->
+  <h2 id="po-practices">Boas práticas — PO</h2>
+  <ul class="practices">
+    <li>
+      <span class="practice-icon pi-po">1</span>
+      <div><strong>Popule <code>visual-patterns/</code> antes de usar <code>/po-prototype</code>.</strong> O agente usa os padrões registrados como referência. Sem eles, a spec gerada será genérica. Importe o guia de estilo ou design system do produto — mesmo um resumo já melhora muito o resultado.</div>
+    </li>
+    <li>
+      <span class="practice-icon pi-po">2</span>
+      <div><strong>Use <code>/po-refine-card</code> antes do refinamento.</strong> O comentário postado no Azure serve de pauta técnica para a cerimônia. Compartilhe o link do card com o time antes da reunião — economiza tempo de contextualização.</div>
+    </li>
+    <li>
+      <span class="practice-icon pi-po">3</span>
+      <div><strong>Critérios de aceite em linguagem testável.</strong> O agente escreve critérios no formato "dado X, quando Y, então Z". Prefira esse padrão — facilita a vida do QA e evita interpretações ambíguas durante o desenvolvimento.</div>
+    </li>
+    <li>
+      <span class="practice-icon pi-po">4</span>
+      <div><strong>Revise tudo antes de preencher o Azure.</strong> Os agentes sempre pedem confirmação antes de atualizar work items. Nunca deixe passar sem ler — uma descrição incorreta postada na task é vista pelo time todo e gera retrabalho.</div>
+    </li>
+    <li>
+      <span class="practice-icon pi-po">5</span>
+      <div><strong>Mantenha <code>project-context/</code> por sprint.</strong> Objetivos e prioridades mudam. O agente de documentação lê esse contexto para calibrar tom e prioridade nos critérios gerados. Um contexto desatualizado gera critérios fora de foco.</div>
+    </li>
+  </ul>
+</section>
+
+</main>
+
+<script>
+/* ─── Theme toggle ──────────────────────────────────────────────────────── */
+(function() {
+  const btn = document.getElementById('themeToggle');
+  const root = document.documentElement;
+  const stored = localStorage.getItem('oai-kit-guide-theme');
+  if (stored) root.setAttribute('data-theme', stored);
+
+  btn.addEventListener('click', function() {
+    const cur = root.getAttribute('data-theme');
+    const next = cur === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('oai-kit-guide-theme', next);
+  });
+})();
+
+/* ─── Active sidebar nav via IntersectionObserver ───────────────────────── */
+(function() {
+  const sections = document.querySelectorAll('[id]');
+  const links = document.querySelectorAll('.nav-link[href^="#"]');
+
+  if (!('IntersectionObserver' in window)) return;
+
+  let active = '';
+
+  const obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) active = e.target.id;
+    });
+    links.forEach(function(link) {
+      const href = link.getAttribute('href').slice(1);
+      link.classList.toggle('active', href === active);
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+
+  sections.forEach(function(s) { obs.observe(s); });
+})();
+</script>

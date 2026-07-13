@@ -1,0 +1,39 @@
+{
+  "name": "praxio-oai-kit",
+  "version": "2.0.0",
+  "description": "Kit de IA multi-perfil para times Praxio — Developer, QA e PO — com suporte a Claude Code e Cursor",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "bin": {
+    "oai-kit": "bin/cli.js"
+  },
+  "files": [
+    "bin/",
+    ".oai-kit/",
+    ".speckit/",
+    ".oai-flow/",
+    "scripts/",
+    "docs/",
+    ".mcp.json.template"
+  ],
+  "scripts": {
+    "test": "node scripts/validate-kit.js"
+  },
+  "keywords": [
+    "claude-code",
+    "cursor",
+    "ai-agents",
+    "praxio",
+    "developer-tools",
+    "qa-automation",
+    "speckit",
+    "multi-ide"
+  ],
+  "author": "Praxio",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/praxio/onboardingai-kit"
+  }
+}

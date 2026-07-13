@@ -1,0 +1,11 @@
+node_modules/
+*.log
+.DS_Store
+
+# Gerado pelo adapter Cursor — commitar se Cursor for IDE ativa (ver oai-kit.yaml)
+.cursor/rules/
+
+# Arquivos locais do kit (por dev, não versionados)
+.mcp.json
+.claude/.local-config.json
+oai-kit.yaml

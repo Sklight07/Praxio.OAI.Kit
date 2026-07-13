@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "provider": "azureDevOps",
+  "ticketIdPattern": "{SIM|PSE}_{numero}",
+  "localAppsRoot": "C:\\Projetos",
+  "briefingDir": "C:\\Briefings",
+  "azureDevOps": {
+    "authMode": "azcli",
+    "org": "minha-org",
+    "projects": ["BackendAPI", "Frontend"]
+  },
+  "knownRepos": [
+    {
+      "name": "Frontend",
+      "path": "C:\\Projetos\\MinhaApp.Frontend",
+      "type": "frontend",
+      "description": "SPA React do módulo FLP"
+    },
+    {
+      "name": "SharedLib",
+      "path": "C:\\Projetos\\MinhaApp.Shared",
+      "type": "library",
+      "description": "Lib de contratos e DTOs compartilhados entre backend e frontend"
+    }
+  ]
+}

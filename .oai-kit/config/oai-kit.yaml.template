@@ -1,0 +1,23 @@
+# OAI Kit Configuration
+# Gerado por: npx praxio-oai-kit init
+# Este arquivo é commitado no repositório — representa a configuração do kit para este projeto.
+
+project: "{{PROJECT_NAME}}"
+version: "2.0.0"
+
+# IDEs configuradas neste repositório
+# Cada IDE listada aqui tem seu adaptador gerado em .claude/, .cursor/, etc.
+ides:
+  - claude
+
+# Perfis instalados
+# developer: agentes e comandos para desenvolvimento (bug fix, feature, PR, release)
+# qa: agentes para planejamento e execução de testes
+# po: agentes para documentação de demanda e prototipação
+profiles:
+  - developer
+
+# Azure DevOps
+azure:
+  org: "praxio"
+  project: "Desenvolvimento"
