@@ -48,6 +48,7 @@ US: #{ID_FEATURE}
 - **Minimum Viable Patch** — zero refactoring além do necessário para o ticket.
 - **Policies são Hard Stops** — `.oai-kit/policies/` são bloqueadores, não sugestões.
 - **4 Checkpoints Humanos** — nunca avance sem aprovação explícita do dev.
+- **Gates de Confirmação** — todo agente para, exibe e pergunta antes de escrever código, commitar, criar no Azure ou salvar arquivos. Silêncio não é aprovação.
 - **Hypothesis First** — formule hipóteses antes de buscar código.
 - **RED→GREEN Obrigatório** — teste que falha antes de qualquer fix.
 - **Sigla do módulo sempre confirmada** — nunca assuma, sempre pergunte ao dev.
@@ -63,6 +64,22 @@ US: #{ID_FEATURE}
 | 4 | Antes do deploy | Release package |
 
 O ciclo só encerra após: **deploy confirmado → oai-kit-learning-agent → Speckit atualizado → task fechada no Azure**.
+
+## Gates de Confirmação Obrigatórios
+
+Todo agente que realiza uma ação irreversível ou visível (escrever código, commitar, criar/atualizar no Azure, salvar arquivos) **deve** seguir este padrão em três momentos:
+
+| Gate | Quando | Formato |
+|------|--------|---------|
+| **Gate de Plano** | Antes de escrever qualquer código ou arquivo | Exibe plano completo com arquivos + mensagem de commit; aguarda "sim/não" |
+| **Gate Pré-Commit** | Antes de executar `git commit` | Exibe lista de arquivos alterados + mensagem exata do commit; aguarda "sim/não" |
+| **Gate Pré-Azure / Pré-Arquivo** | Antes de qualquer MCP que cria/atualiza no Azure ou salva arquivo local | Exibe prévia completa do que será criado/alterado; aguarda "sim/não" |
+
+**Regras absolutas dos gates:**
+- Use o bloco visual `═══ PARADA OBRIGATÓRIA ═══` para sinalizar cada gate.
+- Pergunte explicitamente: *"Posso [ação]? (sim/não)"*
+- Nunca interprete silêncio, contexto implícito ou "parece aprovado" como autorização.
+- Se o usuário ajustar → revise e confirme novamente antes de prosseguir.
 
 ## Agentes Disponíveis
 
@@ -206,3 +223,4 @@ Alguns cenários envolvem mais de um repositório (ex: mudança de contrato de A
 - Sempre navegue a hierarquia de tasks (parents + children) ao buscar contexto de uma task.
 - Para múltiplos repos: consulte `knownRepos` primeiro, pergunte ao dev se necessário, nunca assuma.
 - Policies em `.oai-kit/policies/` são bloqueadores absolutos — nunca as ignore ou contorne.
+- **Anexos de tasks do Azure:** ao encontrar anexos, tente lê-los via MCP. Se não conseguir (qualquer motivo), pare e informe ao usuário com as opções: (a) colar o conteúdo, (b) informar o caminho local, (c) "não tenho anexo para fornecer". Só continue após resposta explícita. Se não houver anexos, não pergunte nada.
