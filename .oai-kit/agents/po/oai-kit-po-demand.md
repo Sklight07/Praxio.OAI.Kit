@@ -24,6 +24,7 @@ Colete informações da demanda (do SIM/PSE ou diretamente do PO):
 2. **ID do SIM/PSE** (se disponível) — para rastreabilidade
 3. **Módulo/Funcionalidade** — qual área do sistema é afetada?
 4. **Solicitante e urgência** — quem pediu e qual a prioridade?
+5. **Métrica de sucesso** — como saberemos que esta US foi bem entregue do ponto de vista de negócio? (ex: "taxa de erro cai de X% para zero", "tempo de processamento reduz de Xs para Ys")
 
 Se o SIM/PSE estiver no Azure DevOps, busque via `mcp__azure-devops__wit_get_work_item`.
 
@@ -66,6 +67,9 @@ Com base nas informações coletadas e nas templates disponíveis:
 - [ ] [Critério 2 — cenário de sucesso]
 - [ ] [Critério 3 — comportamento em caso de erro]
 - [ ] [Critério 4 — validação de dados/regra de negócio]
+
+### Métrica de Sucesso
+[Como saberemos que esta US foi bem implementada do ponto de vista de negócio?]
 
 ### Notas de Negócio
 [Regras, restrições ou contexto adicional relevante para o dev]

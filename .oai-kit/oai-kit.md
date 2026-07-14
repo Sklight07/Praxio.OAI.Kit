@@ -95,10 +95,11 @@ O ciclo só encerra após: **deploy confirmado → oai-kit-learning-agent → Sp
 
 | Agente | Ativado por | Responsabilidade |
 |--------|------------|-----------------|
-| oai-kit-po-demand | `/oai-kit-po-document` | Documenta demandas como User Stories com critérios de aceite |
+| oai-kit-po-discovery | `/oai-kit-po-discovery` | Conduz discovery: ideia solta → Epic + User Stories no Azure |
+| oai-kit-po-demand | `/oai-kit-po-document` | Documenta demandas conhecidas como User Stories com critérios de aceite e métrica de sucesso |
 | oai-kit-po-prototype | `/oai-kit-po-prototype` | Gera protótipos HTML interativos fiéis ao visual do sistema |
 | oai-kit-po-scan-visual | `/oai-kit-po-scan-visual` | Escaneia telas existentes para extrair padrões visuais |
-| oai-kit-po-refine-card | `/oai-kit-po-refine-card` | Refinamento de tasks sob perspectiva PO (DoR) |
+| oai-kit-po-refine-card | `/oai-kit-po-refine-card` | Refinamento estruturado: classifica item, gera output completo (Contexto, Regras, CAs, tasks filhas, estimativa, pendências) |
 
 ## Comandos Disponíveis
 
@@ -126,10 +127,11 @@ O ciclo só encerra após: **deploy confirmado → oai-kit-learning-agent → Sp
 ### PO
 | Comando | Uso | Descrição |
 |---------|-----|-----------|
-| `/oai-kit-po-document {ID}` | Documentação de demanda | Cria User Story com critérios de aceite no Azure |
+| `/oai-kit-po-discovery` | Ideia sem card | Conduz discovery: Brief → Epic + Stories no Azure |
+| `/oai-kit-po-document {ID}` | Documentação de demanda | Cria User Story com critérios de aceite e métrica de sucesso no Azure |
 | `/oai-kit-po-prototype {ID}` | Prototipação | Gera protótipo HTML interativo |
 | `/oai-kit-po-scan-visual` | Captura visual | Extrai padrões visuais das telas existentes |
-| `/oai-kit-po-refine-card {ID}` | Refinamento PO | Verifica Definition of Ready da task |
+| `/oai-kit-po-refine-card {ID}` | Refinamento PO | Refinamento estruturado: classifica, detalha e posta na task |
 
 ### Shared
 | Comando | Uso | Descrição |

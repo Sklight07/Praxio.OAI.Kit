@@ -1704,10 +1704,43 @@ npx praxio-oai-kit setup-mcp</code></pre>
 <section class="content-section profile-section po" id="po">
   <div class="eyebrow po">Perfil PO</div>
   <h1>Product Owner</h1>
-  <p class="lead">O perfil PO cobre documentação de demandas, prototipação, refinamento e verificação visual de entregas. Os agentes trabalham integrados ao Azure DevOps para criar e preencher work items no padrão Praxio.</p>
+  <p class="lead">O perfil PO cobre descoberta de produto, documentação de demandas, prototipação, refinamento e verificação visual de entregas. Os agentes trabalham integrados ao Azure DevOps para criar e preencher work items no padrão Praxio.</p>
 
   <!-- PO COMMANDS -->
   <h2 id="po-commands">Comandos disponíveis</h2>
+
+  <!-- po-discovery -->
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <code class="cmd-name">/oai-kit-po-discovery</code>
+      <span class="profile-badge po">PO</span>
+    </div>
+    <div class="cmd-body">
+      <p class="cmd-when"><strong>Quando usar:</strong> O PO tem uma ideia ou demanda que <strong>ainda não é um card no Azure DevOps</strong>. Parte de uma frase solta e chega a Epic + User Stories publicadas no board.</p>
+      <p class="cmd-desc">Conduz o processo de descoberta em 3 fases: Product Brief (problema, personas, objetivo, métrica de sucesso, escopo IN/OUT) → decomposição em Epic + Stories com sizing P/M/G e tag MVP⭐/backlog → publicação no Azure com verificação de duplicidade. Três checkpoints progressivos antes de qualquer ação irreversível.</p>
+      <div class="cmd-split">
+        <div class="cmd-auto">
+          <span class="badge badge-auto">Automático</span>
+          <ul>
+            <li>Perguntas de clarificação (perfil, dor, sistema, escopo, métrica)</li>
+            <li>Rascunha Product Brief estruturado</li>
+            <li>Decompõe em Epic → Stories com sizing e priorização</li>
+            <li>Verifica testabilidade de cada critério de aceite</li>
+            <li>Verifica duplicidade no Azure antes de criar</li>
+            <li>Cria Epic + Stories vinculadas via MCP</li>
+          </ul>
+        </div>
+        <div class="cmd-manual">
+          <span class="badge badge-manual">Manual</span>
+          <ul>
+            <li><strong>Checkpoint 1</strong> — aprovar Problem Brief</li>
+            <li><strong>Checkpoint 2</strong> — aprovar decomposição (cortar MVP, reagrupar)</li>
+            <li><strong>Checkpoint 3</strong> — autorizar criação no Azure (irreversível)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- po-document -->
   <div class="cmd-card">
@@ -1716,8 +1749,8 @@ npx praxio-oai-kit setup-mcp</code></pre>
       <span class="profile-badge po">PO</span>
     </div>
     <div class="cmd-body">
-      <p class="cmd-when"><strong>Quando usar:</strong> Para documentar uma demanda nova ou complementar uma US existente com descrição, critérios de aceite e DoR.</p>
-      <p class="cmd-desc">Lê o contexto da demanda (SIM/PSE, Feature e inputs do PO), gera descrição estruturada, critérios de aceite em linguagem testável e checklist de DoR (Definition of Ready). Atualiza a work item no Azure via MCP.</p>
+      <p class="cmd-when"><strong>Quando usar:</strong> A demanda já tem um SIM/PSE ou contexto definido e o PO quer documentá-la como uma User Story estruturada no Azure. Se a demanda ainda é uma ideia solta sem card, use <code>/oai-kit-po-discovery</code>.</p>
+      <p class="cmd-desc">Lê o contexto da demanda (SIM/PSE, Feature e inputs do PO), gera descrição estruturada, critérios de aceite em linguagem testável, métrica de sucesso e checklist de DoR (Definition of Ready). Atualiza a work item no Azure via MCP.</p>
       <div class="cmd-split">
         <div class="cmd-auto">
           <span class="badge badge-auto">Automático</span>
@@ -1777,23 +1810,28 @@ npx praxio-oai-kit setup-mcp</code></pre>
       <span class="profile-badge po">PO</span>
     </div>
     <div class="cmd-body">
-      <p class="cmd-when"><strong>Quando usar:</strong> Cerimônia de refinamento — análise da task sob perspectiva de produto.</p>
-      <p class="cmd-desc">Analisa a task no Azure, verifica se a US está pronta para desenvolvimento (DoR), identifica dependências de produto e ambiguidades nos critérios de aceite. Posta análise como comentário na task do Azure.</p>
+      <p class="cmd-when"><strong>Quando usar:</strong> Cerimônia de refinamento — o item já existe no board e precisa ser detalhado sob perspectiva de produto antes de entrar em sprint.</p>
+      <p class="cmd-desc">Classifica o item (Story/Task Dev, Feature/Epic ou Non-dev), gera refinamento estruturado com Contexto, O que precisa ser feito, Regras de negócio, CAs tabelados, tasks filhas sugeridas por grupo (Dev/QA/Regressão), estimativa P/M/G e pendências abertas. Distingue fato de hipótese. Posta como comentário no Azure por padrão — só sobrescreve Description se o PO pedir explicitamente.</p>
       <div class="cmd-split">
         <div class="cmd-auto">
           <span class="badge badge-auto">Automático</span>
           <ul>
-            <li>Verifica completude do DoR da US</li>
-            <li>Identifica critérios ambíguos ou ausentes</li>
-            <li>Mapeia dependências de outras US ou sistemas</li>
-            <li>Posta análise como comentário no Azure via MCP</li>
+            <li>Classifica item: Story Dev / Feature-Epic / Non-dev</li>
+            <li>Verifica tag de refinamento anterior (idempotência)</li>
+            <li>Gera Contexto, O que fazer, Regras de negócio, CAs</li>
+            <li>Sugere tasks filhas por grupo (Dev/QA/Regressão)</li>
+            <li>Calcula estimativa P/M/G com justificativa</li>
+            <li>Lista Pendências que bloqueiam o dev</li>
+            <li>Avalia DoR (Story Dev)</li>
+            <li>Posta como comentário no Azure via MCP</li>
           </ul>
         </div>
         <div class="cmd-manual">
           <span class="badge badge-manual">Manual</span>
           <ul>
-            <li>Complementar análise com contexto de negócio</li>
-            <li>Resolver dependências identificadas</li>
+            <li>Revisar e aprovar o refinamento antes de postar</li>
+            <li>Confirmar hipóteses levantadas pelo agente</li>
+            <li>Resolver pendências abertas antes do dev começar</li>
           </ul>
         </div>
       </div>
@@ -1834,8 +1872,12 @@ npx praxio-oai-kit setup-mcp</code></pre>
   <h2 id="po-agents">Agentes do perfil PO</h2>
   <div class="agents-grid">
     <div class="agent-card">
+      <span class="agent-name">oai-kit-po-discovery</span>
+      <p class="agent-desc">Descoberta de produto: conduz da ideia solta ao Epic + Stories publicados no Azure com 3 checkpoints progressivos (Brief → Decomposição → Publicação).</p>
+    </div>
+    <div class="agent-card">
       <span class="agent-name">oai-kit-po-demand</span>
-      <p class="agent-desc">Documenta demandas: gera descrição estruturada, critérios de aceite testáveis e checklist DoR para work items no Azure.</p>
+      <p class="agent-desc">Documenta demandas conhecidas: gera descrição estruturada, métrica de sucesso, critérios de aceite testáveis e checklist DoR para work items no Azure.</p>
     </div>
     <div class="agent-card">
       <span class="agent-name">oai-kit-po-prototype</span>
@@ -1843,7 +1885,7 @@ npx praxio-oai-kit setup-mcp</code></pre>
     </div>
     <div class="agent-card">
       <span class="agent-name">oai-kit-po-refine-card</span>
-      <p class="agent-desc">Perspectiva de produto no refinamento: verifica DoR, identifica ambiguidades em critérios de aceite e dependências não mapeadas.</p>
+      <p class="agent-desc">Refinamento estruturado: classifica o item, gera Contexto + Regras de negócio + CAs + tasks filhas sugeridas + pendências. Distingue fato de hipótese. Posta como comentário.</p>
     </div>
     <div class="agent-card">
       <span class="agent-name">oai-kit-po-scan-visual</span>
@@ -1854,22 +1896,41 @@ npx praxio-oai-kit setup-mcp</code></pre>
   <!-- PO FLOW -->
   <h2 id="po-flow">Fluxo PO</h2>
 
-  <div class="flow">
-    <div class="flow-step"><div class="flow-box start">Demanda (SIM/PSE)</div></div>
+  <p style="margin-bottom:0.5rem;font-size:0.85rem;opacity:0.7;">Há dois pontos de entrada dependendo do estado da demanda:</p>
+
+  <div class="flow" style="margin-bottom:0.5rem;">
+    <div class="flow-step"><div class="flow-box start">Ideia solta (sem card)</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cmd">/po-discovery</div>
+      <div class="flow-label">Brief → Epic + Stories no Azure</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><div class="flow-box start">Cards no board</div></div>
+  </div>
+
+  <div class="flow" style="margin-bottom:1.5rem;">
+    <div class="flow-step"><div class="flow-box start">SIM/PSE existente</div></div>
     <div class="flow-arrow">→</div>
     <div class="flow-step">
       <div class="flow-box cmd">/po-document</div>
-      <div class="flow-label">US + critérios + DoR</div>
+      <div class="flow-label">US + critérios + métrica + DoR</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><div class="flow-box start">Card estruturado</div></div>
+  </div>
+
+  <div class="flow">
+    <div class="flow-step"><div class="flow-box start">Card no board</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-box cmd">/po-refine-card</div>
+      <div class="flow-label">Classificação + output estruturado</div>
     </div>
     <div class="flow-arrow">→</div>
     <div class="flow-step">
       <div class="flow-box cmd">/po-prototype</div>
-      <div class="flow-label">Spec visual e interação</div>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-step">
-      <div class="flow-box cmd">/po-refine-card</div>
-      <div class="flow-label">Análise PO no refinamento</div>
+      <div class="flow-label">Spec visual (opcional)</div>
     </div>
     <div class="flow-arrow">→</div>
     <div class="flow-step">
@@ -1878,7 +1939,7 @@ npx praxio-oai-kit setup-mcp</code></pre>
     <div class="flow-arrow">→</div>
     <div class="flow-step">
       <div class="flow-box cmd">/po-scan-visual</div>
-      <div class="flow-label">Conformidade visual da entrega</div>
+      <div class="flow-label">Conformidade visual</div>
     </div>
     <div class="flow-arrow">→</div>
     <div class="flow-step"><div class="flow-box end">Aceite</div></div>
@@ -1921,9 +1982,16 @@ npx praxio-oai-kit setup-mcp</code></pre>
       <tbody>
         <tr><td>Buscar contexto de negócio no Azure</td><td>Sim — via MCP</td><td>Não</td></tr>
         <tr><td>Ler anexos da task no Azure</td><td>Tenta automaticamente via MCP; para e reporta se não conseguir</td><td>Fornecer conteúdo/caminho se falhar, ou "não tenho anexo para fornecer"</td></tr>
+        <tr><td>Redigir Product Brief (discovery)</td><td>Sim — com base nas respostas do PO</td><td><strong>Checkpoint 1 — aprovar Brief</strong></td></tr>
+        <tr><td>Decompor em Epic + Stories com sizing e MVP</td><td>Sim — gera árvore com P/M/G e tag MVP⭐/backlog</td><td><strong>Checkpoint 2 — aprovar decomposição</strong></td></tr>
+        <tr><td>Criar Epic + Stories no Azure (discovery)</td><td>Verifica duplicidade, exibe prévia completa</td><td><strong>Checkpoint 3 — autorizar criação (irreversível)</strong></td></tr>
         <tr><td>Gerar descrição e critérios de aceite</td><td>Sim — com base no contexto</td><td>Revisar o rascunho gerado</td></tr>
+        <tr><td>Capturar métrica de sucesso</td><td>Pergunta durante coleta de contexto</td><td>Fornecer a métrica concreta</td></tr>
         <tr><td>Verificar DoR</td><td>Sim — checklist automático</td><td>Completar itens faltantes</td></tr>
         <tr><td>Preencher work item no Azure</td><td>Exibe prévia e aguarda confirmação</td><td><strong>Aprovação explícita obrigatória</strong></td></tr>
+        <tr><td>Classificar item no refinamento (Story/Epic/Non-dev)</td><td>Sim — automático com base no tipo do card</td><td>Confirmar se classificação estiver ambígua</td></tr>
+        <tr><td>Gerar refinamento estruturado (refine-card)</td><td>Contexto + Regras + CAs + tasks filhas + P/M/G + Pendências</td><td>Revisar e aprovar antes de postar</td></tr>
+        <tr><td>Postar refinamento no Azure</td><td>Como comentário por padrão</td><td><strong>Aprovação explícita obrigatória</strong></td></tr>
         <tr><td>Gerar spec do protótipo</td><td>Sim — baseado em visual-patterns</td><td>Descrever objetivo e restrições</td></tr>
         <tr><td>Salvar protótipo HTML</td><td>Exibe resumo das telas/interações geradas</td><td><strong>Aprovação explícita obrigatória</strong></td></tr>
         <tr><td>Extrair padrões visuais (scan-visual)</td><td>Exibe todos os tokens extraídos</td><td><strong>Aprovação explícita antes de salvar</strong></td></tr>
