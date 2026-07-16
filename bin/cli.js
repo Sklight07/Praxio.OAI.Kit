@@ -258,6 +258,9 @@ async function cmdMigrate() {
     runClaudeAdapter(profiles);
     injectClaudeMd();
   }
+  if (ides.includes('cursor')) {
+    runCursorAdapter(profiles);
+  }
 
   ensureGitignore(GITIGNORE_ENTRIES);
   makeExecutable();

@@ -86,7 +86,21 @@ O comando detecta a instalação v1.x, instala a nova estrutura `.oai-kit/`, per
 
 ## Configuração do MCP
 
-Depois do `init` ou `migrate`, configure a integração com o Azure DevOps:
+> **O `setup-mcp` não é obrigatório.** Os agentes funcionam sem ele — o que muda é o nível de automação.
+
+### Níveis de integração com o Azure DevOps
+
+| Nível | Configuração | O que funciona |
+|-------|-------------|----------------|
+| **Completo** | `setup-mcp` executado | Leitura e criação automáticas no Azure via MCP |
+| **CLI** | `az login` no terminal | Leitura via `az boards`; criação no Azure manual |
+| **Manual** | Nenhuma | Dev cola o conteúdo da task na conversa quando solicitado |
+
+Os agentes tentam os três modos em cascata: MCP → `az boards` CLI → solicitar ao dev.
+
+### Quando rodar o `setup-mcp`
+
+Execute se quiser a experiência completa — o agente lê e cria itens no Azure sem nenhuma intervenção manual:
 
 ```bash
 npx praxio-oai-kit setup-mcp
@@ -106,6 +120,12 @@ Gera:
 - `.mcp.json` — servidor MCP do Azure DevOps para o Claude Code (gitignored)
 
 **Reinicie o Claude Code** após o `setup-mcp` para carregar o servidor MCP.
+
+> **Por dev, não por repositório.** Ambos os arquivos são gitignored — cada desenvolvedor configura uma vez na própria máquina. Pode ser re-executado a qualquer momento para atualizar org, PAT ou repos relacionados.
+
+### Já configurei o MCP no Claude Code manualmente
+
+Se você já tem o servidor Azure DevOps configurado nas settings globais do Claude Code (`~/.claude/settings.json`), o kit vai usá-lo automaticamente — não precisa rodar `setup-mcp` nem gerar `.mcp.json`.
 
 ---
 
@@ -196,7 +216,7 @@ Adiciona um perfil ao repositório. Instala os agentes e comandos do perfil e re
 npx praxio-oai-kit setup-mcp
 ```
 
-Configura a integração com Azure DevOps de forma interativa. Gera `.mcp.json` e `.claude/.local-config.json`. Pode ser re-executado para atualizar configurações.
+**Opcional.** Configura a integração com Azure DevOps de forma interativa. Gera `.mcp.json` e `.claude/.local-config.json`. Pode ser re-executado para atualizar configurações. Sem ele, os agentes leem o Azure via `az boards` CLI ou solicitam que o dev cole o conteúdo manualmente. Veja [Configuração do MCP](#configuração-do-mcp) para detalhes.
 
 ---
 
@@ -776,7 +796,10 @@ Lê `oai-kit.yaml` para saber quais IDEs e perfis estão instalados, atualiza `.
 ## Perguntas frequentes
 
 **O agente não encontrou o servidor MCP do Azure DevOps.**  
-Rode `npx praxio-oai-kit setup-mcp` e reinicie o Claude Code. Verifique se `.mcp.json` existe na raiz do repositório.
+Isso é esperado se você não rodou o `setup-mcp` — o agente vai usar `az boards` CLI ou pedir que você cole o conteúdo da task. Se quiser o MCP automático: rode `npx praxio-oai-kit setup-mcp`, verifique se `.mcp.json` existe na raiz e reinicie o Claude Code.
+
+**O `setup-mcp` é obrigatório para usar o kit?**  
+Não. Os agentes têm fallback em cascata: MCP → `az boards` CLI → cole o conteúdo manualmente. O `setup-mcp` habilita o nível mais automático, mas o kit funciona sem ele. Veja [Configuração do MCP](#configuração-do-mcp).
 
 **O agente está pedindo a sigla do módulo toda vez.**  
 A sigla não é inferida automaticamente — o kit sempre confirma com você para evitar erros de branch/commit.
