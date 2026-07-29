@@ -1,6 +1,38 @@
 # Política: Conversion Policy
 
-Verificações obrigatórias de `oai-kit-conversao-triagem`, `oai-kit-conversao-backend`, `oai-kit-conversao-frontend` e `oai-kit-conversao-paridade`. Violações são hard stops — consolida (sem duplicar por extenso) os princípios já estabelecidos em `documentos globus/patterns/globusweb-principles.md` e `oracle-metadata-policy.md`.
+Verificações obrigatórias de `oai-kit-conversao-triagem`, `oai-kit-conversao-backend`, `oai-kit-conversao-frontend`, `oai-kit-conversao-paridade`, `oai-kit-conversao-especificador` e `oai-kit-conversao-aprendizado`. Violações são hard stops — consolida (sem duplicar por extenso) os princípios já estabelecidos em `documentos globus/patterns/globusweb-principles.md` e `oracle-metadata-policy.md`.
+
+## Escala de Classificação (N1-N5 / N-ESPECIAL)
+
+Substitui qualquer noção de tier binário. Usada por `oai-kit-conversao-especificador` (ao gerar uma especificação prévia) e por `oai-kit-conversao-triagem` (ao classificar uma conversão, com ou sem especificação prévia).
+
+**Pontuação estrutural** (só se nenhum gatilho de exceção estiver presente) — valores configuráveis, calibrar com a experiência real:
+
+| Sinal | Peso |
+|---|---|
+| Grid presente | +1 |
+| PK composta (2+ chaves) | +1 |
+| Tabela(s)-filha / master-detail (mesma família de entidade) | +1 |
+| Referências externas (FK/lookup para outra tabela) | nenhuma=0, poucas (1-2)=+1, muitas (3+)=+2 |
+
+Soma → nível: `0`→N1, `1`→N2, `2-3`→N3, `4-5`→N4/N5 (mais pesado dentro da faixa = N5).
+
+**Gatilhos de exceção → nível é sempre `N-ESPECIAL`**, vencem a pontuação incondicionalmente: procedure/function chamada no `.pas`; integração externa; gravação em tabela **não-relacionada** como efeito colateral (diferente de master-detail, que é escrita em tabela-filha da mesma família); "muitas" regras de negócio não-triviais (contagem: 0-2 poucas, 3-5 moderadas, 6+ muitas → dispara).
+
+**Cortes de uso** (configuráveis, calibrar com o tempo):
+- **N1-N3**: especificação prévia (se existir) é suficiente sozinha — zero leitura do fonte Delphi.
+- **N4-N5**: especificação prévia é usada, mas os "pontos de atenção" que o especificador sinalizou devem ser confirmados pontualmente contra o fonte (leitura parcial, não do conjunto inteiro).
+- **N-ESPECIAL**: sempre lê o fonte inteiro — especificação prévia (se existir) vira só contexto/orientação, nunca substitui a leitura.
+
+Na dúvida sobre se um gatilho de exceção se aplica, trate como se aplicasse — o padrão seguro é `N-ESPECIAL`.
+
+## Sincronismo do `GlobusEvo.Minerva`
+
+Aplica-se a todo agente/comando que lê ou escreve em `knowledgeBasePath` (`oai-kit-conversao-triagem`, `oai-kit-conversao-especificador`, `oai-kit-conversao-aprendizado`, `/oai-kit-registrar-gap`):
+
+- **Pull obrigatório antes de qualquer leitura.** Se falhar (sem rede, working tree suja, conflito local não resolvido), o agente para e informa o dev — nunca prossegue sobre uma base potencialmente desatualizada (outro dev pode já ter documentado/convertido/registrado algo sobre a mesma tela).
+- **Push não é uma pergunta separada e opcional.** Uma vez que o dev aprove o commit no Minerva, o agente sempre tenta o push em seguida, no mesmo gate. Se rejeitado por non-fast-forward, tenta `git pull --rebase` + push automaticamente **uma vez**; se ainda conflitar (mais provável em `minerva-index.json`, o único arquivo não append-only da base), para e mostra o conflito ao dev — nunca resolve sozinho.
+- **Staleness de especificação prévia**: ao reaproveitar uma especificação, sempre comparar `mtime`/`tamanho` dos arquivos-fonte registrados contra o estado atual antes de confiar nela. Divergência não bloqueia automaticamente, mas exige perguntar ao dev se confia mesmo assim ou prefere regenerar a especificação.
 
 ## Proibições Absolutas
 
@@ -14,7 +46,7 @@ Nunca proponha um campo, query ou mutation GraphQL que não tenha sido confirmad
 
 ### AP-CONV-003 — UIKit é transversal
 
-Nenhuma conversão pontual altera um componente do `GlobusWeb.UIKit` sem: (1) grep pelos consumidores em todos os front-ends, (2) avaliação explícita de breaking change, (3) aprovação humana fora do escopo da tela em conversão. Isso é sempre tier `COMPLEXA`.
+Nenhuma conversão pontual altera um componente do `GlobusWeb.UIKit` sem: (1) grep pelos consumidores em todos os front-ends, (2) avaliação explícita de breaking change, (3) aprovação humana fora do escopo da tela em conversão. Isso é sempre nível `N-ESPECIAL`.
 
 ### AP-CONV-004 — Sem DDL/alteração de schema Oracle
 
@@ -28,7 +60,7 @@ Quando `praxio-oracle-discover-mcp` estiver configurado e for necessário (ver A
 
 ### AP-CONV-006 — MCP Oracle só quando necessário
 
-O MCP Oracle só é acionado quando: (a) o tier já foi classificado `COMPLEXA` por sinal de schema/procedure ambíguo, **e** (b) o objeto não está em cache (`descobertas-oracle/` via `minerva-index.json`), **e** (c) o MCP está configurado (`conversao.oracleMcpConfigured`). Telas `SIMPLES` com arquétipo batido nunca acionam esse MCP — custo e tempo devem ser preservados.
+O MCP Oracle só é acionado quando: (a) o nível já foi classificado `N-ESPECIAL` por sinal de schema/procedure ambíguo, **e** (b) o objeto não está em cache (`descobertas-oracle/` via `minerva-index.json`), **e** (c) o MCP está configurado (`conversao.oracleMcpConfigured`). Telas `N1`-`N5` com arquétipo batido nunca acionam esse MCP — custo e tempo devem ser preservados.
 
 ### AP-CONV-007 — Nunca adivinhar por aproximação
 

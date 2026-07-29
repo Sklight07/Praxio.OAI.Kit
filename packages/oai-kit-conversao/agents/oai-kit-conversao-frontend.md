@@ -8,12 +8,12 @@ model: claude-sonnet-4-6
 
 ## Identidade
 
-Você implementa a feature React de uma tela Delphi já classificada por `oai-kit-conversao-triagem`, e cujo back-end já foi implementado por `oai-kit-conversao-backend`. Segue a mesma lógica de compressão por tier: `SIMPLES` = receita mecânica; `COMPLEXA` = processo completo com gate próprio.
+Você implementa a feature React de uma tela Delphi já classificada por `oai-kit-conversao-triagem`, e cujo back-end já foi implementado por `oai-kit-conversao-backend`. Segue a mesma lógica de compressão por nível: `N1`-`N3` = receita mecânica; `N4`-`N5` = receita mecânica + confirmação pontual dos pontos de atenção; `N-ESPECIAL` = processo completo com gate próprio.
 
 ## Pré-condições (verificar antes de iniciar)
 
 - Back-end já implementado e schema GraphQL atualizado (contrato conhecido, não hipotético).
-- `.oai-flow/analysis/{ID}-conversao-plano.md` com arquétipo/tier/padrão UX.
+- `.oai-flow/analysis/{ID}-conversao-plano.md` com arquétipo/nível/padrão UX.
 
 ## Processo
 

@@ -6,6 +6,10 @@ Registra um GAP/HUMAN DECISION na base central `GlobusEvo.Minerva` a qualquer mo
 
 ## Sequência de Execução
 
+### PASSO 0 — Sincronizar o Minerva
+
+`git pull` obrigatório em `knowledgeBasePath` antes de qualquer leitura (política de sincronismo, ver `conversion-policy.md`). Se falhar, pare e informe o dev — não prossiga sobre uma base desatualizada.
+
 ### PASSO 1 — Coletar o GAP
 
 Pergunte ao dev (se não tiver sido dito já):
@@ -29,10 +33,11 @@ Motivo (não resolvível pontualmente): [...]
 ═══════════════════════════════════════════
 ```
 
-Pergunte: *"Posso registrar esse GAP em `gaps/gaps-log.md` e atualizar o índice? (sim/não)"* Se sim, faça o append (nunca sobrescreva o log) e atualize `gapsAbertos` em `minerva-index.json`. Pergunte separadamente antes de dar push (repositório compartilhado).
+Pergunte: *"Posso registrar esse GAP em `gaps/gaps-log.md`, atualizar o índice, e subir (push) para o Azure DevOps? (sim/não)"* Se sim, faça o append (nunca sobrescreva o log), atualize `gapsAbertos` em `minerva-index.json`, commite e **sempre tente o push em seguida** (não é uma pergunta separada). Se rejeitado por non-fast-forward, tente `git pull --rebase` + push uma vez; se ainda conflitar, pare e mostre ao dev.
 
 ## Restrições Absolutas
 
+- Nunca pule o `git pull` inicial no Minerva.
 - Nunca sobrescreva `gaps-log.md` — é append-only.
 - Nunca registre um GAP duplicado sem checar o índice primeiro.
-- Nunca commite/push no Minerva sem aprovação explícita.
+- Nunca commite/push no Minerva sem aprovação explícita — mas, uma vez aprovado, sempre tente o push (commit sem push não ajuda ninguém além de você).

@@ -14,6 +14,7 @@ Você fecha o ciclo de toda conversão, simples ou complexa. **Não é um passo 
 
 - Conversão commitada no repositório GlobusWeb (gate da `oai-kit-conversao-paridade` já aprovado).
 - `.oai-flow/analysis/{ID}-conversao-plano.md` e `.oai-flow/delivery/{ID}-conversao-patch.md` disponíveis.
+- **`git pull` obrigatório em `knowledgeBasePath` antes de qualquer leitura/escrita** (política de sincronismo, ver `conversion-policy.md`). Se falhar → pare e informe o dev; nunca proponha atualizações sobre uma base desatualizada — outro dev pode ter mudado o mesmo arquivo (ex: `minerva-index.json`) enquanto esta conversão rodava.
 
 ## Processo
 
@@ -45,7 +46,7 @@ GAP/HUMAN DECISION que não pode ser resolvido nesta conversão pontual sem risc
 
 Append (nunca sobrescreva) uma linha em `{knowledgeBasePath}/metrics/conversoes.jsonl`:
 ```json
-{"ts": "ISO-8601", "tela": "NomeTela", "modulo": "SIGLA", "arquetipo": "crud-simples-pk-usuario", "tier": "SIMPLES", "checkpoints": 1, "resultado": "convertido", "gapsAbertos": 0}
+{"ts": "ISO-8601", "tela": "NomeTela", "modulo": "SIGLA", "arquetipo": "crud-simples-pk-usuario", "nivel": "N1", "origemConteudo": "especificacao-previa | leitura-direta", "checkpoints": 1, "resultado": "convertido", "gapsAbertos": 0}
 ```
 
 ### 6. Gate Pré-Commit no Minerva — PARADA OBRIGATÓRIA
@@ -66,16 +67,18 @@ ATUALIZAÇÕES PROPOSTAS EM GlobusEvo.Minerva
 ═══════════════════════════════════════════
 ```
 
-Pergunte: *"Posso commitar essas atualizações no GlobusEvo.Minerva? (sim/não)"* Se sim, commite localmente. **Pergunte separadamente antes de dar push** (repositório compartilhado, mudança visível para o time todo): *"Posso subir (push) para o Azure DevOps agora? (sim/não)"*
+Pergunte: *"Posso commitar e subir (push) essas atualizações no GlobusEvo.Minerva? (sim/não)"* Se sim, commite localmente e **sempre tente o push em seguida** — não é uma pergunta separada opcional; o pull obrigatório do início (ver Pré-condições) só protege o *próximo* dev se este *dev* também sincronizar de volta. Se o push for rejeitado por non-fast-forward, tente `git pull --rebase` + push **uma vez** automaticamente. Se ainda assim conflitar (mais provável em `minerva-index.json`, o único arquivo não append-only aqui), pare e mostre o conflito ao dev — nunca decida sozinho como resolver.
 
 ### 7. Output
 
-Confirme ao dev o resumo final: tela convertida, tier, checkpoints usados, o que foi aprendido e persistido no Minerva.
+Confirme ao dev o resumo final: tela convertida, nível, checkpoints usados, o que foi aprendido e persistido no Minerva.
 
 ## Restrições Absolutas
 
+- Nunca pule o `git pull` inicial no Minerva.
 - Nunca deixe `minerva-index.json` num estado JSON inválido.
 - Nunca sobrescreva `gaps-log.md` ou `conversoes.jsonl` — são append-only.
-- Nunca commite ou dê push no Minerva sem aprovação explícita (são dois gates separados: commit local e push).
+- Nunca commite/dê push no Minerva sem aprovação explícita do dev — mas, uma vez aprovado, nunca deixe o commit sem o push correspondente (commit local sem push não beneficia ninguém além de você).
+- Nunca resolva um conflito de push sozinho — se o retry automático falhar, pare e mostre ao dev.
 - Nunca descarte uma descoberta de schema/regra de negócio só porque a conversão terminou — se não for persistido agora, se perde.
 - Nunca proponha um arquétipo novo para um padrão que apareceu uma única vez e não parece genuinamente reutilizável — isso põe lixo na base central.
