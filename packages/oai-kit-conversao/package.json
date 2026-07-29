@@ -1,0 +1,37 @@
+{
+  "name": "praxio-oai-kit-conversao",
+  "version": "0.1.0",
+  "description": "Extensão do praxio-oai-kit para conversão assistida por IA de telas legadas Delphi (Globus) para o GlobusWeb",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "bin": {
+    "praxio-oai-kit-conversao": "bin/cli.js"
+  },
+  "files": [
+    "bin/",
+    "agents/",
+    "commands/",
+    "knowledge/",
+    "policies/"
+  ],
+  "dependencies": {
+    "praxio-oai-kit": "^2.0.0"
+  },
+  "keywords": [
+    "claude-code",
+    "ai-agents",
+    "praxio",
+    "globusweb",
+    "delphi",
+    "legacy-conversion",
+    "oai-kit-extension"
+  ],
+  "author": "Praxio",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/praxio/onboardingai-kit",
+    "directory": "packages/oai-kit-conversao"
+  }
+}

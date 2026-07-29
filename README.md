@@ -1,6 +1,6 @@
 # praxio-oai-kit
 
-Kit de IA multi-perfil para times Praxio — **Developer, QA e PO** — com suporte a **Claude Code** e **Cursor**.
+Kit de IA multi-perfil para times Praxio — **Developer, QA e PO** — com suporte a **Claude Code** e **Cursor**. Há também uma **extensão opcional de Conversão** (`praxio-oai-kit-conversao`), para times fazendo migração assistida por IA de sistemas legados.
 
 > **Humans Decide. Agents Execute.**  
 > O kit nunca avança sozinho. Em cada etapa crítica ele para, apresenta o que encontrou e aguarda sua aprovação antes de continuar.
@@ -18,6 +18,7 @@ Kit de IA multi-perfil para times Praxio — **Developer, QA e PO** — com supo
 - [Slash Commands — Developer](#slash-commands--developer)
 - [Slash Commands — QA](#slash-commands--qa)
 - [Slash Commands — PO](#slash-commands--po)
+- [Extensão — Conversão de Sistemas Legados](#extensão--conversão-de-sistemas-legados)
 - [Fluxos de trabalho](#fluxos-de-trabalho)
 - [Padrões da Praxio](#padrões-da-praxio)
 - [Agentes disponíveis](#agentes-disponíveis)
@@ -469,6 +470,38 @@ Extrai padrões visuais de screenshots (paleta, tipografia, componentes, layout)
 **Quando usar:** cerimônia de refinamento, perspectiva PO.
 
 Verifica Definition of Ready — clareza de negócio, critérios de aceite, escopo delimitado. Propõe melhorias, atualiza descrição da US (com aprovação) e adiciona tag `refinado-po`.
+
+---
+
+## Extensão — Conversão de Sistemas Legados
+
+`praxio-oai-kit-conversao` é um **pacote npm separado** (`packages/oai-kit-conversao/` neste monorepo), pensado para times fazendo migração assistida por IA de um sistema legado para uma arquitetura nova — ex: telas Delphi convertidas 1:1 para um sistema web moderno. Não é instalado por padrão; é uma extensão opcional sobre o kit base.
+
+**Por que é um pacote separado, e não só mais um perfil:** o volume de trabalho de uma migração desse tipo (centenas de telas) faz esse fluxo iterar muito mais rápido que o ciclo normal de bug/feature do kit base — desacoplar o release faz sentido técnico, não só organizacional. Ainda assim, ele reaproveita 100% do mecanismo de perfis/adapters já existente — não duplica nada da infraestrutura do kit base.
+
+### Instalação
+
+```bash
+npx praxio-oai-kit init                    # kit base, se ainda não instalado
+npx praxio-oai-kit-conversao init          # extensão: perfil "conversao" + wizard
+```
+
+O wizard de `praxio-oai-kit-conversao init`:
+- Deposita o perfil `conversao` (agentes/comandos/policy) dentro de `.oai-kit/` do repositório e reexecuta o adapter da IDE ativa.
+- Pergunta o caminho local do repositório legado e de uma **base de conhecimento central** (um repositório git próprio, compartilhado por todos os módulos em conversão — não duplicado por repositório).
+- Pergunta, de forma opcional, se você quer configurar MCPs auxiliares (ex: exploração de schema Oracle, indexação de código como grafo de conhecimento) — só usados quando a conversão realmente precisar, nunca por padrão.
+- Salva tudo em `.claude/.local-config.json` (pessoal, gitignored), sob a chave `conversao`.
+
+### Uso
+
+```
+/oai-kit-converter-tela {ID_AZURE}                          # Modo A — só Azure
+/oai-kit-converter-tela --fontes [caminho1] [caminho2] ...  # Modo B — só fontes locais
+/oai-kit-converter-tela {ID_AZURE} --fontes [...]           # Modo C — combinação
+/oai-kit-registrar-gap                                       # registra um GAP a qualquer momento
+```
+
+O comando principal classifica a tela num arquétipo conhecido antes de implementar, decidindo o número de checkpoints proporcionalmente à complexidade — telas simples levam 1, telas complexas levam 2 ou mais (incluindo validação arquitetural quando necessário). Tudo que é descoberto numa conversão (padrões, armadilhas, schema, decisões em aberto) retroalimenta a base de conhecimento central, para nunca ser redescoberto na próxima tela.
 
 ---
 

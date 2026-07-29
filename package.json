@@ -6,6 +6,9 @@
   "engines": {
     "node": ">=18"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "bin": {
     "oai-kit": "bin/cli.js"
   },

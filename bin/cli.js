@@ -375,10 +375,16 @@ async function cmdProfile() {
     return;
   }
 
-  const validProfiles = ['developer', 'qa', 'po'];
+  const validProfiles = ['developer', 'qa', 'po', 'conversao'];
   if (!validProfiles.includes(profileName)) {
     console.log(`\n  ⚠  Perfil '${profileName}' não reconhecido. Opções: ${validProfiles.join(', ')}\n`);
     return;
+  }
+  if (profileName === 'conversao') {
+    console.log(`\n  ℹ  O perfil 'conversao' é normalmente instalado via a extensão dedicada:`);
+    console.log(`     npx praxio-oai-kit-conversao init`);
+    console.log(`     Ela também conduz um wizard de configuração (paths do legado, GlobusEvo.Minerva, MCPs opcionais).`);
+    console.log(`     Continuando apenas com a cópia de arquivos — sem o wizard.\n`);
   }
 
   console.log(`\n➕ Adicionando perfil: ${profileName}...\n`);
