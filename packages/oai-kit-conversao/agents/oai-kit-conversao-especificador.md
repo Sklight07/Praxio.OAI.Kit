@@ -12,7 +12,7 @@ Você documenta uma tela legada de forma **exaustiva o suficiente para outra pes
 
 ## Etapa 0 — Bootstrap
 
-Leia `.claude/.local-config.json` → chave `conversao` (`legacyRepoPath`, `knowledgeBasePath`, `documentosGlobusPath`, MCPs opcionais) — mesmo processo do `oai-kit-conversao-triagem`.
+Leia `.claude/.local-config.json` → chave `conversao` (`legacyRepoPath`, `knowledgeBasePath`, MCPs opcionais) — mesmo processo do `oai-kit-conversao-triagem`.
 
 **`git pull` obrigatório em `knowledgeBasePath` antes de qualquer leitura** (política transversal, ver `conversion-policy.md` — regra de sincronismo). Se o pull falhar (sem rede, working tree suja, conflito local não resolvido) → pare e informe o dev; nunca prossiga documentando sobre uma base desatualizada, pois pode gerar uma spec duplicada ou divergente da que outro colega já fez hoje.
 
@@ -32,7 +32,7 @@ Consulte `{knowledgeBasePath}/minerva-index.json` → `especificacoes`. Se já e
 
 Para cada campo visível na tela: nome, tipo, tamanho, obrigatoriedade, posição/agrupamento visual (ex: "grupo Endereço", "linha 2 do form"), validação. Para o(s) grid(s): colunas, ordenação padrão, ações disponíveis por linha. Para a(s) tabela(s) Oracle envolvidas: nome, colunas usadas, tipos, PK/FK. Para regras de negócio: liste cada uma individualmente e **conte quantas são não-triviais** (além de "campo obrigatório") — esse número alimenta o gatilho "muitas regras de negócio" da classificação.
 
-**Já resolva o de/para de componente** consultando `{knowledgeBasePath}/catalogo-reuso/componentes-e-hooks.md` e os cheatsheets (`delphi-para-react.md`, `delphi-para-nestjs.md`) e `{documentosGlobusPath}/patterns/legacy-uikit-mapping.md` — a spec deve dizer explicitamente "este campo X vira `EmpresaFilialCombobox`", não deixar essa dedução para quando a tela for de fato convertida.
+**Já resolva o de/para de componente** consultando `{knowledgeBasePath}/catalogo-reuso/componentes-e-hooks.md` e os cheatsheets (`delphi-para-react.md`, `delphi-para-nestjs.md`) e `{knowledgeBasePath}/padroes-globusweb/patterns/legacy-uikit-mapping.md` — a spec deve dizer explicitamente "este campo X vira `EmpresaFilialCombobox`", não deixar essa dedução para quando a tela for de fato convertida.
 
 ### 4. Calcular a pontuação e o nível
 

@@ -1,6 +1,6 @@
 # Política: Conversion Policy
 
-Verificações obrigatórias de `oai-kit-conversao-triagem`, `oai-kit-conversao-backend`, `oai-kit-conversao-frontend`, `oai-kit-conversao-paridade`, `oai-kit-conversao-especificador` e `oai-kit-conversao-aprendizado`. Violações são hard stops — consolida (sem duplicar por extenso) os princípios já estabelecidos em `documentos globus/patterns/globusweb-principles.md` e `oracle-metadata-policy.md`.
+Verificações obrigatórias de `oai-kit-conversao-triagem`, `oai-kit-conversao-backend`, `oai-kit-conversao-frontend`, `oai-kit-conversao-paridade`, `oai-kit-conversao-especificador` e `oai-kit-conversao-aprendizado`. Violações são hard stops — consolida (sem duplicar por extenso) os princípios já estabelecidos em `{knowledgeBasePath}/padroes-globusweb/patterns/globusweb-principles.md` e `oracle-metadata-policy.md`.
 
 ## Escala de Classificação (N1-N5 / N-ESPECIAL)
 

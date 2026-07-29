@@ -34,7 +34,7 @@ Checklist do `N1`-`N3` **mais**:
 
 ### 3. Checklist — nível `N-ESPECIAL`
 
-Aplique o checklist completo de `{documentosGlobusPath}/patterns/parity-checklist.md` (blocos Funcional / Técnica / Operacional), incluindo:
+Aplique o checklist completo de `{knowledgeBasePath}/padroes-globusweb/patterns/parity-checklist.md` (blocos Funcional / Técnica / Operacional), incluindo:
 - Caminhos felizes, defaults, validações, permissões, mensagens de erro idênticas às do Delphi.
 - Comparação de defaults/sequences/triggers entre metadado Oracle (se disponível), entity implementada e comportamento real do `.pas`.
 - Performance com volume representativo, ausência de N+1.

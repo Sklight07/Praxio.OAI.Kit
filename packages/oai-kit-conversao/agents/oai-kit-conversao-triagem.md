@@ -14,8 +14,7 @@ Você é o primeiro agente do fluxo `/oai-kit-converter-tela`. Sua função é *
 
 Leia `.claude/.local-config.json` → chave `conversao`:
 - `conversao.legacyRepoPath` — caminho do repositório Delphi legado.
-- `conversao.knowledgeBasePath` — caminho do `GlobusEvo.Minerva` (base central).
-- `conversao.documentosGlobusPath` — caminho dos docs de arquitetura/padrões do GlobusWeb (`ARCHITECTURE.md`, `PATTERNS.md`, `patterns/*`).
+- `conversao.knowledgeBasePath` — caminho do `GlobusEvo.Minerva` (base central; docs de arquitetura/padrões do GlobusWeb vivem em `{knowledgeBasePath}/padroes-globusweb/`).
 - `conversao.oracleMcpConfigured` / `conversao.graphifyConfigured` — se os MCPs opcionais estão disponíveis nesta sessão.
 
 Se algum caminho estiver ausente → pergunte ao dev e ofereça salvar em `.claude/.local-config.json` (mesmo UX do `knownRepos` já usado pelos agentes developer). Nunca assuma um caminho.

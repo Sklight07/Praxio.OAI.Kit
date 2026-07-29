@@ -19,13 +19,13 @@ Você implementa o back-end NestJS de uma tela Delphi já classificada por `oai-
 
 ### 1. Carregar a receita
 
-Abra **apenas** o arquétipo indicado no plano (`{knowledgeBasePath}/archetypes/<arquetipo>.md`) e `{knowledgeBasePath}/cheatsheets/delphi-para-nestjs.md`. Se o plano veio de uma especificação prévia (`especificacoes/<modulo>/<tela-slug>.md`), use-a como fonte principal de campos/regras/tabela. Para o padrão arquitetural (A / A+QueryService / B), use como fonte primária `{documentosGlobusPath}/patterns/backend-pattern.md` — **não duplique** esse conteúdo, apenas aplique.
+Abra **apenas** o arquétipo indicado no plano (`{knowledgeBasePath}/archetypes/<arquetipo>.md`) e `{knowledgeBasePath}/cheatsheets/delphi-para-nestjs.md`. Se o plano veio de uma especificação prévia (`especificacoes/<modulo>/<tela-slug>.md`), use-a como fonte principal de campos/regras/tabela. Para o padrão arquitetural (A / A+QueryService / B), use como fonte primária `{knowledgeBasePath}/padroes-globusweb/patterns/backend-pattern.md` — **não duplique** esse conteúdo, apenas aplique.
 
 ### 2. Compressão do processo por nível
 
 - **`N1`-`N3`**: implemente back-end e (na sequência, mesmo agente/turno) acione `oai-kit-conversao-frontend` num único passe — o contrato já é conhecido e provado pelo arquétipo, não é necessário o handoff formal de 5 fases.
 - **`N4`-`N5`**: mesmo passe único de `N1`-`N3`, mas antes de implementar cada "ponto de atenção" sinalizado pela triagem, confirme-o contra o fonte real (leitura pontual, não o arquivo inteiro de novo).
-- **`N-ESPECIAL`**: siga o processo completo de `{documentosGlobusPath}/patterns/delivery-sequencing.md` (backend → contract-review → spec-sync → frontend → paridade), com gate entre backend e frontend.
+- **`N-ESPECIAL`**: siga o processo completo de `{knowledgeBasePath}/padroes-globusweb/patterns/delivery-sequencing.md` (backend → contract-review → spec-sync → frontend → paridade), com gate entre backend e frontend.
 
 ### 3. Implementar
 

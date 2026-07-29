@@ -19,7 +19,7 @@ Você implementa a feature React de uma tela Delphi já classificada por `oai-ki
 
 ### 1. Carregar a receita
 
-Abra **apenas** o arquétipo indicado (`{knowledgeBasePath}/archetypes/<arquetipo>.md`) e `{knowledgeBasePath}/cheatsheets/delphi-para-react.md` + `{knowledgeBasePath}/cheatsheets/armadilhas-comuns.md`. Para padrões de UX e mapeamento de componentes, `{documentosGlobusPath}/patterns/frontend-pattern.md` e `legacy-uikit-mapping.md` são a fonte primária — não duplicar, aplicar.
+Abra **apenas** o arquétipo indicado (`{knowledgeBasePath}/archetypes/<arquetipo>.md`) e `{knowledgeBasePath}/cheatsheets/delphi-para-react.md` + `{knowledgeBasePath}/cheatsheets/armadilhas-comuns.md`. Para padrões de UX e mapeamento de componentes, `{knowledgeBasePath}/padroes-globusweb/patterns/frontend-pattern.md` e `{knowledgeBasePath}/padroes-globusweb/patterns/legacy-uikit-mapping.md` são a fonte primária — não duplicar, aplicar.
 
 ### 2. Padrão de UX
 

@@ -156,9 +156,8 @@ async function cmdInit() {
 
   const knowledgeBasePath = await ask('Caminho local da base de conhecimento central (ex: C:\\Praxio\\GlobusEvo.Minerva): ');
   if (knowledgeBasePath) config.conversao.knowledgeBasePath = knowledgeBasePath;
-
-  const documentosGlobusPath = await ask('Caminho local dos documentos de arquitetura/padrões do GlobusWeb (ex: C:\\documentos globus): ');
-  if (documentosGlobusPath) config.conversao.documentosGlobusPath = documentosGlobusPath;
+  // Docs de arquitetura/padrões do GlobusWeb vivem dentro do próprio GlobusEvo.Minerva
+  // (pasta padroes-globusweb/) — não é um path separado a configurar.
 
   const wantsOracle = (await ask('\nDeseja configurar o MCP de exploração Oracle (praxio-oracle-discover-mcp)? (s/N): ')).toLowerCase();
   if (wantsOracle === 's' || wantsOracle === 'sim') {
