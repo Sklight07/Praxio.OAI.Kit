@@ -199,6 +199,11 @@ async function cmdInit() {
     } else {
       config.conversao.oracleMcpConfigured = false;
     }
+
+    if (config.conversao.oracleMcpConfigured) {
+      const owner = await ask('  Owner/schema Oracle para qualificar consultas de metadado (só serve pra evitar erro de tabela-não-encontrada quando há múltiplos owners no mesmo host — deixe em branco se não souber, o agente pergunta quando precisar): ');
+      if (owner) config.conversao.oracleSchemaOwner = owner;
+    }
   } else {
     config.conversao.oracleMcpConfigured = false;
   }

@@ -16,6 +16,7 @@ Leia `.claude/.local-config.json` → chave `conversao`:
 - `conversao.legacyRepoPath` — caminho do repositório Delphi legado.
 - `conversao.knowledgeBasePath` — caminho do `GlobusEvo.Minerva` (base central; docs de arquitetura/padrões do GlobusWeb vivem em `{knowledgeBasePath}/padroes-globusweb/`).
 - `conversao.oracleMcpConfigured` / `conversao.graphifyConfigured` — se os MCPs opcionais estão disponíveis nesta sessão.
+- `conversao.oracleSchemaOwner` — owner padrão para qualificar consultas de schema Oracle (o mesmo host pode ter tabelas de mesmo nome sob owners diferentes).
 
 Se algum caminho estiver ausente → pergunte ao dev e ofereça salvar em `.claude/.local-config.json` (mesmo UX do `knownRepos` já usado pelos agentes developer). Nunca assuma um caminho.
 
@@ -71,11 +72,15 @@ Pontuação estrutural (só se nenhum gatilho de exceção estiver presente): gr
 
 **Sem meio-termo na dúvida — se não tiver certeza se um gatilho de exceção se aplica, trate como se aplicasse (`N-ESPECIAL`).** Se o arquétipo não bate com nenhum existente, registre como candidato a novo arquétipo.
 
-### 5. Acionar MCP Oracle — só se necessário e disponível
+### 5. Confirmar schema Oracle (se esta triagem não veio de especificação prévia já confirmada)
 
-Só considere o MCP Oracle (`praxio-oracle-discover-mcp`) quando o nível é `N-ESPECIAL` por sinal de schema/procedure ambíguo, o objeto não estiver em cache (`descobertas-oracle/`), e `conversao.oracleMcpConfigured` for `true`. **Telas N1-N5 nunca acionam esse MCP.** Restrinja-se às ferramentas de metadado/estrutura (`describe_table`, `describe_procedure`, `describe_view`, `list_constraints`, `list_indexes`, `get_ddl`, `get_object_source`, `find_references`, `search_objects`, `list_packages`) — **nunca** `execute_sql`/`query_table`/`sample_data`/`query_eso_informacao_gerar` (ver `conversion-policy.md`).
+Se o plano veio de uma especificação prévia (passo 2) que já confirmou o schema, reaproveite — não repita. **Se não veio** (conversão direta, sem `/oai-kit-documentar-tela` antes), confirme o schema da tabela principal e das relacionadas por FK — isso **não é gateado por nível** (AP-CONV-006 em `conversion-policy.md`): cache (`tabelasConhecidas`) → tool dedicada (`describe_table`/`list_constraints`, qualificando pelo owner em `conversao.oracleSchemaOwner`) → fallback de dicionário de dados (`execute_sql` restrito à allowlist do AP-CONV-005) → **perguntar ao dev** se tudo falhar ou o MCP não estiver configurado. Cruze o tipo confirmado contra o inferido do Delphi e sinalize divergência (ex: `AsString` no Delphi vs `NUMBER` no Oracle). Persista em `descobertas-oracle/<tabela>.md` (nunca cite o owner no nome/conteúdo/índice — a estrutura é a mesma independente do owner, ele só qualifica a chamada da tool) e atualize `tabelasConhecidas` — não delegue isso para `oai-kit-conversao-aprendizado` sem garantir que a descoberta não se perde se o dev não chegar até o fim da conversão.
 
-Se o MCP não estiver disponível, siga sem ele, marcando o campo correspondente como `INFERRED` em vez de `CONFIRMED` — nunca bloqueie a conversão por isso.
+Se, mesmo assim, o schema não puder ser confirmado, marque o campo correspondente como `INFERRED` em vez de `CONFIRMED` no plano — nunca bloqueie a conversão por isso, mas nunca apresente como certo.
+
+### 6. Investigação profunda via MCP Oracle — só quando `N-ESPECIAL` e necessário
+
+Diferente da confirmação de schema (passo 5), isto é caro e raro: só considere `get_object_source`/`find_references` (fonte de procedure/function) quando o nível é `N-ESPECIAL` por sinal de procedure/function ambígua, o objeto não estiver em cache, e `conversao.oracleMcpConfigured` for `true`. **Telas N1-N5 nunca precisam disso.** Restrinja-se às ferramentas de metadado/estrutura já listadas em `conversion-policy.md` — nunca `query_table`/`sample_data`/`query_eso_informacao_gerar`, e `execute_sql` só dentro da allowlist de dicionário de dados.
 
 Se `oai-kit-legacy-screen-locate` não conseguir resolver trivialmente uma tela multi-arquivo e `conversao.graphifyConfigured` for `true`, use `graphify path`/`graphify explain` em vez de seguir `uses` manualmente.
 
@@ -124,7 +129,9 @@ Padrão UX sugerido: Pai-filho | CRUD simples — [justificativa]
 ## Restrições Absolutas
 
 - Nunca assuma que uma tela tem exatamente 1 arquivo.
-- Nunca chame o MCP do Azure ou o MCP Oracle só por hábito — apenas quando falta um insumo que só eles fornecem.
+- Nunca chame o MCP do Azure só por hábito — apenas quando falta um insumo que só ele fornece.
+- Nunca pule a confirmação de schema Oracle (passo 5) achando que só telas `N-ESPECIAL` precisam — precisam todas as telas com tabela real, independente do nível. Investigação profunda de procedure (passo 6) sim é só `N-ESPECIAL`.
+- Nunca deixe uma descoberta de schema Oracle presa só no plano da tela — sempre persista em `descobertas-oracle/`.
 - Nunca reaproveite uma especificação sem checar staleness primeiro.
 - Nunca trate um nível como N1-N5 na dúvida sobre gatilho de exceção — o padrão seguro é `N-ESPECIAL`.
 - Nunca adivinhe nome de tabela/procedure ou identificador de especificação por aproximação — nome exato/correspondência inequívoca ou `GAP`.

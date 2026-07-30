@@ -54,13 +54,19 @@ Nenhuma conversão altera schema Oracle (DDL, trigger, procedure, function) sem 
 
 ### AP-CONV-005 — Restrição de ferramentas do MCP Oracle
 
-Quando `praxio-oracle-discover-mcp` estiver configurado e for necessário (ver AP-CONV-006), os agentes de conversão só podem usar ferramentas de **metadado/estrutura**: `describe_table`, `describe_procedure`, `describe_view`, `list_constraints`, `list_indexes`, `get_ddl`, `get_object_source`, `find_references`, `search_objects`, `list_packages`.
+Quando `praxio-oracle-discover-mcp` estiver configurado (ver AP-CONV-006), os agentes de conversão usam **prioritariamente** ferramentas de metadado/estrutura: `describe_table`, `describe_procedure`, `describe_view`, `list_constraints`, `list_indexes`, `get_ddl`, `get_object_source`, `find_references`, `search_objects`, `list_packages`.
 
-**Proibido no contexto de conversão:** `execute_sql`, `query_table`, `sample_data`, `query_eso_informacao_gerar` — essas ferramentas leem dados de linha/negócio, não estrutura, violando o princípio de nunca ler valores/amostras/dados pessoais já estabelecido em `oracle-metadata-policy.md`.
+**`execute_sql` é permitido, mas só como fallback estreito**: (a) somente depois que a tool dedicada (`describe_table`/`list_constraints`/etc.) falhar ou se mostrar indisponível para o objeto (ex: `ORA-00942` numa tabela que existe — limitação conhecida da tool), **e** (b) a query é um `SELECT` restrito a esta allowlist de views de dicionário de dados, filtrada por owner/nome do objeto: `ALL_TAB_COLUMNS`, `ALL_CONSTRAINTS`, `ALL_CONS_COLUMNS`, `ALL_TAB_COMMENTS`, `ALL_COL_COMMENTS`, `ALL_TRIGGERS`, `ALL_INDEXES`, `ALL_IND_COLUMNS`, `ALL_OBJECTS`. Fora dessa allowlist, `execute_sql` continua proibido.
 
-### AP-CONV-006 — MCP Oracle só quando necessário
+**Sempre proibido no contexto de conversão:** `query_table`, `sample_data`, `query_eso_informacao_gerar`, e qualquer `execute_sql` fora da allowlist acima (isso inclui qualquer tabela de negócio real, ex: `FLP_ESTADOCIVIL`) — essas leem dados de linha/negócio, não estrutura, violando o princípio de nunca ler valores/amostras/dados pessoais já estabelecido em `oracle-metadata-policy.md`.
 
-O MCP Oracle só é acionado quando: (a) o nível já foi classificado `N-ESPECIAL` por sinal de schema/procedure ambíguo, **e** (b) o objeto não está em cache (`descobertas-oracle/` via `minerva-index.json`), **e** (c) o MCP está configurado (`conversao.oracleMcpConfigured`). Telas `N1`-`N5` com arquétipo batido nunca acionam esse MCP — custo e tempo devem ser preservados.
+### AP-CONV-006 — Dois usos do MCP Oracle, dois gates diferentes
+
+**Confirmação de schema** (colunas/tipos/PK/FK/triggers da tabela principal e das relacionadas por FK) — **não é gateada por nível**. Sempre que a tela tiver tabela Oracle real e o schema não estiver em cache (`descobertas-oracle/` via `minerva-index.json` → `tabelasConhecidas`), a sequência é: cache → tool dedicada → fallback de dicionário (AP-CONV-005) → **perguntar ao dev** se as três falharem ou o MCP não estiver configurado. Isso vale para **qualquer nível**, `N1` a `N-ESPECIAL` — o código Delphi sozinho não é evidência confiável do tipo real da coluna (ex: campo lido como `AsString` no Delphi pode ser `NUMBER` no Oracle; o driver tolera a conversão implícita). Toda descoberta é persistida em `descobertas-oracle/` — nunca fica só na especificação de uma tela isolada.
+
+**Investigação profunda** (fonte de procedure/function via `get_object_source`, `find_references` para regra de negócio complexa) — continua gateada: só quando o nível é `N-ESPECIAL` **e** o objeto não está em cache **e** o MCP está configurado (`conversao.oracleMcpConfigured`). Telas `N1`-`N5` nunca precisam disso — é investigação cara, diferente de confirmar um tipo de coluna.
+
+**Owner do schema**: o mesmo host pode ter múltiplos owners com tabelas de mesmo nome — **estruturalmente idênticas**, o owner não muda a tabela, só afeta qual instância a tool do MCP resolve. É **puramente um parâmetro de consulta em tempo de execução**: use `conversao.oracleSchemaOwner` se o dev tiver configurado essa chave (pessoal, por ambiente — nunca um valor fixo do kit). Se ausente, ou se a tabela não for encontrada sob esse owner, **pergunte ao dev qual owner usar** — nunca tente owners "parecidos" ou por tentativa e erro silenciosa (AP-CONV-007), e nunca assuma um owner "padrão" que não veio de configuração explícita ou da resposta do dev. **Owner nunca aparece em `descobertas-oracle/`** (nome de arquivo, conteúdo ou chave do índice) — só na chamada da tool.
 
 ### AP-CONV-007 — Nunca adivinhar por aproximação
 
@@ -93,7 +99,8 @@ Testar a aplicação rodando (subir o servidor, clicar na tela, validar GraphQL 
 ## Verificações do `oai-kit-conversao-paridade`
 
 Antes de aprovar qualquer conversão, verifique:
-- Nenhuma chamada a `execute_sql`/`query_table`/`sample_data` aparece no histórico de ferramentas usadas pela triagem/backend.
+- Nenhuma chamada a `query_table`/`sample_data` aparece no histórico de ferramentas usadas pela triagem/especificador/backend; qualquer `execute_sql` usado está restrito à allowlist de dicionário de dados do AP-CONV-005 (nunca contra tabela de negócio real).
+- Toda tabela/schema confirmado via MCP ou perguntado ao dev está persistido em `descobertas-oracle/` — não ficou só na especificação/plano da tela isolada.
 - Nenhuma alteração em arquivos de `GlobusWeb.UIKit` sem o processo do AP-CONV-003.
 - Todo campo marcado `INFERRED` no plano da triagem está claramente sinalizado como tal no output final (não foi silenciosamente promovido a `CONFIRMED`).
 - Nenhum campo/grid/botão foi adicionado além do que a tela legada (ou a especificação) realmente tem (AP-CONV-009).
