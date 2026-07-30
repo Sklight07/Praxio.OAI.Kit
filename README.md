@@ -492,16 +492,23 @@ O wizard de `praxio-oai-kit-conversao init`:
 - Pergunta, de forma opcional, se você quer configurar MCPs auxiliares (ex: exploração de schema Oracle, indexação de código como grafo de conhecimento) — só usados quando a conversão realmente precisar, nunca por padrão.
 - Salva tudo em `.claude/.local-config.json` (pessoal, gitignored), sob a chave `conversao`.
 
+Para atualizar o perfil depois de uma nova versão do pacote, sem repetir o wizard:
+
+```bash
+npx praxio-oai-kit-conversao@latest update
+```
+
 ### Uso
 
 ```
+/oai-kit-documentar-tela {ID_AZURE ou --fontes ...}          # documenta uma tela adiantado, sem converter
 /oai-kit-converter-tela {ID_AZURE}                          # Modo A — só Azure
 /oai-kit-converter-tela --fontes [caminho1] [caminho2] ...  # Modo B — só fontes locais
 /oai-kit-converter-tela {ID_AZURE} --fontes [...]           # Modo C — combinação
 /oai-kit-registrar-gap                                       # registra um GAP a qualquer momento
 ```
 
-O comando principal classifica a tela num arquétipo conhecido antes de implementar, decidindo o número de checkpoints proporcionalmente à complexidade — telas simples levam 1, telas complexas levam 2 ou mais (incluindo validação arquitetural quando necessário). Tudo que é descoberto numa conversão (padrões, armadilhas, schema, decisões em aberto) retroalimenta a base de conhecimento central, para nunca ser redescoberto na próxima tela.
+O comando principal classifica a tela numa escala graduada (`N1`-`N5`, por sinais estruturais como grid/PK composta/master-detail/referências externas, ou `N-ESPECIAL` quando há procedure/integração/gravação em tabela não-relacionada/muitas regras de negócio) antes de implementar, decidindo quanto do fonte legado precisa ser lido e quantos checkpoints a conversão tem. Se uma especificação prévia já existir (via `/oai-kit-documentar-tela`), a leitura do fonte é pulada total ou parcialmente. Tudo que é descoberto numa conversão (padrões, armadilhas, schema, decisões em aberto) retroalimenta a base de conhecimento central, para nunca ser redescoberto na próxima tela. Os agentes nunca sobem/executam o projeto — no máximo compilam/lint — testar rodando é sempre trabalho do dev.
 
 ---
 

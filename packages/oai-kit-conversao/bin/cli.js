@@ -102,22 +102,25 @@ function runAdapters(ides, profiles) {
   }
 }
 
-// ─── cmdInit ───────────────────────────────────────────────────────────────
+// ─── deposito compartilhado (init e update usam os dois) ──────────────────
 
-async function cmdInit() {
-  console.log('\n🔧 Instalando extensão de Conversão (praxio-oai-kit-conversao)...\n');
-
+/**
+ * Copia os arquivos do perfil conversao para .oai-kit/, registra o perfil
+ * em oai-kit.yaml e reexecuta os adapters. Não toca em .claude/.local-config.json.
+ * @returns {{ ok: boolean }}
+ */
+function depositProfileFiles() {
   const oaiKitDir = path.join(CWD, '.oai-kit');
   if (!fs.existsSync(oaiKitDir)) {
     console.log('  ✗ .oai-kit/ não encontrado neste repositório.');
     console.log('    Rode primeiro: npx praxio-oai-kit init\n');
-    return;
+    return { ok: false };
   }
 
   const yamlPath = path.join(CWD, 'oai-kit.yaml');
   if (!fs.existsSync(yamlPath)) {
     console.log('  ✗ oai-kit.yaml não encontrado. Rode primeiro: npx praxio-oai-kit init\n');
-    return;
+    return { ok: false };
   }
   let yaml = fs.readFileSync(yamlPath, 'utf8');
   const ides = parseYamlList(yaml, 'ides');
@@ -134,16 +137,27 @@ async function cmdInit() {
   copyDirContents(path.join(PKG_ROOT, 'commands'), path.join(oaiKitDir, 'commands', 'conversao'));
   copyDirContents(path.join(PKG_ROOT, 'knowledge', 'conversao'), path.join(oaiKitDir, 'knowledge', 'conversao'));
   copyDirContents(path.join(PKG_ROOT, 'policies'), path.join(oaiKitDir, 'policies'));
-  console.log('  ✓ Perfil "conversao" depositado em .oai-kit/');
+  console.log('  ✓ Perfil "conversao" depositado em .oai-kit/ (versão atual do pacote)');
 
   // 2) Registra o perfil em oai-kit.yaml
   yaml = addToYamlList(yaml, 'profiles', 'conversao');
   fs.writeFileSync(yamlPath, yaml);
-  console.log('  ✓ oai-kit.yaml atualizado com o perfil "conversao"');
+  console.log('  ✓ oai-kit.yaml conferido (perfil "conversao" presente)');
 
   // 3) Reexecuta adapters da(s) IDE(s) já configurada(s)
   const profiles = parseYamlList(yaml, 'profiles');
   runAdapters(ides, profiles);
+
+  return { ok: true };
+}
+
+// ─── cmdInit ───────────────────────────────────────────────────────────────
+
+async function cmdInit() {
+  console.log('\n🔧 Instalando extensão de Conversão (praxio-oai-kit-conversao)...\n');
+
+  const { ok } = depositProfileFiles();
+  if (!ok) return;
 
   // 4) Wizard de configuração pessoal
   console.log('\n📋 Configuração da extensão (gravada em .claude/.local-config.json, pessoal/gitignored)\n');
@@ -211,6 +225,28 @@ async function cmdInit() {
   console.log('  /oai-kit-converter-tela {ID_AZURE} --fontes [...]          — Modo C (combinação)\n');
 }
 
+// ─── cmdUpdate ─────────────────────────────────────────────────────────────
+
+async function cmdUpdate() {
+  console.log('\n🔃 Atualizando extensão de Conversão (praxio-oai-kit-conversao)...\n');
+
+  const oaiKitDir = path.join(CWD, '.oai-kit');
+  const conversaoDir = path.join(oaiKitDir, 'agents', 'conversao');
+  if (!fs.existsSync(conversaoDir)) {
+    console.log('  ⚠  Perfil "conversao" não parece instalado ainda neste repositório.');
+    console.log('     Rode primeiro: npx praxio-oai-kit-conversao@latest init\n');
+    return;
+  }
+
+  const { ok } = depositProfileFiles();
+  if (!ok) return;
+
+  console.log('\n✅ Extensão de Conversão atualizada — agentes/comandos/policy na versão mais recente do pacote.\n');
+  console.log('ℹ  Isso não mexe em .claude/.local-config.json (seus paths pessoais continuam os mesmos).');
+  console.log('   Se .oai-kit/ e .claude/ deste repositório forem versionados, lembre de commitar e dar push');
+  console.log('   para o resto do time também receber a atualização.\n');
+}
+
 // ─── main ──────────────────────────────────────────────────────────────────
 
 (async () => {
@@ -218,10 +254,14 @@ async function cmdInit() {
     case 'init':
       await cmdInit();
       break;
+    case 'update':
+      await cmdUpdate();
+      break;
     default:
       console.log('\npraxio-oai-kit-conversao\n');
       console.log('Comandos disponíveis:');
-      console.log('  npx praxio-oai-kit-conversao init   Instala o perfil de conversão no repositório atual\n');
+      console.log('  npx praxio-oai-kit-conversao init     Instala o perfil de conversão no repositório atual (com wizard de configuração)');
+      console.log('  npx praxio-oai-kit-conversao update   Atualiza os arquivos do perfil para a versão atual do pacote (sem repetir o wizard)\n');
       console.log('Pré-requisito: o repositório já deve ter o praxio-oai-kit base instalado (npx praxio-oai-kit init).\n');
   }
 })();
