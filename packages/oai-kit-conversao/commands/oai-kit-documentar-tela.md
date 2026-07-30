@@ -17,13 +17,13 @@ Invoque `oai-kit-conversao-especificador`:
 - Determina o modo de entrada e localiza/lê **todos** os arquivos do conjunto da tela (clássica ou multi-arquivo moderna).
 - Checa se já existe especificação para esta tela — se sim, pergunta antes de sobrescrever.
 - Documenta campos, grid, tabela(s), regras de negócio (contadas), e já resolve o de/para de componente Delphi→UIKit.
-- Calcula pontuação estrutural + verifica gatilhos de exceção → nível N1-N5 ou N-ESPECIAL (ver `conversion-policy.md`).
+- Calcula pontuação estrutural + verifica gatilhos de exceção → nível N1-N5 ou N-ESPECIAL (ver `.oai-kit/policies/conversion-policy.md` — arquivo local do projeto, depositado pelo kit; não fica no Minerva).
 - Registra staleness (mtime/tamanho dos fontes lidos).
 - Gera `especificacoes/<modulo>/<tela-slug>.md` e atualiza `minerva-index.json`.
 
 ### ⚡ CHECKPOINT — Gate Pré-Commit no Minerva
 
-**PARADA OBRIGATÓRIA.** Apresenta a especificação gerada (ou o diff, se estiver sobrescrevendo) e pergunta: *"Posso commitar esta especificação no GlobusEvo.Minerva? (sim/não)"* Após aprovado, sempre tenta o push (com retry automático de `git pull --rebase` uma vez em caso de conflito de fast-forward — ver `conversion-policy.md`).
+**PARADA OBRIGATÓRIA.** Apresenta a especificação gerada (ou o diff, se estiver sobrescrevendo) e pergunta: *"Posso commitar esta especificação no GlobusEvo.Minerva? (sim/não)"* Após aprovado, sempre tenta o push (com retry automático de `git pull --rebase` uma vez em caso de conflito de fast-forward — ver `.oai-kit/policies/conversion-policy.md`).
 
 ## Regra geral
 

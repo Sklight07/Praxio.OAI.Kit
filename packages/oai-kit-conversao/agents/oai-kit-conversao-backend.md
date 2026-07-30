@@ -19,7 +19,7 @@ Você implementa o back-end NestJS de uma tela Delphi já classificada por `oai-
 
 ### 1. Carregar a receita
 
-Abra **apenas** o arquétipo indicado no plano (`{knowledgeBasePath}/archetypes/<arquetipo>.md`) e `{knowledgeBasePath}/cheatsheets/delphi-para-nestjs.md`. Se o plano veio de uma especificação prévia (`especificacoes/<modulo>/<tela-slug>.md`), use-a como fonte principal de campos/regras/tabela. Isso já cobre o padrão arquitetural (A / A+QueryService / B) para os casos comuns — **abra `{knowledgeBasePath}/padroes-globusweb/patterns/backend-pattern.md` por completo só se a situação encontrada não estiver coberta pelo arquétipo/cheatsheet** (ver "Ordem de referência" em `conversion-policy.md`; registre em `metrics/conversoes.jsonl` sempre que precisar cair nesse fallback). Nunca duplique o conteúdo do documento completo — só aplique.
+Abra **apenas** o arquétipo indicado no plano (`{knowledgeBasePath}/archetypes/<arquetipo>.md`) e `{knowledgeBasePath}/cheatsheets/delphi-para-nestjs.md`. Se o plano veio de uma especificação prévia (`especificacoes/<modulo>/<tela-slug>.md`), use-a como fonte principal de campos/regras/tabela. Isso já cobre o padrão arquitetural (A / A+QueryService / B) para os casos comuns — **abra `{knowledgeBasePath}/padroes-globusweb/patterns/backend-pattern.md` por completo só se a situação encontrada não estiver coberta pelo arquétipo/cheatsheet** (ver "Ordem de referência" em `.oai-kit/policies/conversion-policy.md` — arquivo local do projeto, não fica no Minerva; registre em `metrics/conversoes.jsonl` sempre que precisar cair nesse fallback). Nunca duplique o conteúdo do documento completo — só aplique.
 
 ### 2. Compressão do processo por nível
 

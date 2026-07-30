@@ -8,7 +8,7 @@ Registra um GAP/HUMAN DECISION na base central `GlobusEvo.Minerva` a qualquer mo
 
 ### PASSO 0 — Sincronizar o Minerva
 
-`git pull` obrigatório em `knowledgeBasePath` antes de qualquer leitura (política de sincronismo, ver `conversion-policy.md`). Se falhar, pare e informe o dev — não prossiga sobre uma base desatualizada.
+`git pull` obrigatório em `knowledgeBasePath` antes de qualquer leitura (política de sincronismo, ver `.oai-kit/policies/conversion-policy.md` — arquivo local do projeto, não fica no Minerva). Se falhar, pare e informe o dev — não prossiga sobre uma base desatualizada.
 
 ### PASSO 1 — Coletar o GAP
 

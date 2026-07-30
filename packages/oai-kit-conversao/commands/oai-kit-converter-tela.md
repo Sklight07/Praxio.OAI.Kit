@@ -1,6 +1,6 @@
 # /oai-kit-converter-tela
 
-Converte uma tela do sistema legado Delphi (Globus) para o GlobusWeb. Checkpoints variáveis por nível de complexidade (escala `N1`-`N5`/`N-ESPECIAL`, ver `conversion-policy.md`) — telas simples com arquétipo conhecido levam 1 checkpoint; telas com gatilho de exceção levam 2+. Se já existir uma especificação prévia (`/oai-kit-documentar-tela` rodado antes, por você ou outro dev) e o nível permitir, a leitura do fonte Delphi é pulada inteira ou parcialmente.
+Converte uma tela do sistema legado Delphi (Globus) para o GlobusWeb. Checkpoints variáveis por nível de complexidade (escala `N1`-`N5`/`N-ESPECIAL`, ver `.oai-kit/policies/conversion-policy.md` — arquivo local do projeto, não fica no Minerva) — telas simples com arquétipo conhecido levam 1 checkpoint; telas com gatilho de exceção levam 2+. Se já existir uma especificação prévia (`/oai-kit-documentar-tela` rodado antes, por você ou outro dev) e o nível permitir, a leitura do fonte Delphi é pulada inteira ou parcialmente.
 
 **Uso — 3 modos de entrada, à sua escolha:**
 

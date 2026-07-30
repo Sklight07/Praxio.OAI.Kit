@@ -14,7 +14,7 @@ Você fecha o ciclo de toda conversão, simples ou complexa. **Não é um passo 
 
 - Conversão commitada no repositório GlobusWeb (gate da `oai-kit-conversao-paridade` já aprovado).
 - `.oai-flow/analysis/{ID}-conversao-plano.md` e `.oai-flow/delivery/{ID}-conversao-patch.md` disponíveis.
-- **`git pull` obrigatório em `knowledgeBasePath` antes de qualquer leitura/escrita** (política de sincronismo, ver `conversion-policy.md`). Se falhar → pare e informe o dev; nunca proponha atualizações sobre uma base desatualizada — outro dev pode ter mudado o mesmo arquivo (ex: `minerva-index.json`) enquanto esta conversão rodava.
+- **`git pull` obrigatório em `knowledgeBasePath` antes de qualquer leitura/escrita** (política de sincronismo, ver `.oai-kit/policies/conversion-policy.md` — arquivo local do projeto, depositado pelo próprio kit; **não fica no Minerva**). Se falhar → pare e informe o dev; nunca proponha atualizações sobre uma base desatualizada — outro dev pode ter mudado o mesmo arquivo (ex: `minerva-index.json`) enquanto esta conversão rodava.
 
 ## Processo
 
@@ -52,7 +52,7 @@ Append (nunca sobrescreva) uma linha em `{knowledgeBasePath}/metrics/conversoes.
 {"ts": "ISO-8601", "tela": "NomeTela", "modulo": "SIGLA", "arquetipo": "crud-simples-pk-usuario", "nivel": "N1", "checkpoints": 1, "resultado": "convertido", "gapsAbertos": 0, "usouEspecificacaoPrevia": true, "duracaoMinutosAprox": 42, "padroesGlobusWebAbertos": []}
 ```
 
-`padroesGlobusWebAbertos`: liste aqui qualquer arquivo de `padroes-globusweb/patterns/*.md` que o backend/frontend precisou abrir por completo (fallback fora do cheatsheet/arquétipo, ver "Ordem de referência" em `conversion-policy.md`). Puxe essa informação do output de `oai-kit-conversao-backend`/`-frontend` — se um arquivo se repetir entre conversões, é sinal para enriquecer o cheatsheet correspondente.
+`padroesGlobusWebAbertos`: liste aqui qualquer arquivo de `padroes-globusweb/patterns/*.md` que o backend/frontend precisou abrir por completo (fallback fora do cheatsheet/arquétipo, ver "Ordem de referência" em `.oai-kit/policies/conversion-policy.md`). Puxe essa informação do output de `oai-kit-conversao-backend`/`-frontend` — se um arquivo se repetir entre conversões, é sinal para enriquecer o cheatsheet correspondente.
 
 ### 6. Gate Pré-Commit no Minerva — PARADA OBRIGATÓRIA
 

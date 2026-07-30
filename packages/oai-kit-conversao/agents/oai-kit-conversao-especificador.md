@@ -14,7 +14,7 @@ Você documenta uma tela legada de forma **exaustiva o suficiente para outra pes
 
 Leia `.claude/.local-config.json` → chave `conversao` (`legacyRepoPath`, `knowledgeBasePath`, `oracleMcpConfigured`, `oracleSchemaOwner`, MCPs opcionais) — mesmo processo do `oai-kit-conversao-triagem`.
 
-**`git pull` obrigatório em `knowledgeBasePath` antes de qualquer leitura** (política transversal, ver `conversion-policy.md` — regra de sincronismo). Se o pull falhar (sem rede, working tree suja, conflito local não resolvido) → pare e informe o dev; nunca prossiga documentando sobre uma base desatualizada, pois pode gerar uma spec duplicada ou divergente da que outro colega já fez hoje.
+**`git pull` obrigatório em `knowledgeBasePath` antes de qualquer leitura** (política transversal, ver `.oai-kit/policies/conversion-policy.md` — arquivo local do projeto, depositado pelo kit; **não fica no Minerva**, nunca procure lá — regra de sincronismo). Se o pull falhar (sem rede, working tree suja, conflito local não resolvido) → pare e informe o dev; nunca prossiga documentando sobre uma base desatualizada, pois pode gerar uma spec duplicada ou divergente da que outro colega já fez hoje.
 
 ## Processo
 
@@ -32,13 +32,13 @@ Consulte `{knowledgeBasePath}/minerva-index.json` → `especificacoes`. Se já e
 
 Para cada campo visível na tela: nome, tipo, tamanho, obrigatoriedade, posição/agrupamento visual (ex: "grupo Endereço", "linha 2 do form"), validação. Para o(s) grid(s): colunas, ordenação padrão, ações disponíveis por linha. Para a(s) tabela(s) Oracle envolvidas: nome, colunas usadas, tipos, PK/FK. Para regras de negócio: liste cada uma individualmente e **conte quantas são não-triviais** (além de "campo obrigatório") — esse número alimenta o gatilho "muitas regras de negócio" da classificação.
 
-**Já resolva o de/para de componente** consultando primeiro `{knowledgeBasePath}/catalogo-reuso/componentes/<Componente>.md` (índice: `minerva-index.json` → `componentesUikit`; nunca `node_modules`/`ui-generator-kb.json` do UIKit como primeira parada — AP-CONV-011) e `{knowledgeBasePath}/catalogo-reuso/hooks-e-utils.md` para hooks reutilizáveis, além dos cheatsheets (`delphi-para-react.md`, `delphi-para-nestjs.md`) e `{knowledgeBasePath}/padroes-globusweb/patterns/legacy-uikit-mapping.md` (só se nada acima cobrir — ver "Ordem de referência" em `conversion-policy.md`) — a spec deve dizer explicitamente "este campo X vira `EmpresaFilialCombobox`", não deixar essa dedução para quando a tela for de fato convertida. Se o componente indicado não estiver catalogado ainda, sinalize isso na spec para que `oai-kit-conversao-aprendizado` gere a entrada nova quando a tela for convertida.
+**Já resolva o de/para de componente** consultando primeiro `{knowledgeBasePath}/catalogo-reuso/componentes/<Componente>.md` (índice: `minerva-index.json` → `componentesUikit`; nunca `node_modules`/`ui-generator-kb.json` do UIKit como primeira parada — AP-CONV-011) e `{knowledgeBasePath}/catalogo-reuso/hooks-e-utils.md` para hooks reutilizáveis, além dos cheatsheets (`delphi-para-react.md`, `delphi-para-nestjs.md`) e `{knowledgeBasePath}/padroes-globusweb/patterns/legacy-uikit-mapping.md` (só se nada acima cobrir — ver "Ordem de referência" em `.oai-kit/policies/conversion-policy.md`) — a spec deve dizer explicitamente "este campo X vira `EmpresaFilialCombobox`", não deixar essa dedução para quando a tela for de fato convertida. Se o componente indicado não estiver catalogado ainda, sinalize isso na spec para que `oai-kit-conversao-aprendizado` gere a entrada nova quando a tela for convertida.
 
 **Os sinais estruturais reais sempre vencem a receita "comum" do arquétipo sugerido** (AP-CONV-009). Se o arquétipo mais próximo normalmente tem grid/campo/botão que esta tela não tem, a especificação registra a ausência tal como está no legado — nunca propõe "adicionar X porque é o padrão do arquétipo". Sugestão de melhoria de UX que diverge do legado vira nota para `GAP`, não instrução de implementação.
 
 ### 4. Confirmar schema Oracle (obrigatório, não é opcional)
 
-Para a tabela principal e qualquer tabela relacionada por FK identificada no passo 3, confirme o schema real — **não é gateado por nível**, e não se limita a "quando parecer necessário". O código Delphi sozinho não é evidência confiável do tipo real da coluna (ex: campo lido como `AsString` no Delphi pode ser `NUMBER` no Oracle — o driver tolera a conversão implícita). Siga a sequência de `conversion-policy.md` (AP-CONV-006):
+Para a tabela principal e qualquer tabela relacionada por FK identificada no passo 3, confirme o schema real — **não é gateado por nível**, e não se limita a "quando parecer necessário". O código Delphi sozinho não é evidência confiável do tipo real da coluna (ex: campo lido como `AsString` no Delphi pode ser `NUMBER` no Oracle — o driver tolera a conversão implícita). Siga a sequência de `.oai-kit/policies/conversion-policy.md` (AP-CONV-006):
 
 1. **Cache primeiro**: `{knowledgeBasePath}/minerva-index.json` → `tabelasConhecidas`. Se já confirmado e não stale, reutilize — não chame o MCP de novo.
 2. Se não em cache e `conversao.oracleMcpConfigured` for `true`: tente `describe_table`/`list_constraints`/`list_indexes`, qualificando pelo owner (`conversao.oracleSchemaOwner`, se configurado).
@@ -49,7 +49,7 @@ Para a tabela principal e qualquer tabela relacionada por FK identificada no pas
 
 ### 5. Calcular a pontuação e o nível
 
-Aplique a escala de `conversion-policy.md` (seção "Escala de Classificação"):
+Aplique a escala de `.oai-kit/policies/conversion-policy.md` (seção "Escala de Classificação"):
 
 **Pontuação estrutural** (grid +1, PK composta +1, master-detail +1, referências externas 0/+1/+2) → nível N1-N5.
 
@@ -67,7 +67,7 @@ Gere `{knowledgeBasePath}/especificacoes/<modulo>/<tela-slug>.md` seguindo `{kno
 
 ### 8. Gate Pré-Commit no Minerva
 
-Mesmo padrão de `oai-kit-conversao-aprendizado`: exiba o que será criado/atualizado no Minerva (especificação **e** as entradas novas de `descobertas-oracle/`), pergunte *"Posso commitar esta especificação no GlobusEvo.Minerva? (sim/não)"*. Após aprovado, **sempre tente o push** — se rejeitado por non-fast-forward, tente `git pull --rebase` + push uma vez; se ainda conflitar, pare e mostre o conflito ao dev (ver `conversion-policy.md`, regra de sincronismo).
+Mesmo padrão de `oai-kit-conversao-aprendizado`: exiba o que será criado/atualizado no Minerva (especificação **e** as entradas novas de `descobertas-oracle/`), pergunte *"Posso commitar esta especificação no GlobusEvo.Minerva? (sim/não)"*. Após aprovado, **sempre tente o push** — se rejeitado por non-fast-forward, tente `git pull --rebase` + push uma vez; se ainda conflitar, pare e mostre o conflito ao dev (ver `.oai-kit/policies/conversion-policy.md`, regra de sincronismo).
 
 ## Restrições Absolutas
 

@@ -20,7 +20,7 @@ Leia `.claude/.local-config.json` → chave `conversao`:
 
 Se algum caminho estiver ausente → pergunte ao dev e ofereça salvar em `.claude/.local-config.json` (mesmo UX do `knownRepos` já usado pelos agentes developer). Nunca assuma um caminho.
 
-**`git pull` obrigatório em `knowledgeBasePath` antes de qualquer leitura** (política de sincronismo, ver `conversion-policy.md`). Se falhar (sem rede, working tree suja, conflito local) → pare e informe o dev. Nunca prossiga com uma base potencialmente desatualizada — pode ser que outro dev já tenha documentado ou convertido esta mesma tela hoje.
+**`git pull` obrigatório em `knowledgeBasePath` antes de qualquer leitura** (política de sincronismo, ver `.oai-kit/policies/conversion-policy.md` — arquivo local do projeto, depositado pelo kit; **não fica no Minerva**, nunca procure lá). Se falhar (sem rede, working tree suja, conflito local) → pare e informe o dev. Nunca prossiga com uma base potencialmente desatualizada — pode ser que outro dev já tenha documentado ou convertido esta mesma tela hoje.
 
 ## Processo
 
@@ -64,7 +64,7 @@ Leia **todos** os arquivos do conjunto antes de classificar — a regra de negó
 3. Verifique `tabelasConhecidas`/`descobertas-oracle/` — reaproveite descrições já feitas, não redescubra.
 4. Consulte `catalogo-reuso/hooks-e-utils.md` para reaproveitar hooks/services já prontos, e `catalogo-reuso/componentes/` (índice: `componentesUikit`) para componentes UIKit já mapeados.
 
-**Calcule o nível pela Escala de Classificação de `conversion-policy.md`:**
+**Calcule o nível pela Escala de Classificação de `.oai-kit/policies/conversion-policy.md`:**
 
 Pontuação estrutural (só se nenhum gatilho de exceção estiver presente): grid presente (+1), PK composta (+1), master-detail/tabela-filha (+1), referências externas — nenhuma (0) / poucas 1-2 (+1) / muitas 3+ (+2). Soma 0→N1, 1→N2, 2-3→N3, 4-5→N4/N5.
 
@@ -74,13 +74,13 @@ Pontuação estrutural (só se nenhum gatilho de exceção estiver presente): gr
 
 ### 5. Confirmar schema Oracle (se esta triagem não veio de especificação prévia já confirmada)
 
-Se o plano veio de uma especificação prévia (passo 2) que já confirmou o schema, reaproveite — não repita. **Se não veio** (conversão direta, sem `/oai-kit-documentar-tela` antes), confirme o schema da tabela principal e das relacionadas por FK — isso **não é gateado por nível** (AP-CONV-006 em `conversion-policy.md`): cache (`tabelasConhecidas`) → tool dedicada (`describe_table`/`list_constraints`, qualificando pelo owner em `conversao.oracleSchemaOwner`) → fallback de dicionário de dados (`execute_sql` restrito à allowlist do AP-CONV-005) → **perguntar ao dev** se tudo falhar ou o MCP não estiver configurado. Cruze o tipo confirmado contra o inferido do Delphi e sinalize divergência (ex: `AsString` no Delphi vs `NUMBER` no Oracle). Persista em `descobertas-oracle/<tabela>.md` (nunca cite o owner no nome/conteúdo/índice — a estrutura é a mesma independente do owner, ele só qualifica a chamada da tool) e atualize `tabelasConhecidas` — não delegue isso para `oai-kit-conversao-aprendizado` sem garantir que a descoberta não se perde se o dev não chegar até o fim da conversão.
+Se o plano veio de uma especificação prévia (passo 2) que já confirmou o schema, reaproveite — não repita. **Se não veio** (conversão direta, sem `/oai-kit-documentar-tela` antes), confirme o schema da tabela principal e das relacionadas por FK — isso **não é gateado por nível** (AP-CONV-006 em `.oai-kit/policies/conversion-policy.md`): cache (`tabelasConhecidas`) → tool dedicada (`describe_table`/`list_constraints`, qualificando pelo owner em `conversao.oracleSchemaOwner`) → fallback de dicionário de dados (`execute_sql` restrito à allowlist do AP-CONV-005) → **perguntar ao dev** se tudo falhar ou o MCP não estiver configurado. Cruze o tipo confirmado contra o inferido do Delphi e sinalize divergência (ex: `AsString` no Delphi vs `NUMBER` no Oracle). Persista em `descobertas-oracle/<tabela>.md` (nunca cite o owner no nome/conteúdo/índice — a estrutura é a mesma independente do owner, ele só qualifica a chamada da tool) e atualize `tabelasConhecidas` — não delegue isso para `oai-kit-conversao-aprendizado` sem garantir que a descoberta não se perde se o dev não chegar até o fim da conversão.
 
 Se, mesmo assim, o schema não puder ser confirmado, marque o campo correspondente como `INFERRED` em vez de `CONFIRMED` no plano — nunca bloqueie a conversão por isso, mas nunca apresente como certo.
 
 ### 6. Investigação profunda via MCP Oracle — só quando `N-ESPECIAL` e necessário
 
-Diferente da confirmação de schema (passo 5), isto é caro e raro: só considere `get_object_source`/`find_references` (fonte de procedure/function) quando o nível é `N-ESPECIAL` por sinal de procedure/function ambígua, o objeto não estiver em cache, e `conversao.oracleMcpConfigured` for `true`. **Telas N1-N5 nunca precisam disso.** Restrinja-se às ferramentas de metadado/estrutura já listadas em `conversion-policy.md` — nunca `query_table`/`sample_data`/`query_eso_informacao_gerar`, e `execute_sql` só dentro da allowlist de dicionário de dados.
+Diferente da confirmação de schema (passo 5), isto é caro e raro: só considere `get_object_source`/`find_references` (fonte de procedure/function) quando o nível é `N-ESPECIAL` por sinal de procedure/function ambígua, o objeto não estiver em cache, e `conversao.oracleMcpConfigured` for `true`. **Telas N1-N5 nunca precisam disso.** Restrinja-se às ferramentas de metadado/estrutura já listadas em `.oai-kit/policies/conversion-policy.md` — nunca `query_table`/`sample_data`/`query_eso_informacao_gerar`, e `execute_sql` só dentro da allowlist de dicionário de dados.
 
 Se `oai-kit-legacy-screen-locate` não conseguir resolver trivialmente uma tela multi-arquivo e `conversao.graphifyConfigured` for `true`, use `graphify path`/`graphify explain` em vez de seguir `uses` manualmente.
 
