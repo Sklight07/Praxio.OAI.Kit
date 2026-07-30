@@ -44,12 +44,13 @@ Invoque `oai-kit-conversao-frontend`:
 ### PASSO 4 — Paridade
 
 Invoque `oai-kit-conversao-paridade`:
-- Checklist mínimo (`N1`-`N3`), intermediário (`N4`-`N5`, inclui confirmar os pontos de atenção) ou completo — `parity-checklist.md` (`N-ESPECIAL`).
-- Classifica divergências: aceitas vs. GAP.
+- Verificação **estática** apenas (build/lint/typecheck/revisão de código vs. spec) — **nunca sobe o projeto** (AP-CONV-010).
+- Prepara o checklist de teste manual proporcional ao nível (mínimo `N1`-`N3`, intermediário `N4`-`N5`, completo — `parity-checklist.md` — `N-ESPECIAL`) para **você** rodar na aplicação.
+- Classifica divergências que você reportar ao testar: aceitas vs. GAP.
 
-### ⚡ CHECKPOINT FINAL — sempre, rápido em telas `N1`-`N3`
+### ⚡ CHECKPOINT FINAL — espera você testar, nunca assume sucesso
 
-**PARADA OBRIGATÓRIA.** Apresente o resumo do diff + checklist aplicado e pergunte: *"Paridade validada. Posso commitar? (sim/não)"* Só commite (branch/commit no padrão Praxio, sigla do módulo confirmada) após aprovação explícita.
+**PARADA OBRIGATÓRIA.** Apresenta a verificação estática + o checklist de teste manual, e pede que você rode o checklist na aplicação (subir o projeto é sua parte, não do agente) e confirme o resultado. Só commite (branch/commit no padrão Praxio, sigla do módulo confirmada) depois que você confirmar explicitamente que testou e passou — silêncio ou "deve estar ok" não bastam.
 
 ### PASSO 5 — Aprendizado
 

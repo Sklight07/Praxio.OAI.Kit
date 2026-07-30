@@ -70,11 +70,33 @@ Nome de tabela, procedure, objeto Oracle ou tela do legado: sempre nome exato ou
 
 Nunca commite sem a sigla do módulo confirmada pelo dev. Branch e commit seguem o padrão Praxio já documentado no `oai-kit.md` central — sem exceção para conversões, mesmo as mais simples.
 
+### AP-CONV-009 — Fidelidade vence "padrão comum" do arquétipo
+
+Nenhum agente adiciona campo, grid, botão ou qualquer funcionalidade que a tela legada (ou a especificação prévia, quando os sinais estruturais dela dizem o contrário) não tem — **mesmo que seja o padrão usual daquele arquétipo em outras telas**. Um arquétipo é um ponto de partida para a receita técnica (backend/frontend), nunca uma imposição de estrutura de UI sobre o que a tela realmente faz. Ex.: `crud-simples-pk-usuario` normalmente tem grid, mas se a tela real não tem, a conversão **não** adiciona grid.
+
+Qualquer sugestão de adicionar algo que o legado não tinha (melhoria de UX, padronização) é registrada como proposta em `gaps/gaps-log.md` para decisão humana — nunca implementada silenciosamente como parte da conversão. (Origem: bug real encontrado na primeira conversão de teste — `especificacoes/folha/estado-civil.md`, corrigido em 2026-07-29.)
+
+### AP-CONV-010 — Agentes nunca executam os projetos
+
+Nenhum agente de conversão sobe/executa o back-end ou o front-end do GlobusWeb — nem para smoke test, nem para "confirmar que o schema reflete o módulo", nem para validar fluxo de UI. O máximo permitido:
+- `npm run build` / compilação / lint / typecheck (verificação estática).
+- `npm install`/`npm ci` **só** se `package.json` mudou (nova dependência).
+
+Testar a aplicação rodando (subir o servidor, clicar na tela, validar GraphQL Playground) é **sempre** responsabilidade do desenvolvedor, depois que os agentes terminam. `oai-kit-conversao-paridade` prepara um checklist de teste manual para o dev executar — não assume que passou.
+
+## Ordem de referência para padrões (economia de tempo)
+
+`{knowledgeBasePath}/padroes-globusweb/patterns/*.md` são documentos de governança, escritos para arquitetos — completos, mas caros de ler por inteiro a cada tela. O arquétipo (`archetypes/<x>.md`) e os cheatsheets já resumem o que é necessário para os casos comuns (`N1`-`N5`).
+
+**Ordem**: arquétipo/cheatsheet primeiro, sempre. Só abrir o arquivo completo em `padroes-globusweb/patterns/` quando a situação encontrada genuinamente não estiver coberta pela receita — normalmente só em `N-ESPECIAL`. Abrir o documento completo de governança para um caso já coberto pelo arquétipo é tempo desperdiçado; registrar em `metrics/conversoes.jsonl` (`padroesGlobusWebAbertos`) sempre que isso acontecer, para calibrar se o cheatsheet precisa ficar mais completo.
+
 ## Verificações do `oai-kit-conversao-paridade`
 
 Antes de aprovar qualquer conversão, verifique:
 - Nenhuma chamada a `execute_sql`/`query_table`/`sample_data` aparece no histórico de ferramentas usadas pela triagem/backend.
 - Nenhuma alteração em arquivos de `GlobusWeb.UIKit` sem o processo do AP-CONV-003.
 - Todo campo marcado `INFERRED` no plano da triagem está claramente sinalizado como tal no output final (não foi silenciosamente promovido a `CONFIRMED`).
+- Nenhum campo/grid/botão foi adicionado além do que a tela legada (ou a especificação) realmente tem (AP-CONV-009).
+- Nenhuma tentativa de subir/rodar o projeto aparece no histórico de ações do backend/frontend (AP-CONV-010) — só build/lint/typecheck/install.
 
 Qualquer hit de violação = veredicto BLOQUEADO até resolução.

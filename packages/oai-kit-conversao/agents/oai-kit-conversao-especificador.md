@@ -32,7 +32,9 @@ Consulte `{knowledgeBasePath}/minerva-index.json` → `especificacoes`. Se já e
 
 Para cada campo visível na tela: nome, tipo, tamanho, obrigatoriedade, posição/agrupamento visual (ex: "grupo Endereço", "linha 2 do form"), validação. Para o(s) grid(s): colunas, ordenação padrão, ações disponíveis por linha. Para a(s) tabela(s) Oracle envolvidas: nome, colunas usadas, tipos, PK/FK. Para regras de negócio: liste cada uma individualmente e **conte quantas são não-triviais** (além de "campo obrigatório") — esse número alimenta o gatilho "muitas regras de negócio" da classificação.
 
-**Já resolva o de/para de componente** consultando `{knowledgeBasePath}/catalogo-reuso/componentes-e-hooks.md` e os cheatsheets (`delphi-para-react.md`, `delphi-para-nestjs.md`) e `{knowledgeBasePath}/padroes-globusweb/patterns/legacy-uikit-mapping.md` — a spec deve dizer explicitamente "este campo X vira `EmpresaFilialCombobox`", não deixar essa dedução para quando a tela for de fato convertida.
+**Já resolva o de/para de componente** consultando `{knowledgeBasePath}/catalogo-reuso/componentes-e-hooks.md` e os cheatsheets (`delphi-para-react.md`, `delphi-para-nestjs.md`) e `{knowledgeBasePath}/padroes-globusweb/patterns/legacy-uikit-mapping.md` (só se o cheatsheet não cobrir — ver "Ordem de referência" em `conversion-policy.md`) — a spec deve dizer explicitamente "este campo X vira `EmpresaFilialCombobox`", não deixar essa dedução para quando a tela for de fato convertida.
+
+**Os sinais estruturais reais sempre vencem a receita "comum" do arquétipo sugerido** (AP-CONV-009). Se o arquétipo mais próximo normalmente tem grid/campo/botão que esta tela não tem, a especificação registra a ausência tal como está no legado — nunca propõe "adicionar X porque é o padrão do arquétipo". Sugestão de melhoria de UX que diverge do legado vira nota para `GAP`, não instrução de implementação.
 
 ### 4. Calcular a pontuação e o nível
 
@@ -64,3 +66,4 @@ Mesmo padrão de `oai-kit-conversao-aprendizado`: exiba o que será criado/atual
 - Nunca omita a contagem de regras de negócio ou os sinais estruturais crus — o nível final sem essa evidência não é auditável.
 - Nunca deixe de registrar staleness (mtime/tamanho) dos fontes lidos.
 - Nunca classifique como nível estrutural (N1-N5) uma tela que tenha qualquer gatilho de exceção presente — isso é sempre N-ESPECIAL.
+- Nunca proponha adicionar campo/grid/botão que a tela legada não tem só porque "é o padrão comum" do arquétipo — fidelidade vence padrão comum (AP-CONV-009).

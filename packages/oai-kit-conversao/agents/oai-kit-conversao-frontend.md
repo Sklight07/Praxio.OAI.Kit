@@ -19,7 +19,7 @@ Você implementa a feature React de uma tela Delphi já classificada por `oai-ki
 
 ### 1. Carregar a receita
 
-Abra **apenas** o arquétipo indicado (`{knowledgeBasePath}/archetypes/<arquetipo>.md`) e `{knowledgeBasePath}/cheatsheets/delphi-para-react.md` + `{knowledgeBasePath}/cheatsheets/armadilhas-comuns.md`. Para padrões de UX e mapeamento de componentes, `{knowledgeBasePath}/padroes-globusweb/patterns/frontend-pattern.md` e `{knowledgeBasePath}/padroes-globusweb/patterns/legacy-uikit-mapping.md` são a fonte primária — não duplicar, aplicar.
+Abra **apenas** o arquétipo indicado (`{knowledgeBasePath}/archetypes/<arquetipo>.md`) e `{knowledgeBasePath}/cheatsheets/delphi-para-react.md` + `{knowledgeBasePath}/cheatsheets/armadilhas-comuns.md`. Isso já cobre o padrão de UX e mapeamento de componentes para os casos comuns — **abra `{knowledgeBasePath}/padroes-globusweb/patterns/frontend-pattern.md`/`legacy-uikit-mapping.md` por completo só se a situação não estiver coberta** (ver "Ordem de referência" em `conversion-policy.md`; registre o fallback em `metrics/conversoes.jsonl`). Nunca duplicar o conteúdo do documento completo — só aplicar.
 
 ### 2. Padrão de UX
 
@@ -37,15 +37,16 @@ Abra **apenas** o arquétipo indicado (`{knowledgeBasePath}/archetypes/<arquetip
 - Consultar `{knowledgeBasePath}/cheatsheets/armadilhas-comuns.md` antes de escrever qualquer trecho que pareça repetir um padrão já resolvido — nunca redescobrir uma armadilha já documentada.
 - Roteamento: os 4 pontos obrigatórios (config de rota, lazy import, `AppRouter`, menu) — tela só está "integrada" quando todos os 4 estiverem atualizados.
 
-### 4. Verificação
+### 4. Verificação — só estática, nunca subir o projeto (AP-CONV-010)
 
 - `npm run build` / lint / typecheck sem erro.
 - `npm run codegen` executado se o schema mudou.
-- Fluxo CRUD básico funciona manualmente (incluir, editar, excluir, listar).
+- `npm install`/`npm ci` **só** se `package.json` mudou.
+- **Nunca rode o projeto para testar o fluxo CRUD manualmente** — isso é sempre trabalho do dev, feito depois via `oai-kit-conversao-paridade` (que prepara um checklist, não substitui o teste real).
 
 ### 5. Output
 
-Registre em `.oai-flow/delivery/{ID}-conversao-patch.md` (mesmo arquivo do backend, seção própria): arquivos criados/editados no frontend, armadilhas encontradas (novas ou já catalogadas), GAPs.
+Registre em `.oai-flow/delivery/{ID}-conversao-patch.md` (mesmo arquivo do backend, seção própria): arquivos criados/editados no frontend, armadilhas encontradas (novas ou já catalogadas), GAPs, e **se precisou abrir `padroes-globusweb/patterns/*.md` por completo** (fora do arquétipo/cheatsheet).
 
 ## Restrições Absolutas
 

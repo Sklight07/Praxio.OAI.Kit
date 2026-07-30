@@ -19,7 +19,7 @@ Você implementa o back-end NestJS de uma tela Delphi já classificada por `oai-
 
 ### 1. Carregar a receita
 
-Abra **apenas** o arquétipo indicado no plano (`{knowledgeBasePath}/archetypes/<arquetipo>.md`) e `{knowledgeBasePath}/cheatsheets/delphi-para-nestjs.md`. Se o plano veio de uma especificação prévia (`especificacoes/<modulo>/<tela-slug>.md`), use-a como fonte principal de campos/regras/tabela. Para o padrão arquitetural (A / A+QueryService / B), use como fonte primária `{knowledgeBasePath}/padroes-globusweb/patterns/backend-pattern.md` — **não duplique** esse conteúdo, apenas aplique.
+Abra **apenas** o arquétipo indicado no plano (`{knowledgeBasePath}/archetypes/<arquetipo>.md`) e `{knowledgeBasePath}/cheatsheets/delphi-para-nestjs.md`. Se o plano veio de uma especificação prévia (`especificacoes/<modulo>/<tela-slug>.md`), use-a como fonte principal de campos/regras/tabela. Isso já cobre o padrão arquitetural (A / A+QueryService / B) para os casos comuns — **abra `{knowledgeBasePath}/padroes-globusweb/patterns/backend-pattern.md` por completo só se a situação encontrada não estiver coberta pelo arquétipo/cheatsheet** (ver "Ordem de referência" em `conversion-policy.md`; registre em `metrics/conversoes.jsonl` sempre que precisar cair nesse fallback). Nunca duplique o conteúdo do documento completo — só aplique.
 
 ### 2. Compressão do processo por nível
 
@@ -41,14 +41,16 @@ Abra **apenas** o arquétipo indicado no plano (`{knowledgeBasePath}/archetypes/
 
 Se o nível é `N-ESPECIAL` e a tela envolve UIKit ou um padrão arquitetural novo, acione `oai-kit-architecture-agent` (perfil developer, reuso — não duplicar sua lógica) antes de prosseguir para o frontend.
 
-### 5. Verificação
+### 5. Verificação — só estática, nunca subir o projeto (AP-CONV-010)
 
-- `npm run build` compila sem erro.
-- Sobe o back-end e confirma que o `schema.gql`/`schema.graphql` reflete o novo módulo (lembrar de reiniciar o processo — módulo novo não aparece sem restart).
+- `npm run build` / compilação / lint / typecheck sem erro.
+- `npm install`/`npm ci` **só** se `package.json` mudou (dependência nova).
+- Checagem estática de que o módulo está registrado corretamente: import + entry no array `imports` de `app.module.ts`, exports nos 3 barrels (`entities/index.ts`, `models/index.ts`, `modules/index.ts`).
+- **Nunca suba o back-end** para confirmar que o schema GraphQL reflete o módulo novo — isso exige rodar o processo, o que é sempre trabalho do dev depois que a conversão termina. Registre no output que essa confirmação (`schema.gql` atualizado, playground mostrando a query/mutation nova) fica pendente para o dev.
 
 ### 6. Output
 
-Registre em `.oai-flow/delivery/{ID}-conversao-patch.md`: arquivos criados/editados, padrão aplicado (A/A+QueryService/B), decisões tomadas, GAPs encontrados durante a implementação (que não estavam no plano da triagem).
+Registre em `.oai-flow/delivery/{ID}-conversao-patch.md`: arquivos criados/editados, padrão aplicado (A/A+QueryService/B), decisões tomadas, GAPs encontrados durante a implementação (que não estavam no plano da triagem), e **se precisou abrir `padroes-globusweb/patterns/*.md` por completo** (fora do arquétipo/cheatsheet) — `oai-kit-conversao-aprendizado` usa isso para `metrics/conversoes.jsonl`.
 
 ## Restrições Absolutas
 

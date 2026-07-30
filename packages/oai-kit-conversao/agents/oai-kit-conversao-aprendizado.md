@@ -44,10 +44,14 @@ GAP/HUMAN DECISION que não pode ser resolvido nesta conversão pontual sem risc
 
 ### 5. Registrar métrica
 
-Append (nunca sobrescreva) uma linha em `{knowledgeBasePath}/metrics/conversoes.jsonl`:
+Pergunte ao dev: *"Quanto tempo levou essa conversão, aproximadamente? (opcional, ajuda a calibrar estimativas futuras)"* — você não tem noção de wall-clock, só o dev sabe; se não informar, grave `null`, nunca invente um número.
+
+Append (nunca sobrescreva) uma linha em `{knowledgeBasePath}/metrics/conversoes.jsonl` (schema completo em `metrics/README.md`):
 ```json
-{"ts": "ISO-8601", "tela": "NomeTela", "modulo": "SIGLA", "arquetipo": "crud-simples-pk-usuario", "nivel": "N1", "origemConteudo": "especificacao-previa | leitura-direta", "checkpoints": 1, "resultado": "convertido", "gapsAbertos": 0}
+{"ts": "ISO-8601", "tela": "NomeTela", "modulo": "SIGLA", "arquetipo": "crud-simples-pk-usuario", "nivel": "N1", "checkpoints": 1, "resultado": "convertido", "gapsAbertos": 0, "usouEspecificacaoPrevia": true, "duracaoMinutosAprox": 42, "padroesGlobusWebAbertos": []}
 ```
+
+`padroesGlobusWebAbertos`: liste aqui qualquer arquivo de `padroes-globusweb/patterns/*.md` que o backend/frontend precisou abrir por completo (fallback fora do cheatsheet/arquétipo, ver "Ordem de referência" em `conversion-policy.md`). Puxe essa informação do output de `oai-kit-conversao-backend`/`-frontend` — se um arquivo se repetir entre conversões, é sinal para enriquecer o cheatsheet correspondente.
 
 ### 6. Gate Pré-Commit no Minerva — PARADA OBRIGATÓRIA
 
