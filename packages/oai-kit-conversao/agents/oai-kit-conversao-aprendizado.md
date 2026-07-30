@@ -36,7 +36,8 @@ Para cada tabela/procedure/view Oracle confirmada nesta conversão, crie ou atua
 
 - Armadilha nova descoberta (não estava em `cheatsheets/armadilhas-comuns.md`) → proponha adição.
 - Regra de negócio ou comportamento de UI não óbvio → proponha adição em `modulos/<modulo>.md`.
-- Peça de código reutilizável criada nesta conversão (hook, service, componente) → proponha adição em `catalogo-reuso/componentes-e-hooks.md`.
+- Hook/service reutilizável criado nesta conversão → proponha adição em `catalogo-reuso/hooks-e-utils.md`.
+- Componente `@praxio/globusweb-uikit` usado sem entrada em `catalogo-reuso/componentes/` (não catalogado ainda), ou usado pela primeira vez de verdade num componente com `temExemploReal: false` → crie/atualize a entrada correspondente (`_template-componente.md`) e o índice `componentesUikit` em `minerva-index.json`. Armadilha nova encontrada num componente já catalogado → adicione à seção "Comportamento não-óbvio / armadilhas" existente.
 
 ### 4. Registrar GAPs não resolvíveis
 

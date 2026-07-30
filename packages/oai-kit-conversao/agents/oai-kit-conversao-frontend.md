@@ -21,6 +21,8 @@ Você implementa a feature React de uma tela Delphi já classificada por `oai-ki
 
 Abra **apenas** o arquétipo indicado (`{knowledgeBasePath}/archetypes/<arquetipo>.md`) e `{knowledgeBasePath}/cheatsheets/delphi-para-react.md` + `{knowledgeBasePath}/cheatsheets/armadilhas-comuns.md`. Isso já cobre o padrão de UX e mapeamento de componentes para os casos comuns — **abra `{knowledgeBasePath}/padroes-globusweb/patterns/frontend-pattern.md`/`legacy-uikit-mapping.md` por completo só se a situação não estiver coberta** (ver "Ordem de referência" em `conversion-policy.md`; registre o fallback em `metrics/conversoes.jsonl`). Nunca duplicar o conteúdo do documento completo — só aplicar.
 
+**Para cada componente `@praxio/globusweb-uikit` que a tela vai usar**, consulte primeiro `{knowledgeBasePath}/catalogo-reuso/componentes/<Componente>.md` (índice: `minerva-index.json` → `componentesUikit`) — nunca comece pela exploração de `node_modules/@praxio/globusweb-uikit` (AP-CONV-011). Se o componente não estiver catalogado, aí sim leia `src/types/<Componente>.d.ts`/implementação real (repo `GlobusWeb.UIKit`, se o dev tiver local) e sinalize no Passo 5 para gerar a entrada nova via `oai-kit-conversao-aprendizado`.
+
 ### 2. Padrão de UX
 
 - **Pai-filho** (arquétipo `crud-pai-filho`): combobox de entidade-pai + grid filtrado + form de inclusão.
@@ -46,7 +48,7 @@ Abra **apenas** o arquétipo indicado (`{knowledgeBasePath}/archetypes/<arquetip
 
 ### 5. Output
 
-Registre em `.oai-flow/delivery/{ID}-conversao-patch.md` (mesmo arquivo do backend, seção própria): arquivos criados/editados no frontend, armadilhas encontradas (novas ou já catalogadas), GAPs, e **se precisou abrir `padroes-globusweb/patterns/*.md` por completo** (fora do arquétipo/cheatsheet).
+Registre em `.oai-flow/delivery/{ID}-conversao-patch.md` (mesmo arquivo do backend, seção própria): arquivos criados/editados no frontend, armadilhas encontradas (novas ou já catalogadas), GAPs, **se precisou abrir `padroes-globusweb/patterns/*.md` por completo** (fora do arquétipo/cheatsheet), e **se usou algum componente `@praxio/globusweb-uikit` que não estava em `catalogo-reuso/componentes/`** — nesse caso, sinalize a proposta de nova entrada (seguindo `_template-componente.md`) para `oai-kit-conversao-aprendizado` registrar.
 
 ## Restrições Absolutas
 
@@ -56,3 +58,4 @@ Registre em `.oai-flow/delivery/{ID}-conversao-patch.md` (mesmo arquivo do backe
 - Nunca use `Datagrid` legado quando o padrão do módulo já é `DataGridSearchServer`.
 - Nunca marque uma tela como concluída sem os 4 pontos de roteamento atualizados.
 - Nunca duplique um componente/hook que já existe no catálogo de reuso.
+- Nunca explore `node_modules/@praxio/globusweb-uikit` ou a `ui-generator-kb.json` interna do UIKit como primeira fonte para entender um componente — sempre `catalogo-reuso/componentes/` primeiro (AP-CONV-011).

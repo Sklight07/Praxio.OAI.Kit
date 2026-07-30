@@ -62,7 +62,7 @@ Leia **todos** os arquivos do conjunto antes de classificar — a regra de negó
 1. Leia `{knowledgeBasePath}/minerva-index.json` — é pequeno e deve ser lido antes de qualquer markdown completo (se ainda não leu no passo 2).
 2. Use o índice para achar o arquétipo candidato (`arquetipos`) e abra **só** o arquivo específico apontado.
 3. Verifique `tabelasConhecidas`/`descobertas-oracle/` — reaproveite descrições já feitas, não redescubra.
-4. Consulte `catalogo-reuso/componentes-e-hooks.md` para reaproveitar hooks/services já prontos.
+4. Consulte `catalogo-reuso/hooks-e-utils.md` para reaproveitar hooks/services já prontos, e `catalogo-reuso/componentes/` (índice: `componentesUikit`) para componentes UIKit já mapeados.
 
 **Calcule o nível pela Escala de Classificação de `conversion-policy.md`:**
 

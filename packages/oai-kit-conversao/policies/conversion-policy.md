@@ -90,11 +90,26 @@ Nenhum agente de conversão sobe/executa o back-end ou o front-end do GlobusWeb 
 
 Testar a aplicação rodando (subir o servidor, clicar na tela, validar GraphQL Playground) é **sempre** responsabilidade do desenvolvedor, depois que os agentes terminam. `oai-kit-conversao-paridade` prepara um checklist de teste manual para o dev executar — não assume que passou.
 
+### AP-CONV-011 — Catálogo de componentes UIKit vence exploração de `node_modules`
+
+Antes de usar qualquer componente de `@praxio/globusweb-uikit` numa tela, `oai-kit-conversao-frontend` e `oai-kit-conversao-especificador` consultam **primeiro** `{knowledgeBasePath}/catalogo-reuso/componentes/<Componente>.md` (índice rápido: `minerva-index.json` → `componentesUikit`). Nunca abrem `node_modules/@praxio/globusweb-uikit/dist/*.d.ts` nem a `ui-generator-kb.json` interna do próprio UIKit (tem erros confirmados — props de componentes internos aparecem atribuídas ao componente errado) como primeira parada.
+
+Só cai para leitura de `node_modules`/fonte real (`src/types/*.d.ts` do `GlobusWeb.UIKit`, se o dev tiver o repo local, senão `.d.ts` compilado mesmo) quando o componente **não está catalogado ainda** em `componentesUikit`. Nesse caso, ao final da conversão, propor a nova entrada via `oai-kit-conversao-aprendizado` seguindo `_template-componente.md` — mesmo fechamento de loop já usado para arquétipos novos (AP-CONV-009 tem o precedente).
+
+**Staleness não é por versão exata** — o pacote publica múltiplas versões por semana; tratar toda divergência de versão como "catálogo inválido" geraria falso positivo o tempo todo. Antes de confiar numa entrada do catálogo:
+1. Comparar a versão instalada do `@praxio/globusweb-uikit` no projeto-alvo (`node_modules/@praxio/globusweb-uikit/package.json`) com `uikitVersaoVerificada` da entrada.
+2. Se igual, confiar direto na entrada do catálogo.
+3. Se diferente, **não descartar automaticamente** — grep `node_modules/@praxio/globusweb-uikit/CHANGELOG.md` pelo nome do componente entre as duas versões:
+   - Aparece mencionado → sinalizar "possível mudança, confirmar contra `src/types/<X>.d.ts` real (ou `.d.ts` compilado)" antes de usar a receita do catálogo como está.
+   - Não aparece → tratar a entrada como ainda válida; atualizar só `uikitVersaoVerificada`/`verificadoEm` da entrada no Minerva (refresh barato, sem reprocessar o componente inteiro).
+
+Componentes cuja entrada tem `temExemploReal: false` não são menos confiáveis quanto a props/comportamento (vieram da mesma leitura de `src/types/*.d.ts` + implementação) — só significa que nenhuma tela já convertida usou esse componente ainda. Ao ser o primeiro a usar um desses, atualizar a seção "Exemplo de uso real" da entrada via `oai-kit-conversao-aprendizado` com o exemplo real gerado.
+
 ## Ordem de referência para padrões (economia de tempo)
 
-`{knowledgeBasePath}/padroes-globusweb/patterns/*.md` são documentos de governança, escritos para arquitetos — completos, mas caros de ler por inteiro a cada tela. O arquétipo (`archetypes/<x>.md`) e os cheatsheets já resumem o que é necessário para os casos comuns (`N1`-`N5`).
+`{knowledgeBasePath}/padroes-globusweb/patterns/*.md` são documentos de governança, escritos para arquitetos — completos, mas caros de ler por inteiro a cada tela. O arquétipo (`archetypes/<x>.md`), os cheatsheets e o catálogo de componentes (`catalogo-reuso/componentes/`) já resumem o que é necessário para os casos comuns (`N1`-`N5`).
 
-**Ordem**: arquétipo/cheatsheet primeiro, sempre. Só abrir o arquivo completo em `padroes-globusweb/patterns/` quando a situação encontrada genuinamente não estiver coberta pela receita — normalmente só em `N-ESPECIAL`. Abrir o documento completo de governança para um caso já coberto pelo arquétipo é tempo desperdiçado; registrar em `metrics/conversoes.jsonl` (`padroesGlobusWebAbertos`) sempre que isso acontecer, para calibrar se o cheatsheet precisa ficar mais completo.
+**Ordem**: arquétipo/cheatsheet/catálogo de componentes primeiro, sempre. Só abrir o arquivo completo em `padroes-globusweb/patterns/` (para arquitetura/regras de negócio) ou explorar `node_modules`/fonte do `GlobusWeb.UIKit` (para um componente não catalogado) quando a situação encontrada genuinamente não estiver coberta pela receita — normalmente só em `N-ESPECIAL` ou componente novo. Abrir o documento completo de governança ou reverse-engineerar um componente já catalogado é tempo desperdiçado; registrar em `metrics/conversoes.jsonl` (`padroesGlobusWebAbertos`) sempre que isso acontecer, para calibrar se o cheatsheet/catálogo precisa ficar mais completo.
 
 ## Verificações do `oai-kit-conversao-paridade`
 
@@ -105,5 +120,6 @@ Antes de aprovar qualquer conversão, verifique:
 - Todo campo marcado `INFERRED` no plano da triagem está claramente sinalizado como tal no output final (não foi silenciosamente promovido a `CONFIRMED`).
 - Nenhum campo/grid/botão foi adicionado além do que a tela legada (ou a especificação) realmente tem (AP-CONV-009).
 - Nenhuma tentativa de subir/rodar o projeto aparece no histórico de ações do backend/frontend (AP-CONV-010) — só build/lint/typecheck/install.
+- Uso de componentes `@praxio/globusweb-uikit` consultou primeiro `catalogo-reuso/componentes/` (AP-CONV-011); se algum componente usado não estava catalogado, uma proposta de nova entrada foi gerada para `oai-kit-conversao-aprendizado`.
 
 Qualquer hit de violação = veredicto BLOQUEADO até resolução.
