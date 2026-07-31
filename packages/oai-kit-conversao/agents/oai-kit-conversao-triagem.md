@@ -78,7 +78,7 @@ Se a especificação prévia (passo 2) já preencheu "Dependências cross-módul
 
 ### 4c. Resolver menu e índice de permissão (AP-CONV-013) — só quando não veio de especificação prévia já resolvida
 
-Se a especificação prévia (passo 2) já preencheu "Menu e navegação", reaproveite — não repita. Senão: determine o `indice` (task Azure → senão **pergunte ao dev**, nunca derive de nome/caption). Com o índice, consulte `menuLegado.<SIGLA>` (se existir) para a hierarquia de captions, e `menuGlobusWeb.<SIGLA>` para saber quais níveis já existem implementados. Preencha a seção "Menu e navegação" do plano.
+Se a especificação prévia (passo 2) já preencheu "Menu e navegação", reaproveite — não repita. Senão: determine `indicemenu`/`nome` a partir da task do Azure (módulo já é conhecido pelo contexto — busca sempre em `menuLegado.<SIGLA>` deste módulo). Resolva por: os dois presentes → registro único exato; só um presente → um resultado usa direto, mais de um resultado divergente pergunta ao dev mostrando os candidatos, nenhum resultado pergunta o que falta; nenhum dos dois → pergunte ao dev diretamente. **O valor a documentar como `indice` é sempre `indicemenu`, nunca `indicemenu_glb7`** (índice do mesmo item em outra aplicação, irrelevante aqui). Consulte também `menuGlobusWeb.<SIGLA>` para saber quais níveis já existem implementados. Preencha a seção "Menu e navegação" do plano.
 
 ### 5. Confirmar schema Oracle (se esta triagem não veio de especificação prévia já confirmada)
 

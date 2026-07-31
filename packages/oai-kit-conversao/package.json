@@ -1,6 +1,6 @@
 {
   "name": "praxio-oai-kit-conversao",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Extensão do praxio-oai-kit para conversão assistida por IA de telas legadas Delphi (Globus) para o GlobusWeb",
   "license": "MIT",
   "engines": {

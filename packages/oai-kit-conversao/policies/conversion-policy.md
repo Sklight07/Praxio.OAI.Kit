@@ -134,16 +134,22 @@ O GlobusWeb é composto por repositórios/módulos independentes, cada um dono d
 
 Ao final, `oai-kit-conversao-aprendizado` persiste a implementação nova (ou confirmada) em `tabelasConhecidas.<TABELA>.implementacaoBackend` e qualquer mapeamento de prefixo↔sigla confirmado com o dev em `dicionarioModulos.prefixosTabela` — para o próximo módulo que precisar da mesma tabela nunca mais perguntar ou explorar.
 
-### AP-CONV-013 — Índice de menu nunca é adivinhado
+### AP-CONV-013 — Índice de menu nunca é adivinhado; resolução sempre por `indicemenu` + `nome` + módulo
 
-Toda tela GlobusWeb precisa de um código de índice de permissão (`indice`, string — ex: `"000100"`) usado no mapa `labels: Record<rota, indice>` de `menu.constants.tsx` (ver `cheatsheets/armadilhas-comuns.md` #16). **Mesmo princípio do AP-CONV-007**: nunca derivar esse código do nome do arquivo/tela ou do caption do menu — não existe relação de nome entre o `.pas`/`.dfm` legado e o caption do menu, e podem existir captions duplicados/parecidos com índices sempre únicos.
+Toda tela GlobusWeb precisa de um código de índice de permissão (`indice`, string — ex: `"000100"`) usado no mapa `labels: Record<rota, indice>` de `menu.constants.tsx` (ver `cheatsheets/armadilhas-comuns.md` #16). **Mesmo princípio do AP-CONV-007**: nunca derivar esse código do nome do arquivo/tela ou do caption do menu — captions podem se repetir entre menus diferentes; `indicemenu`/`nome` nunca.
 
-**Origem sempre explícita, nunca inferida:**
-1. Task do Azure — se a task mencionar o índice/código do menu, use-o.
-2. Especificação prévia (`especificacoes/<modulo>/<tela-slug>.md`) — se a seção "Menu e navegação" já tiver o índice documentado, reaproveite.
-3. Se nenhum dos dois tiver a informação — **pergunte ao dev explicitamente** antes de fechar a especificação (`oai-kit-conversao-especificador`) ou antes de implementar o menu (`oai-kit-conversao-triagem`/`-frontend`, se a conversão não veio de uma especificação prévia). Nunca prossiga com um índice adivinhado ou "parecido".
+**O valor que importa é sempre `indicemenu`** (o índice estrutural do `.dfm` do legado) — é o mesmo valor reaproveitado como `indice` no GlobusWeb, tanto para o legado quanto para a conversão. Alguns índices de menu legado trazem também `indicemenu_glb7`/`caption_glb7` (quando presentes) — esses são o índice/caption do **mesmo item de menu em outra aplicação (GLB7)**, **nunca** usados para preencher o `indice` desta conversão; servem só como referência cruzada entre sistemas (ver `menus/legado/_template-menu-legado.md`).
 
-**Uso de `{knowledgeBasePath}/menus/legado/<SIGLA>.json`** (cache do menu legado, quando o dev tiver fornecido um para o módulo — ver `menus/legado/_template-menu-legado.md`): serve **só para confirmar/enriquecer** a hierarquia de captions (breadcrumb até 3 níveis) a partir de um índice **já conhecido** — nunca para descobrir o índice a partir do nome da tela. Quando o nó correspondente tiver `indicemenu` (posição estrutural no `.dfm`) e `indicemenu_db` (valor real gravado em `CTR_MENUSDOSISTEMA`) divergentes, é o `indicemenu_db` que deve ser reaproveitado como `indice` no GlobusWeb.
+**Resolução por 3 parâmetros — `indicemenu`, `nome`, módulo (implícito pelo contexto da conversão, ex.: tela de Folha → módulo `FLP`, busca sempre dentro de `menus/legado/FLP.json`, nunca cruzando módulos):**
+
+1. **Task do Azure traz `indicemenu` e `nome`** (cenário ideal) — procure a entrada em `menus/legado/<SIGLA>.json` cujo `indicemenu` **e** `nome` batam exatamente com os dois. Isso identifica um único registro sem ambiguidade.
+2. **Task traz só um dos dois** — procure por esse único valor no arquivo do módulo:
+   - Exatamente um resultado → use-o, resolvido, sem perguntar nada.
+   - Mais de um resultado, **divergentes entre si** (índices/nomes diferentes) → **só aqui** pergunte ao dev, mostrando os candidatos para ele escolher.
+   - Nenhum resultado → pergunte ao dev o valor que falta.
+3. **Task não traz nenhum dos dois** — pergunte ao dev diretamente (`indicemenu` e/ou `nome`, ou a hierarquia de captions se o módulo não tiver `menus/legado/<SIGLA>.json` ainda). Nunca adivinhe por nome de arquivo/caption.
+
+**Nunca pergunte ao dev reflexivamente** — só nos dois casos acima (ambiguidade real com candidatos divergentes, ou dado ausente). Um único valor que já resolve para um único registro não precisa de confirmação adicional.
 
 **Hierarquia de menu (até 3 níveis) nunca assume o nível mais alto por padrão** — consultar `{knowledgeBasePath}/minerva-index.json` → `menuGlobusWeb.<SIGLA>` para saber quais grupos/submenus já existem em `menu.constants.tsx` antes de decidir onde a tela entra; criar só os níveis que realmente faltam. Um 3º nível de menu pode ser o primeiro caso real no módulo (hoje a maioria só tem 2) — isso é uma mudança direta na estrutura local, não um bloqueio; sinalizar como novidade no output.
 

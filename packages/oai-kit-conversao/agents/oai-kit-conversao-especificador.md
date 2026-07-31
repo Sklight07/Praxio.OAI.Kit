@@ -56,8 +56,13 @@ Para cada tabela referenciada que **não** é a tabela principal da tela (lookup
 
 ### 3c. Resolver menu e índice de permissão (obrigatório — AP-CONV-013)
 
-1. Determine o `indice` de menu: da task do Azure (se mencionado) → senão **pergunte ao dev explicitamente**. Nunca derive do nome do arquivo/tela ou do caption — não existe relação de nome entre eles, e captions podem se repetir enquanto índices nunca repetem.
-2. Com o `indice` em mãos, consulte `{knowledgeBasePath}/minerva-index.json` → `menuLegado.<SIGLA>` (se existir para este módulo — ver `menus/legado/_template-menu-legado.md`): procure em `flat_index` a entrada com `indicemenu` igual ao índice informado, para obter o `menu_path` (hierarquia completa de captions, até 3 níveis). Se o nó tiver `indicemenu_db` divergente do `indicemenu` posicional, é o `indicemenu_db` que deve ser documentado como o índice a reaproveitar no GlobusWeb. Se este módulo não tiver `menuLegado` ainda, ou o índice não for encontrado, pergunte a hierarquia de captions diretamente ao dev.
+1. Determine `indicemenu` e/ou `nome` a partir da task do Azure (o módulo já é conhecido pelo contexto da conversão — ex.: tela de Folha → busca sempre em `menus/legado/FLP.json`). **Nunca derive de nome de arquivo/tela ou de caption** — captions podem se repetir; `indicemenu`/`nome` nunca.
+2. Resolva contra `{knowledgeBasePath}/minerva-index.json` → `menuLegado.<SIGLA>` (se existir para este módulo — ver `menus/legado/_template-menu-legado.md`):
+   - **Task trouxe `indicemenu` e `nome`**: procure a entrada onde os dois batem exatamente — identifica um único registro, sem ambiguidade.
+   - **Task trouxe só um dos dois**: procure por esse valor único — um resultado só → use direto; mais de um resultado divergente → **pergunte ao dev** mostrando os candidatos; nenhum resultado → pergunte o valor que falta.
+   - **Task não trouxe nenhum** → pergunte ao dev diretamente.
+   - O registro resolvido dá o `menu_path` (hierarquia completa de captions, até 3 níveis) e o `indicemenu`, que é o valor a documentar como `indice` no GlobusWeb. **Nunca use `indicemenu_glb7`/`caption_glb7`** (índice/caption do mesmo item em outra aplicação — irrelevante para esta conversão). Se o módulo não tiver `menuLegado` ainda, pergunte a hierarquia de captions diretamente ao dev.
+   - Nunca pergunte ao dev reflexivamente — só nos casos de ambiguidade real ou dado ausente listados acima.
 3. Consulte `{knowledgeBasePath}/minerva-index.json` → `menuGlobusWeb.<SIGLA>` para saber quais níveis (grupo/submenu) já existem implementados em `menu.constants.tsx` — nunca assuma que a tela vai no nível mais alto.
 4. Preencha a seção "Menu e navegação" da spec por completo (índice, hierarquia de até 3 níveis com status de cada nível, rota sugerida) — é isso que evita `oai-kit-conversao-frontend` ter que explorar Minerva/front na hora de criar o menu.
 
