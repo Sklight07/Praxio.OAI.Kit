@@ -25,12 +25,14 @@ Abra `{knowledgeBasePath}/minerva-index.json`. Atualize:
 - `gapsAbertos`: adicione qualquer GAP novo registrado pela `oai-kit-conversao-paridade` ou pela triagem.
 - `arquetipos`: se a triagem marcou a tela como candidata a novo arquétipo (não encaixou em nenhum existente), e você concluir que o padrão é genuinamente reutilizável (não específico desta tela), proponha um arquétipo novo em `archetypes/_template-arquetipo.md` preenchido.
 - `modulos`: garanta que o módulo da tela aponta para seu arquivo em `modulos/<modulo>.md`.
+- `dicionarioModulos.prefixosTabela`: se a triagem/especificador confirmou com o dev a sigla implementadora de um prefixo novo (AP-CONV-012), persista aqui — nunca mais perguntar de novo para aquele prefixo.
+- `tabelasConhecidas.<TABELA>.implementacaoBackend`: se houve investigação de dependência cross-módulo (entidade já existia em outro módulo, ou foi criada agora via fluxo multi-repo do backend), registre/atualize aqui.
 
 **O JSON deve permanecer válido a qualquer momento** — nunca salve um estado intermediário quebrado.
 
 ### 2. Persistir descobertas de schema
 
-Para cada tabela/procedure/view Oracle confirmada nesta conversão, crie ou atualize `{knowledgeBasePath}/descobertas-oracle/<NOME_OBJETO>.md`: colunas/tipos/PK/FK, procedures relacionadas, módulo dono, data de verificação, origem (`oracle-mcp` ou `codigo-delphi`).
+Para cada tabela/procedure/view Oracle confirmada nesta conversão, crie ou atualize `{knowledgeBasePath}/descobertas-oracle/<NOME_OBJETO>.md`: colunas/tipos/PK/FK, procedures relacionadas, módulo dono, data de verificação, origem (`oracle-mcp` ou `codigo-delphi`), e a seção `Implementação backend` se houve investigação/criação cross-módulo nesta conversão.
 
 ### 3. Atualizar cheatsheets/arquétipos/notas de módulo
 
@@ -38,6 +40,7 @@ Para cada tabela/procedure/view Oracle confirmada nesta conversão, crie ou atua
 - Regra de negócio ou comportamento de UI não óbvio → proponha adição em `modulos/<modulo>.md`.
 - Hook/service reutilizável criado nesta conversão → proponha adição em `catalogo-reuso/hooks-e-utils.md`.
 - Componente `@praxio/globusweb-uikit` usado sem entrada em `catalogo-reuso/componentes/` (não catalogado ainda), ou usado pela primeira vez de verdade num componente com `temExemploReal: false` → crie/atualize a entrada correspondente (`_template-componente.md`) e o índice `componentesUikit` em `minerva-index.json`. Armadilha nova encontrada num componente já catalogado → adicione à seção "Comportamento não-óbvio / armadilhas" existente.
+- Nível(is) de menu criado(s) nesta conversão (grupo/submenu novo em `menu.constants.tsx`, reportado pelo frontend) → atualize `menus/globusweb/<SIGLA>.md` (novo grupo/submenu, rotas filhas, `indice`) e `minerva-index.json` → `menuGlobusWeb.<SIGLA>.ultimaAtualizacao`. Sem isso, a próxima tela do mesmo módulo não sabe que aquele nível já existe.
 
 ### 4. Registrar GAPs não resolvíveis
 
@@ -62,11 +65,13 @@ Append (nunca sobrescreva) uma linha em `{knowledgeBasePath}/metrics/conversoes.
 ═══════════════════════════════════════════
 ATUALIZAÇÕES PROPOSTAS EM GlobusEvo.Minerva
 ═══════════════════════════════════════════
-• minerva-index.json — [o que mudou]
+• minerva-index.json — [o que mudou, incl. implementacaoBackend/prefixosTabela se aplicável]
 • descobertas-oracle/<objeto>.md — [novo/atualizado]
 • archetypes/<...>.md — [se houver arquétipo novo]
 • cheatsheets/armadilhas-comuns.md — [se houver armadilha nova]
 • modulos/<modulo>.md — [se houver nota nova]
+• modulos/_dicionario-modulos.md — [se um prefixo novo foi confirmado com o dev]
+• menus/globusweb/<SIGLA>.md — [se houve criação/reaproveitamento de nível de menu]
 • gaps/gaps-log.md — [se houver GAP novo]
 • metrics/conversoes.jsonl — 1 linha nova
 ═══════════════════════════════════════════
@@ -76,7 +81,7 @@ Pergunte: *"Posso commitar e subir (push) essas atualizações no GlobusEvo.Mine
 
 ### 7. Output
 
-Confirme ao dev o resumo final: tela convertida, nível, checkpoints usados, o que foi aprendido e persistido no Minerva.
+Confirme ao dev o resumo final: tela convertida, nível, checkpoints usados, o que foi aprendido e persistido no Minerva. **Se o backend passou pelo fluxo multi-repo (AP-CONV-012)**, inclua também o resumo consolidado que ele já preparou: repositório(s) tocado(s), branch usada em cada um, arquivos alterados por repositório — não deixe essa informação só no output do backend, repita aqui como fechamento visível do ciclo inteiro.
 
 ## Restrições Absolutas
 
@@ -87,3 +92,5 @@ Confirme ao dev o resumo final: tela convertida, nível, checkpoints usados, o q
 - Nunca resolva um conflito de push sozinho — se o retry automático falhar, pare e mostre ao dev.
 - Nunca descarte uma descoberta de schema/regra de negócio só porque a conversão terminou — se não for persistido agora, se perde.
 - Nunca proponha um arquétipo novo para um padrão que apareceu uma única vez e não parece genuinamente reutilizável — isso põe lixo na base central.
+- Nunca esqueça de persistir `implementacaoBackend`/`dicionarioModulos.prefixosTabela` quando a conversão envolveu dependência cross-módulo — sem isso, a próxima tela do mesmo prefixo reexplora do zero.
+- Nunca esqueça de atualizar `menus/globusweb/<SIGLA>.md` quando a conversão criou nível de menu novo — sem isso, a próxima tela do mesmo módulo recria o que já existe.

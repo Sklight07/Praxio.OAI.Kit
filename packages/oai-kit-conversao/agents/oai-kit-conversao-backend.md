@@ -41,6 +41,17 @@ Abra **apenas** o arquétipo indicado no plano (`{knowledgeBasePath}/archetypes/
 
 Se o nível é `N-ESPECIAL` e a tela envolve UIKit ou um padrão arquitetural novo, acione `oai-kit-architecture-agent` (perfil developer, reuso — não duplicar sua lógica) antes de prosseguir para o frontend.
 
+### 4b. Fluxo multi-repo — só quando o plano sinaliza GAP cross-módulo (AP-CONV-012)
+
+Se o plano da triagem indica que a tela depende de uma tabela de outro módulo **sem** implementação existente (`implementacaoBackend` ausente ou `existe: false`), a implementação dessa entidade precisa acontecer no repositório **dono** da tabela, nunca localmente:
+
+1. **Gate de Plano** antes de tocar no segundo repositório — mostre ao dev exatamente o que será criado lá (entidade, resolver, `@key` Federation, nome da branch) e peça aprovação explícita (*"Posso criar a branch e implementar isto em `<repositório>`? (sim/não)"*). Nunca prossiga sem essa confirmação (mesma regra "nunca assume" de multi-repo do `oai-kit.md` central).
+2. Localize o repositório (lookup em `knownRepos` → sugestão de caminho-irmão → confirmar com o dev), garanta que está na branch `develop` e sincronizado (`git fetch`/`checkout develop`/`git pull`).
+3. Crie a branch **naquele** repositório seguindo o padrão Praxio (`feature/{SIGLA}_{SIM|PSE}_{numero}` — mesmo número de ticket da conversão atual, é a mesma feature atravessando repositórios).
+4. Implemente a entidade/resolver/`@key` Federation lá, seguindo os padrões arquiteturais **daquele** módulo (não os do módulo da tela em conversão) — se precisar, dê uma olhada rápida em `backend-pattern.md`/arquétipos equivalentes daquele contexto, sem assumir que o padrão é idêntico ao módulo de origem.
+5. Volte ao módulo da tela e consuma a entidade nova via Federation, como qualquer outra referência externa.
+6. Ao final, monte a lista consolidada (repositório, branch, arquivos alterados) para o Output do passo 6 — o dev precisa ver tudo antes de aprovar.
+
 ### 5. Verificação — só estática, nunca subir o projeto (AP-CONV-010)
 
 - `npm run build` / compilação / lint / typecheck sem erro.
@@ -50,7 +61,7 @@ Se o nível é `N-ESPECIAL` e a tela envolve UIKit ou um padrão arquitetural no
 
 ### 6. Output
 
-Registre em `.oai-flow/delivery/{ID}-conversao-patch.md`: arquivos criados/editados, padrão aplicado (A/A+QueryService/B), decisões tomadas, GAPs encontrados durante a implementação (que não estavam no plano da triagem), e **se precisou abrir `padroes-globusweb/patterns/*.md` por completo** (fora do arquétipo/cheatsheet) — `oai-kit-conversao-aprendizado` usa isso para `metrics/conversoes.jsonl`.
+Registre em `.oai-flow/delivery/{ID}-conversao-patch.md`: arquivos criados/editados, padrão aplicado (A/A+QueryService/B), decisões tomadas, GAPs encontrados durante a implementação (que não estavam no plano da triagem), e **se precisou abrir `padroes-globusweb/patterns/*.md` por completo** (fora do arquétipo/cheatsheet) — `oai-kit-conversao-aprendizado` usa isso para `metrics/conversoes.jsonl`. **Se houve fluxo multi-repo (4b), inclua a lista consolidada**: repositório(s) tocado(s), branch usada em cada um, arquivos alterados por repositório — antes de seguir para paridade/aprendizado.
 
 ## Restrições Absolutas
 
@@ -60,3 +71,5 @@ Registre em `.oai-flow/delivery/{ID}-conversao-patch.md`: arquivos criados/edita
 - Nunca duplique um serviço/hook/componente já existente no catálogo de reuso.
 - Nunca invente contrato GraphQL sem confirmar contra o padrão real do módulo-alvo.
 - Nunca altere DDL/schema Oracle — decisão humana, fora de escopo desta conversão.
+- Nunca implemente entidade/domínio de uma tabela de outro módulo localmente — se o plano sinaliza GAP cross-módulo, a implementação vai no repositório dono (4b), nunca uma cópia local (AP-CONV-012).
+- Nunca crie branch/toque em outro repositório sem o Gate de Plano do passo 4b aprovado explicitamente.

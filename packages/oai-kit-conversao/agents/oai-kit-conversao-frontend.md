@@ -38,6 +38,7 @@ Abra **apenas** o arquétipo indicado (`{knowledgeBasePath}/archetypes/<arquetip
 - Campos opcionais que o usuário pode limpar: enviar `null`, nunca `undefined`, na mutation.
 - Consultar `{knowledgeBasePath}/cheatsheets/armadilhas-comuns.md` antes de escrever qualquer trecho que pareça repetir um padrão já resolvido — nunca redescobrir uma armadilha já documentada.
 - Roteamento: os 4 pontos obrigatórios (config de rota, lazy import, `AppRouter`, menu) — tela só está "integrada" quando todos os 4 estiverem atualizados.
+- **Menu e índice de permissão (ver armadilha #16 em `armadilhas-comuns.md` e AP-CONV-013)**: use a seção "Menu e navegação" do plano/spec — ela já traz o `indice`, a hierarquia (até 3 níveis) e quais níveis já existem no GlobusWeb (`menuGlobusWeb.<SIGLA>`). **Nunca crie o item direto no nível mais alto por padrão** — crie só os níveis que realmente faltam, reaproveitando grupo/submenu já existentes. Adicione `labels[rota] = indice` em `menu.constants.tsx` com o valor exato da spec — nunca inventado. Se for o primeiro caso de 3 níveis do módulo, sinalize como novidade no Output (passo 5), não como bloqueio. Se o plano não trouxer essa seção preenchida (fluxo sem `oai-kit-conversao-especificador` prévio), pare e pergunte ao dev o `indice` antes de tocar em `menu.constants.tsx` — nunca adivinhe.
 
 ### 4. Verificação — só estática, nunca subir o projeto (AP-CONV-010)
 
@@ -48,7 +49,7 @@ Abra **apenas** o arquétipo indicado (`{knowledgeBasePath}/archetypes/<arquetip
 
 ### 5. Output
 
-Registre em `.oai-flow/delivery/{ID}-conversao-patch.md` (mesmo arquivo do backend, seção própria): arquivos criados/editados no frontend, armadilhas encontradas (novas ou já catalogadas), GAPs, **se precisou abrir `padroes-globusweb/patterns/*.md` por completo** (fora do arquétipo/cheatsheet), e **se usou algum componente `@praxio/globusweb-uikit` que não estava em `catalogo-reuso/componentes/`** — nesse caso, sinalize a proposta de nova entrada (seguindo `_template-componente.md`) para `oai-kit-conversao-aprendizado` registrar.
+Registre em `.oai-flow/delivery/{ID}-conversao-patch.md` (mesmo arquivo do backend, seção própria): arquivos criados/editados no frontend, armadilhas encontradas (novas ou já catalogadas), GAPs, **se precisou abrir `padroes-globusweb/patterns/*.md` por completo** (fora do arquétipo/cheatsheet), **se usou algum componente `@praxio/globusweb-uikit` que não estava em `catalogo-reuso/componentes/`** (proposta de nova entrada para `oai-kit-conversao-aprendizado`), e **qual(is) nível(is) de menu foram criados vs. reaproveitados** (para `oai-kit-conversao-aprendizado` atualizar `menuGlobusWeb.<SIGLA>`).
 
 ## Restrições Absolutas
 
@@ -59,3 +60,5 @@ Registre em `.oai-flow/delivery/{ID}-conversao-patch.md` (mesmo arquivo do backe
 - Nunca marque uma tela como concluída sem os 4 pontos de roteamento atualizados.
 - Nunca duplique um componente/hook que já existe no catálogo de reuso.
 - Nunca explore `node_modules/@praxio/globusweb-uikit` ou a `ui-generator-kb.json` interna do UIKit como primeira fonte para entender um componente — sempre `catalogo-reuso/componentes/` primeiro (AP-CONV-011).
+- Nunca crie o item de menu direto no nível mais alto sem checar `menuGlobusWeb.<SIGLA>` — só crie os níveis que realmente faltam.
+- Nunca invente ou derive o `indice` de menu por nome/caption — sempre o valor exato da spec/plano, ou pergunte ao dev se estiver ausente (AP-CONV-013).

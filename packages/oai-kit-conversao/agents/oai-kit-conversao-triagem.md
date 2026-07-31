@@ -66,11 +66,19 @@ Leia **todos** os arquivos do conjunto antes de classificar — a regra de negó
 
 **Calcule o nível pela Escala de Classificação de `.oai-kit/policies/conversion-policy.md`:**
 
-Pontuação estrutural (só se nenhum gatilho de exceção estiver presente): grid presente (+1), PK composta (+1), master-detail/tabela-filha (+1), referências externas — nenhuma (0) / poucas 1-2 (+1) / muitas 3+ (+2). Soma 0→N1, 1→N2, 2-3→N3, 4-5→N4/N5.
+Pontuação estrutural (só se nenhum gatilho de exceção estiver presente): grid presente (+1), PK composta (+1), master-detail/tabela-filha (+1), referências externas — nenhuma (0) / poucas 1-2 (+1) / muitas 3+ (+2); dependência cross-módulo **já implementada** (`implementacaoBackend.existe: true`, ver 4b abaixo) conta aqui, como referência externa normal. Soma 0→N1, 1→N2, 2-3→N3, 4-5→N4/N5.
 
-**Gatilho de exceção → nível é sempre `N-ESPECIAL`**, independente da pontuação: procedure/function chamada no `.pas`, integração externa, gravação em tabela **não-relacionada** como efeito colateral (diferente de master-detail — isso é escrita em tabela fora da família da entidade), ou muitas regras de negócio (6+ não-triviais).
+**Gatilho de exceção → nível é sempre `N-ESPECIAL`**, independente da pontuação: procedure/function chamada no `.pas`, integração externa, gravação em tabela **não-relacionada** como efeito colateral (diferente de master-detail — isso é escrita em tabela fora da família da entidade), muitas regras de negócio **Tipo 3 — Complexa** (6+; regras Tipo 2 — Condicional especificável, ex: habilitar/desabilitar campo, filtrar combobox, guarda de exclusão referencial, **não contam** — ver taxonomia completa em `.oai-kit/policies/conversion-policy.md`), ou GAP cross-módulo que exige nova implementação (AP-CONV-012, ver 4b).
 
 **Sem meio-termo na dúvida — se não tiver certeza se um gatilho de exceção se aplica, trate como se aplicasse (`N-ESPECIAL`).** Se o arquétipo não bate com nenhum existente, registre como candidato a novo arquétipo.
+
+### 4b. Detectar dependências cross-módulo (AP-CONV-012) — só quando não veio de especificação prévia já resolvida
+
+Se a especificação prévia (passo 2) já preencheu "Dependências cross-módulo", reaproveite — não repita. Senão, para cada tabela referenciada que não é a principal: resolva o prefixo via `minerva-index.json` → `dicionarioModulos.prefixosTabela` → sigla implementadora → `dicionarioModulos.siglas`, compare contra a sigla do módulo da tela (atenção ao caso `ESO_`→`FLP`: prefixo bruto não é a sigla implementadora). Divergem → cross-módulo real. Prefixo desconhecido → pergunte ao dev, persista. Se cross-módulo: checar `tabelasConhecidas.<TABELA>.implementacaoBackend` — `existe: true` conta como referência externa normal (acima); ausente ou `existe: false` sem ainda ter explorado o outro repositório → localizar o repo (`knownRepos` → convenção de caminho-irmão, sempre confirmando com o dev), sincronizar `develop`, verificar se já existe implementação antes de concluir GAP. GAP cross-módulo confirmado → gatilho de exceção, `N-ESPECIAL`.
+
+### 4c. Resolver menu e índice de permissão (AP-CONV-013) — só quando não veio de especificação prévia já resolvida
+
+Se a especificação prévia (passo 2) já preencheu "Menu e navegação", reaproveite — não repita. Senão: determine o `indice` (task Azure → senão **pergunte ao dev**, nunca derive de nome/caption). Com o índice, consulte `menuLegado.<SIGLA>` (se existir) para a hierarquia de captions, e `menuGlobusWeb.<SIGLA>` para saber quais níveis já existem implementados. Preencha a seção "Menu e navegação" do plano.
 
 ### 5. Confirmar schema Oracle (se esta triagem não veio de especificação prévia já confirmada)
 
@@ -84,7 +92,7 @@ Diferente da confirmação de schema (passo 5), isto é caro e raro: só conside
 
 Se `oai-kit-legacy-screen-locate` não conseguir resolver trivialmente uma tela multi-arquivo e `conversao.graphifyConfigured` for `true`, use `graphify path`/`graphify explain` em vez de seguir `uses` manualmente.
 
-### 6. Output
+### 7. Output
 
 Gere `.oai-flow/analysis/{ID}-conversao-plano.md`:
 
@@ -102,8 +110,16 @@ Gere `.oai-flow/analysis/{ID}-conversao-plano.md`:
 **Arquétipo:** [nome do arquétipo ou "não encaixa — candidato a novo arquétipo"]
 **Nível:** N1 | N2 | N3 | N4 | N5 | N-ESPECIAL
 **Sinais estruturais:** grid=[s/n], PK composta=[s/n], master-detail=[s/n], referências externas=[nenhuma/poucas/muitas]
-**Gatilho de exceção (se N-ESPECIAL):** [procedure/integração/gravação não-relacionada/muitas regras]
+**Gatilho de exceção (se N-ESPECIAL):** [procedure/integração/gravação não-relacionada/muitas regras Tipo 3/GAP cross-módulo]
 **Pontos de atenção a confirmar (se N4/N5 via spec):** [lista, ou "nenhum — leitura completa realizada"]
+
+## Dependências cross-módulo (se houver)
+- [tabela] — [sigla implementadora] — [já implementado (entidade/consumo via Federation) | GAP registrado]
+
+## Menu e navegação
+**Índice:** [código — origem: task Azure/spec prévia/perguntado ao dev]
+**Hierarquia:** [nível 1 > nível 2 (se houver) > tela] — [quais níveis já existem no GlobusWeb, quais precisam ser criados]
+**Rota sugerida:** [ex: /cadastro-x]
 
 ## Reuso identificado
 - [componente/hook/service já existente que será reaproveitado]
@@ -138,3 +154,8 @@ Padrão UX sugerido: Pai-filho | CRUD simples — [justificativa]
 - Nunca escreva código de produção — isso é responsabilidade de `oai-kit-conversao-backend`/`-frontend`.
 - Nunca ignore o `minerva-index.json` — é sempre a primeira consulta, antes de qualquer markdown completo.
 - Nunca pule o `git pull` inicial no Minerva.
+- Nunca conte regra Tipo 2 (condicional especificável) no gatilho de "muitas regras" — só Tipo 3 conta.
+- Nunca trate uma dependência cross-módulo já implementada (`implementacaoBackend.existe: true`) como gatilho de exceção — só GAP cross-módulo genuíno (nova implementação necessária) força `N-ESPECIAL`.
+- Nunca resolva sigla implementadora de uma tabela pelo prefixo bruto sem checar `dicionarioModulos.prefixosTabela` — alguns prefixos implementam-se em sigla diferente (ex: `ESO_`→`FLP`).
+- Nunca feche o plano sem o `indice` de menu confirmado (task Azure, spec prévia, ou perguntado ao dev) — nunca derivado de nome de arquivo/caption (AP-CONV-013).
+- Nunca assuma que a tela vai no nível mais alto do menu sem checar `menuGlobusWeb.<SIGLA>` primeiro.

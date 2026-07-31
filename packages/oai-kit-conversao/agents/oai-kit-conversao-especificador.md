@@ -30,11 +30,36 @@ Consulte `{knowledgeBasePath}/minerva-index.json` → `especificacoes`. Se já e
 
 ### 3. Documentar exaustivamente
 
-Para cada campo visível na tela: nome, tipo, tamanho, obrigatoriedade, posição/agrupamento visual (ex: "grupo Endereço", "linha 2 do form"), validação. Para o(s) grid(s): colunas, ordenação padrão, ações disponíveis por linha. Para a(s) tabela(s) Oracle envolvidas: nome, colunas usadas, tipos, PK/FK. Para regras de negócio: liste cada uma individualmente e **conte quantas são não-triviais** (além de "campo obrigatório") — esse número alimenta o gatilho "muitas regras de negócio" da classificação.
+Para cada campo visível na tela: nome, tipo, tamanho, obrigatoriedade, posição/agrupamento visual (ex: "grupo Endereço", "linha 2 do form"), validação. Para o(s) grid(s): colunas, ordenação padrão, ações disponíveis por linha. Para a(s) tabela(s) Oracle envolvidas: nome, colunas usadas, tipos, PK/FK.
+
+**Regras de negócio — classifique cada uma por tipo** (taxonomia completa em `.oai-kit/policies/conversion-policy.md` — "Taxonomia de regras de negócio"):
+- **Tipo 1 — Trivial**: validação simples de campo.
+- **Tipo 2 — Condicional especificável**: habilitar/desabilitar/obrigar campo condicionado a outro campo; filtrar/restringir opções de combobox; exibir/ocultar campo/seção; navegação/ordem de preenchimento; guarda de exclusão referencial (ver armadilha #17 em `armadilhas-comuns.md`). **Especifique por completo como tabela condição→efeito na spec** — nunca como descrição solta. É isso que permite ao conversor nunca abrir o Delphi por causa dela.
+- **Tipo 3 — Complexa**: cálculo multi-campo com fórmula própria, depende de estado temporal/histórico, exceções aninhadas de verdade, ou exige ler múltiplas tabelas pra decidir um valor.
+
+**Conte só as regras Tipo 3** — esse número (não a soma de Tipo 1+2+3) alimenta o gatilho "muitas regras" da classificação. Regras Tipo 2, por mais numerosas que sejam, nunca elevam a classificação sozinhas — desde que estejam 100% especificadas como condição→efeito.
 
 **Já resolva o de/para de componente** consultando primeiro `{knowledgeBasePath}/catalogo-reuso/componentes/<Componente>.md` (índice: `minerva-index.json` → `componentesUikit`; nunca `node_modules`/`ui-generator-kb.json` do UIKit como primeira parada — AP-CONV-011) e `{knowledgeBasePath}/catalogo-reuso/hooks-e-utils.md` para hooks reutilizáveis, além dos cheatsheets (`delphi-para-react.md`, `delphi-para-nestjs.md`) e `{knowledgeBasePath}/padroes-globusweb/patterns/legacy-uikit-mapping.md` (só se nada acima cobrir — ver "Ordem de referência" em `.oai-kit/policies/conversion-policy.md`) — a spec deve dizer explicitamente "este campo X vira `EmpresaFilialCombobox`", não deixar essa dedução para quando a tela for de fato convertida. Se o componente indicado não estiver catalogado ainda, sinalize isso na spec para que `oai-kit-conversao-aprendizado` gere a entrada nova quando a tela for convertida.
 
 **Os sinais estruturais reais sempre vencem a receita "comum" do arquétipo sugerido** (AP-CONV-009). Se o arquétipo mais próximo normalmente tem grid/campo/botão que esta tela não tem, a especificação registra a ausência tal como está no legado — nunca propõe "adicionar X porque é o padrão do arquétipo". Sugestão de melhoria de UX que diverge do legado vira nota para `GAP`, não instrução de implementação.
+
+### 3b. Detectar dependências cross-módulo (AP-CONV-012)
+
+Para cada tabela referenciada que **não** é a tabela principal da tela (lookup/FK):
+
+1. Resolver o prefixo da tabela em `{knowledgeBasePath}/minerva-index.json` → `dicionarioModulos.prefixosTabela` → sigla implementadora → `dicionarioModulos.siglas` → repositório. Comparar a sigla implementadora contra a sigla do módulo desta tela — **só é cross-módulo de verdade se divergirem** (atenção: a sigla implementadora pode não bater com o prefixo bruto — ex. tabelas `ESO_` implementam-se em `FLP`, não num módulo `ESO` próprio). Prefixo ausente do dicionário → pergunte ao dev qual sigla é dona e persista a resposta (nunca invente, mesmo princípio do AP-CONV-007).
+2. Se cross-módulo, checar `tabelasConhecidas.<TABELA>.implementacaoBackend`:
+   - `existe: true` → reaproveite direto; documente na spec "já implementado em `<módulo>`, entidade `<X>` — consumir via Federation, não recriar."
+   - `existe: false` → GAP já conhecido; reaproveite a nota, não reexplore.
+   - Sem entrada nenhuma ainda → localize o repositório do módulo dono (lookup em `knownRepos` → sugerir a convenção de caminho-irmão observada, ex. `<pai-do-repo-atual>\GlobusWeb.<Modulo>` → **sempre confirme com o dev antes de usar, nunca assuma silenciosamente**), sincronize a branch `develop` (`git fetch`/`checkout develop`/`git pull`), e procure lá (grep de entidade/módulo pelo nome da tabela) se já existe implementação. Persista o resultado (existe ou GAP) em `tabelasConhecidas.<TABELA>.implementacaoBackend` e, se relevante, uma nota em `modulos/<sigla-implementadora>.md`.
+3. Preencha a seção "Dependências cross-módulo" da spec com o resultado. Se nenhuma tabela referenciada for cross-módulo, omita a seção.
+
+### 3c. Resolver menu e índice de permissão (obrigatório — AP-CONV-013)
+
+1. Determine o `indice` de menu: da task do Azure (se mencionado) → senão **pergunte ao dev explicitamente**. Nunca derive do nome do arquivo/tela ou do caption — não existe relação de nome entre eles, e captions podem se repetir enquanto índices nunca repetem.
+2. Com o `indice` em mãos, consulte `{knowledgeBasePath}/minerva-index.json` → `menuLegado.<SIGLA>` (se existir para este módulo — ver `menus/legado/_template-menu-legado.md`): procure em `flat_index` a entrada com `indicemenu` igual ao índice informado, para obter o `menu_path` (hierarquia completa de captions, até 3 níveis). Se o nó tiver `indicemenu_db` divergente do `indicemenu` posicional, é o `indicemenu_db` que deve ser documentado como o índice a reaproveitar no GlobusWeb. Se este módulo não tiver `menuLegado` ainda, ou o índice não for encontrado, pergunte a hierarquia de captions diretamente ao dev.
+3. Consulte `{knowledgeBasePath}/minerva-index.json` → `menuGlobusWeb.<SIGLA>` para saber quais níveis (grupo/submenu) já existem implementados em `menu.constants.tsx` — nunca assuma que a tela vai no nível mais alto.
+4. Preencha a seção "Menu e navegação" da spec por completo (índice, hierarquia de até 3 níveis com status de cada nível, rota sugerida) — é isso que evita `oai-kit-conversao-frontend` ter que explorar Minerva/front na hora de criar o menu.
 
 ### 4. Confirmar schema Oracle (obrigatório, não é opcional)
 
@@ -51,11 +76,11 @@ Para a tabela principal e qualquer tabela relacionada por FK identificada no pas
 
 Aplique a escala de `.oai-kit/policies/conversion-policy.md` (seção "Escala de Classificação"):
 
-**Pontuação estrutural** (grid +1, PK composta +1, master-detail +1, referências externas 0/+1/+2) → nível N1-N5.
+**Pontuação estrutural** (grid +1, PK composta +1, master-detail +1, referências externas 0/+1/+2 — dependência cross-módulo já implementada conta aqui, como referência externa normal) → nível N1-N5.
 
-**Gatilhos de exceção** (procedure/function chamada, integração externa, gravação em tabela não-relacionada como efeito colateral, muitas regras de negócio) → se qualquer um presente, nível é **N-ESPECIAL**, independente da pontuação.
+**Gatilhos de exceção** (procedure/function chamada, integração externa, gravação em tabela não-relacionada como efeito colateral, muitas regras **Tipo 3**, GAP cross-módulo que exige nova implementação — AP-CONV-012) → se qualquer um presente, nível é **N-ESPECIAL**, independente da pontuação.
 
-Registre no output **os sinais crus** (grid? PK composta? master-detail? quantas referências? procedure? integração? contagem de regras), não só o nível final — para o conversor poder auditar o motivo da classificação em vez de confiar cegamente.
+Registre no output **os sinais crus** (grid? PK composta? master-detail? quantas referências? procedure? integração? contagem de regras Tipo 3? dependência cross-módulo?), não só o nível final — para o conversor poder auditar o motivo da classificação em vez de confiar cegamente.
 
 ### 6. Registrar staleness
 
@@ -63,7 +88,7 @@ Para cada arquivo fonte lido, registre `{caminho, mtime, tamanho}`. Isso permite
 
 ### 7. Output
 
-Gere `{knowledgeBasePath}/especificacoes/<modulo>/<tela-slug>.md` seguindo `{knowledgeBasePath}/especificacoes/_template-especificacao.md`. Atualize `{knowledgeBasePath}/minerva-index.json` → `especificacoes` com a nova entrada (arquivo, nível, módulo, data, fontes com mtime/tamanho) **e** `tabelasConhecidas` com o schema confirmado no passo 4.
+Gere `{knowledgeBasePath}/especificacoes/<modulo>/<tela-slug>.md` seguindo `{knowledgeBasePath}/especificacoes/_template-especificacao.md`. Atualize `{knowledgeBasePath}/minerva-index.json` → `especificacoes` com a nova entrada (arquivo, nível, módulo, data, fontes com mtime/tamanho), `tabelasConhecidas` com o schema confirmado no passo 4 e qualquer `implementacaoBackend` descoberto no passo 3b, e `dicionarioModulos.prefixosTabela` se um prefixo novo foi confirmado com o dev no passo 3b.
 
 ### 8. Gate Pré-Commit no Minerva
 
@@ -77,7 +102,13 @@ Mesmo padrão de `oai-kit-conversao-aprendizado`: exiba o que será criado/atual
 - Nunca feche a especificação com tipo de coluna só inferido do Delphi sem tentar confirmar contra o schema real (passo 4) — e sem perguntar ao dev se as tentativas falharem.
 - Nunca use `execute_sql` fora da allowlist de dicionário de dados do AP-CONV-005 — nunca contra tabela de negócio real.
 - Nunca deixe uma descoberta de schema presa só na especificação da tela — sempre persista em `descobertas-oracle/`.
-- Nunca omita a contagem de regras de negócio ou os sinais estruturais crus — o nível final sem essa evidência não é auditável.
+- Nunca omita a contagem de regras Tipo 3 ou os sinais estruturais crus — o nível final sem essa evidência não é auditável.
+- Nunca conte regra Tipo 2 (condicional especificável) como se fosse Tipo 3 — isso escala telas simples desnecessariamente. Na dúvida entre Tipo 2 e Tipo 3, prefira Tipo 3 só se a regra realmente não for redutível a uma tabela condição→efeito determinística.
+- Nunca deixe uma regra Tipo 2 documentada só como descrição solta — sempre como tabela condição→efeito completa.
 - Nunca deixe de registrar staleness (mtime/tamanho) dos fontes lidos.
 - Nunca classifique como nível estrutural (N1-N5) uma tela que tenha qualquer gatilho de exceção presente — isso é sempre N-ESPECIAL.
 - Nunca proponha adicionar campo/grid/botão que a tela legada não tem só porque "é o padrão comum" do arquétipo — fidelidade vence padrão comum (AP-CONV-009).
+- Nunca implemente/documente domínio de uma tabela de outro módulo como se fosse local — sempre resolva a sigla implementadora via `dicionarioModulos` antes de decidir (AP-CONV-012).
+- Nunca conclua que uma dependência cross-módulo é GAP sem antes checar `implementacaoBackend` e, se ausente, explorar o repositório do módulo dono.
+- Nunca feche a especificação sem o `indice` de menu confirmado (task Azure ou perguntado ao dev) — e nunca derive esse valor de nome de arquivo/caption (AP-CONV-013).
+- Nunca assuma que a tela vai no nível mais alto do menu sem checar `menuGlobusWeb.<SIGLA>` primeiro.

@@ -17,7 +17,17 @@ Substitui qualquer noção de tier binário. Usada por `oai-kit-conversao-especi
 
 Soma → nível: `0`→N1, `1`→N2, `2-3`→N3, `4-5`→N4/N5 (mais pesado dentro da faixa = N5).
 
-**Gatilhos de exceção → nível é sempre `N-ESPECIAL`**, vencem a pontuação incondicionalmente: procedure/function chamada no `.pas`; integração externa; gravação em tabela **não-relacionada** como efeito colateral (diferente de master-detail, que é escrita em tabela-filha da mesma família); "muitas" regras de negócio não-triviais (contagem: 0-2 poucas, 3-5 moderadas, 6+ muitas → dispara).
+**Gatilhos de exceção → nível é sempre `N-ESPECIAL`**, vencem a pontuação incondicionalmente: procedure/function chamada no `.pas`; integração externa; gravação em tabela **não-relacionada** como efeito colateral (diferente de master-detail, que é escrita em tabela-filha da mesma família); "muitas" regras de negócio **Tipo 3 — Complexa** (contagem: 0-2 poucas, 3-5 moderadas, 6+ muitas → dispara); dependência cross-módulo que exige nova implementação (ver AP-CONV-012).
+
+### Taxonomia de regras de negócio (usada por `oai-kit-conversao-especificador` ao documentar e por `oai-kit-conversao-triagem` ao contar)
+
+Substitui a antiga classificação binária trivial/não-trivial. Toda regra de negócio encontrada numa tela cai em um dos 3 tipos:
+
+- **Tipo 1 — Trivial**: validação simples de campo (obrigatório, tamanho, formato). Não conta para nada.
+- **Tipo 2 — Condicional especificável**: regra redutível a uma tabela condição→efeito determinística, sem cálculo ou lógica externa. Inclui: habilitar/desabilitar/obrigar campo condicionado ao valor de outro campo; filtrar/restringir opções de combobox condicionado a outro campo; exibir/ocultar campo/seção/botão condicionado a outro campo; regra de navegação/ordem de preenchimento; e a **guarda de exclusão referencial** ("só é possível excluir se a PK não for referenciada como FK em outra tabela") — sempre um padrão nomeado e uniforme (verificar existência de referência antes do `DELETE`), independente de quantas tabelas referenciam a PK. Regras Tipo 2 **devem** ser especificadas por completo como tabela condição→efeito na especificação (nunca como descrição solta) — é isso que elimina a necessidade do conversor abrir o fonte Delphi por causa delas. **Não contam** para o gatilho de "muitas regras".
+- **Tipo 3 — Complexa**: regra que exige cálculo multi-campo com fórmula de negócio própria (ex: cálculo de INSS/FGTS), depende de estado temporal/histórico, tem exceções aninhadas de verdade, ou exige ler múltiplas tabelas para decidir um valor (além de um guard de existência simples, que é Tipo 2). **Só regras Tipo 3 contam** para o gatilho "muitas regras" acima — o corte (0-2/3-5/6+) não muda, só o que é contado nele.
+
+Ver o padrão "guarda de exclusão referencial" documentado em `{knowledgeBasePath}/cheatsheets/armadilhas-comuns.md` para a receita de implementação (back: `COUNT` contra a(s) tabela(s) referenciadora(s) antes do `DELETE`; front: capturar erro e mostrar toast) — nunca reinventar isso a cada tela.
 
 **Cortes de uso** (configuráveis, calibrar com o tempo):
 - **N1-N3**: especificação prévia (se existir) é suficiente sozinha — zero leitura do fonte Delphi.
@@ -105,6 +115,38 @@ Só cai para leitura de `node_modules`/fonte real (`src/types/*.d.ts` do `Globus
 
 Componentes cuja entrada tem `temExemploReal: false` não são menos confiáveis quanto a props/comportamento (vieram da mesma leitura de `src/types/*.d.ts` + implementação) — só significa que nenhuma tela já convertida usou esse componente ainda. Ao ser o primeiro a usar um desses, atualizar a seção "Exemplo de uso real" da entrada via `oai-kit-conversao-aprendizado` com o exemplo real gerado.
 
+### AP-CONV-012 — Tabela de outro módulo nunca vira domínio local; GAP cross-módulo é sempre `N-ESPECIAL`
+
+O GlobusWeb é composto por repositórios/módulos independentes, cada um dono de um conjunto de tabelas Oracle identificável por prefixo (`{knowledgeBasePath}/minerva-index.json` → `dicionarioModulos.prefixosTabela`, resolvido em dois níveis: prefixo → sigla implementadora → `dicionarioModulos.siglas` para nome do repositório). **Nunca implementar entidade/domínio de uma tabela num módulo que não é o dono dela** — o consumo correto é sempre via Apollo Federation/gateway, nunca duplicando a entidade localmente. Isso é a mesma regra de "nunca modifica UIKit sem avaliar todos os consumidores" do AP-CONV-003, aplicada a domínio de dados.
+
+**Detecção (todo agente que referencia uma tabela que não é a principal da tela):** resolver o prefixo da tabela via `prefixosTabela` → sigla implementadora, comparar contra a sigla do módulo da tela atual. Divergem → dependência cross-módulo real. Prefixo ausente do dicionário → perguntar ao dev qual sigla é dona e persistir a resposta — nunca inventar (mesmo princípio do AP-CONV-007). **Atenção**: a sigla implementadora pode não ser óbvia pelo prefixo — ex. tabelas `ESO_` implementam-se no módulo `FLP` (Folha de Pagamento), não num módulo `ESO` próprio (não existe repositório `GlobusWeb.ESO`); sempre resolver pela sigla implementadora do dicionário, nunca pelo prefixo bruto.
+
+**Dois cenários, dois tratamentos:**
+1. **Dependência já implementada** (`tabelasConhecidas.<TABELA>.implementacaoBackend.existe: true`) — consumir via Federation, documentar a referência (entidade/GraphQL type do módulo dono). **Não força `N-ESPECIAL`** — é tratada como qualquer "referência externa" normal da pontuação estrutural (0/+1/+2). Consumir algo já pronto e documentado é barato.
+2. **Dependência exige nova implementação** (`implementacaoBackend` ausente ou `existe: false`, GAP genuíno) — antes de assumir isso, `oai-kit-conversao-especificador` deve checar `implementacaoBackend`; se ainda não há entrada nenhuma, localizar o repositório do módulo dono (lookup em `knownRepos` → sugerir a convenção de caminho-irmão observada, ex. `<pai-do-repo-atual>\GlobusWeb.<Modulo>` → **sempre confirmar com o dev antes de usar, nunca assumir silenciosamente**, mesmo mecanismo "Múltiplos Repositórios" do `oai-kit.md` central), sincronizar a branch `develop` daquele repositório (`git fetch`/`checkout develop`/`git pull`), e verificar lá se já existe entidade/resolver para a tabela antes de concluir que é GAP. Só depois dessa verificação, se realmente não existir em nenhum lugar, é GAP cross-módulo — e **isso força `N-ESPECIAL`**, independente de quão simples o resto da tela pareça: criar implementação nova no repositório de outro módulo é trabalho multi-repo e arquitetural, justifica o checkpoint humano por si só.
+
+**Implementação de GAP cross-módulo (`oai-kit-conversao-backend`, só quando `N-ESPECIAL` por este motivo) é sempre multi-repo:**
+1. **Gate de Plano** antes de tocar no segundo repositório — mostrar exatamente o que será criado lá (entidade, resolver, nome da branch) e pedir aprovação explícita.
+2. Branch no **outro** repositório seguindo o mesmo padrão Praxio (`feature/{SIGLA}_{SIM|PSE}_{numero}` — mesmo número de ticket, é a mesma feature atravessando repositórios).
+3. Implementar lá (entidade/resolver/`@key` Federation) seguindo os padrões daquele módulo.
+4. Voltar ao módulo da tela e consumir via Federation.
+5. **Output final consolidado**: repositórios tocados, branch usada em cada um, arquivos alterados por repositório — antes de paridade/aprendizado.
+
+Ao final, `oai-kit-conversao-aprendizado` persiste a implementação nova (ou confirmada) em `tabelasConhecidas.<TABELA>.implementacaoBackend` e qualquer mapeamento de prefixo↔sigla confirmado com o dev em `dicionarioModulos.prefixosTabela` — para o próximo módulo que precisar da mesma tabela nunca mais perguntar ou explorar.
+
+### AP-CONV-013 — Índice de menu nunca é adivinhado
+
+Toda tela GlobusWeb precisa de um código de índice de permissão (`indice`, string — ex: `"000100"`) usado no mapa `labels: Record<rota, indice>` de `menu.constants.tsx` (ver `cheatsheets/armadilhas-comuns.md` #16). **Mesmo princípio do AP-CONV-007**: nunca derivar esse código do nome do arquivo/tela ou do caption do menu — não existe relação de nome entre o `.pas`/`.dfm` legado e o caption do menu, e podem existir captions duplicados/parecidos com índices sempre únicos.
+
+**Origem sempre explícita, nunca inferida:**
+1. Task do Azure — se a task mencionar o índice/código do menu, use-o.
+2. Especificação prévia (`especificacoes/<modulo>/<tela-slug>.md`) — se a seção "Menu e navegação" já tiver o índice documentado, reaproveite.
+3. Se nenhum dos dois tiver a informação — **pergunte ao dev explicitamente** antes de fechar a especificação (`oai-kit-conversao-especificador`) ou antes de implementar o menu (`oai-kit-conversao-triagem`/`-frontend`, se a conversão não veio de uma especificação prévia). Nunca prossiga com um índice adivinhado ou "parecido".
+
+**Uso de `{knowledgeBasePath}/menus/legado/<SIGLA>.json`** (cache do menu legado, quando o dev tiver fornecido um para o módulo — ver `menus/legado/_template-menu-legado.md`): serve **só para confirmar/enriquecer** a hierarquia de captions (breadcrumb até 3 níveis) a partir de um índice **já conhecido** — nunca para descobrir o índice a partir do nome da tela. Quando o nó correspondente tiver `indicemenu` (posição estrutural no `.dfm`) e `indicemenu_db` (valor real gravado em `CTR_MENUSDOSISTEMA`) divergentes, é o `indicemenu_db` que deve ser reaproveitado como `indice` no GlobusWeb.
+
+**Hierarquia de menu (até 3 níveis) nunca assume o nível mais alto por padrão** — consultar `{knowledgeBasePath}/minerva-index.json` → `menuGlobusWeb.<SIGLA>` para saber quais grupos/submenus já existem em `menu.constants.tsx` antes de decidir onde a tela entra; criar só os níveis que realmente faltam. Um 3º nível de menu pode ser o primeiro caso real no módulo (hoje a maioria só tem 2) — isso é uma mudança direta na estrutura local, não um bloqueio; sinalizar como novidade no output.
+
 ## Ordem de referência para padrões (economia de tempo)
 
 `{knowledgeBasePath}/padroes-globusweb/patterns/*.md` são documentos de governança, escritos para arquitetos — completos, mas caros de ler por inteiro a cada tela. O arquétipo (`archetypes/<x>.md`), os cheatsheets e o catálogo de componentes (`catalogo-reuso/componentes/`) já resumem o que é necessário para os casos comuns (`N1`-`N5`).
@@ -121,5 +163,7 @@ Antes de aprovar qualquer conversão, verifique:
 - Nenhum campo/grid/botão foi adicionado além do que a tela legada (ou a especificação) realmente tem (AP-CONV-009).
 - Nenhuma tentativa de subir/rodar o projeto aparece no histórico de ações do backend/frontend (AP-CONV-010) — só build/lint/typecheck/install.
 - Uso de componentes `@praxio/globusweb-uikit` consultou primeiro `catalogo-reuso/componentes/` (AP-CONV-011); se algum componente usado não estava catalogado, uma proposta de nova entrada foi gerada para `oai-kit-conversao-aprendizado`.
+- Nenhuma entidade/domínio de tabela de outro módulo foi implementada localmente (AP-CONV-012) — dependências cross-módulo já implementadas são consumidas via Federation; GAPs cross-módulo genuínos passaram pelo fluxo multi-repo completo (gate, branch no outro repositório, output consolidado).
+- O `indice` de menu usado em `menu.constants.tsx` bate exatamente com o documentado na spec/task Azure (AP-CONV-013 — nunca inventado); a hierarquia de menu criada corresponde à seção "Menu e navegação" da spec, sem níveis pulados ou criados a mais.
 
 Qualquer hit de violação = veredicto BLOQUEADO até resolução.
