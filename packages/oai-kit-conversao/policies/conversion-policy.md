@@ -97,6 +97,8 @@ Nenhum agente adiciona campo, grid, botão ou qualquer funcionalidade que a tela
 
 Qualquer sugestão de adicionar algo que o legado não tinha (melhoria de UX, padronização) é registrada como proposta em `gaps/gaps-log.md` para decisão humana — nunca implementada silenciosamente como parte da conversão. (Origem: bug real encontrado na primeira conversão de teste — `especificacoes/folha/estado-civil.md`, corrigido em 2026-07-29.)
 
+**Nota (2026-08-03): o exemplo acima sobre grid foi superado, especificamente quanto à decisão estrutural, pelo AP-CONV-014** — para arquétipos CRUD, o padrão Grid+Modal agora é sempre a estrutura, independente de o legado ter grid ou form inline. Este AP-CONV-009 continua valendo integralmente para **fidelidade de campos, regras de negócio e dados** (nunca adicionar campo/regra que o legado não tem) — só a decisão "grid sim/não, form inline vs. modal" deixou de ser regida por fidelidade estrutural 1:1 para esses arquétipos.
+
 ### AP-CONV-010 — Agentes nunca executam os projetos
 
 Nenhum agente de conversão sobe/executa o back-end ou o front-end do GlobusWeb — nem para smoke test, nem para "confirmar que o schema reflete o módulo", nem para validar fluxo de UI. O máximo permitido:
@@ -158,6 +160,20 @@ Toda tela GlobusWeb precisa de um código de índice de permissão (`indice`, st
 
 **Hierarquia de menu (até 3 níveis) nunca assume o nível mais alto por padrão** — consultar `{knowledgeBasePath}/minerva-index.json` → `menuGlobusWeb.<SIGLA>` para saber quais grupos/submenus já existem em `menu.constants.tsx` antes de decidir onde a tela entra; criar só os níveis que realmente faltam. Um 3º nível de menu pode ser o primeiro caso real no módulo (hoje a maioria só tem 2) — isso é uma mudança direta na estrutura local, não um bloqueio; sinalizar como novidade no output.
 
+### AP-CONV-014 — Padrão Grid+Modal é estrutural obrigatório para telas CRUD (carve-out do AP-CONV-009)
+
+Para os arquétipos `crud-simples-pk-usuario`, `crud-simples-pk-gerada`, `crud-pai-filho`, e telas classificadas em `grid-procedure` que são fundamentalmente um cadastro (lista + criar/editar/excluir, mesmo com backend Padrão B por PK composta/Federation/procedure — ex.: `CadastroDefeito` em GlobusWeb.Manutencao), a estrutura de frontend é **sempre**:
+
+1. **Tela principal**: busca (campo + botão explícito "Pesquisar" + Enter — nunca debounce automático) + botão "Novo" + `DataGridSearchServer`/`Datagrid` com coluna "Ações" (ícones Editar/Excluir).
+2. **Criar/editar**: sempre `FormModal` (nunca form inline acima do grid, nunca `Dialog` cru).
+3. **Excluir**: sempre `FormModal` de confirmação (nunca `Dialog` cru, nunca `window.confirm`).
+
+Receita completa em `{knowledgeBasePath}/archetypes/padrao-frontend-crud-grid-modal.md`.
+
+**Isto é deliberadamente independente de o legado ter grid, form inline, ou modal** — é uma decisão estrutural do time, um carve-out explícito do AP-CONV-009 (fidelidade vence padrão comum) **só quanto a essa decisão estrutural específica**. AP-CONV-009 continua em vigor integralmente para fidelidade de **campos, regras de negócio e dados** — nunca adicionar campo/regra que o legado não tem, mesmo dentro deste padrão estrutural novo. Se o legado não tinha grid, as colunas da tela principal são escolhidas entre os campos mais identificadores/buscáveis do form original — nunca inventadas.
+
+Telas de ciclo de vida com múltiplas etapas (ex.: `OrdemServico`, abertura→execução→fechamento→cancelamento) **não** seguem este padrão — continuam sem uma estrutura única de UX (ver seção Frontend de `grid-procedure.md`). Na dúvida se uma tela `grid-procedure` é "cadastro" ou "ciclo de vida", tratar como ciclo de vida (mais seguro) e perguntar ao dev.
+
 ## Ordem de referência para padrões (economia de tempo)
 
 `{knowledgeBasePath}/padroes-globusweb/patterns/*.md` são documentos de governança, escritos para arquitetos — completos, mas caros de ler por inteiro a cada tela. O arquétipo (`archetypes/<x>.md`), os cheatsheets e o catálogo de componentes (`catalogo-reuso/componentes/`) já resumem o que é necessário para os casos comuns (`N1`-`N5`).
@@ -176,5 +192,6 @@ Antes de aprovar qualquer conversão, verifique:
 - Uso de componentes `@praxio/globusweb-uikit` consultou primeiro `catalogo-reuso/componentes/` (AP-CONV-011); se algum componente usado não estava catalogado, uma proposta de nova entrada foi gerada para `oai-kit-conversao-aprendizado`.
 - Nenhuma entidade/domínio de tabela de outro módulo foi implementada localmente (AP-CONV-012) — dependências cross-módulo já implementadas são consumidas via Federation; GAPs cross-módulo genuínos passaram pelo fluxo multi-repo completo (gate, branch no outro repositório, output consolidado).
 - O `indice` de menu usado em `menu.constants.tsx` bate exatamente com o documentado na spec/task Azure (AP-CONV-013 — nunca inventado); a hierarquia de menu criada corresponde à seção "Menu e navegação" da spec, sem níveis pulados ou criados a mais.
+- Se o arquétipo é CRUD (AP-CONV-014): tela principal tem busca+grid+"Novo"; criar/editar usa `FormModal` (nunca form inline, nunca `Dialog` cru); excluir usa `FormModal` de confirmação (nunca `Dialog` cru, nunca `window.confirm`).
 
 Qualquer hit de violação = veredicto BLOQUEADO até resolução.

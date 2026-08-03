@@ -20,7 +20,8 @@ Você verifica **estaticamente** (build/lint/typecheck/revisão de código vs. e
 ### 1. Verificação estática (você faz isso)
 
 - `npm run build` / lint / typecheck sem erro (backend e frontend).
-- Campos do form/entity batem exatamente com os campos visíveis no `.dfm`/arquivos da tela ou na especificação prévia usada — **nenhum campo/grid/botão a mais** do que a tela legada tem (AP-CONV-009). Se encontrar algo adicionado sem estar no legado/spec, é bloqueante — volte para `oai-kit-conversao-backend`/`-frontend` corrigir antes de prosseguir.
+- Campos do form/entity batem exatamente com os campos visíveis no `.dfm`/arquivos da tela ou na especificação prévia usada — **nenhum campo a mais** do que a tela legada tem (AP-CONV-009). Se encontrar campo/regra adicionado sem estar no legado/spec, é bloqueante — volte para `oai-kit-conversao-backend`/`-frontend` corrigir antes de prosseguir. **Exceção estrutural (AP-CONV-014)**: para arquétipos CRUD, grid principal + `FormModal` sempre presentes, mesmo que o legado não tivesse grid ou tivesse form inline — isso não é "adicionado além do legado", é o padrão obrigatório; só campos/regras de negócio continuam sob fidelidade estrita.
+- Se o arquétipo é CRUD: criar/editar/excluir usam `FormModal` (nunca form inline, nunca `Dialog` cru, nunca `window.confirm` — AP-CONV-014); busca da tela principal é explícita (botão/Enter), não debounce automático.
 - Os 4 pontos de roteamento estão atualizados (frontend).
 - Nenhuma chamada a `execute_sql`/`query_table`/`sample_data` no histórico de ferramentas usadas (AP-CONV-005).
 - `N4`-`N5`: confirme que os "pontos de atenção" sinalizados pela triagem foram de fato checados contra o fonte pelo backend/frontend, não apenas assumidos da especificação.
@@ -31,10 +32,10 @@ Você verifica **estaticamente** (build/lint/typecheck/revisão de código vs. e
 Monte o checklist proporcional ao nível — você **entrega**, não executa:
 
 **`N1`-`N3`:**
-- [ ] Incluir um registro novo
-- [ ] Editar um registro existente
-- [ ] Excluir um registro
-- [ ] Listar/consultar (grid, se a tela tiver — nunca adicionado se o legado não tinha)
+- [ ] Incluir um registro novo (via modal "Novo", se arquétipo CRUD — AP-CONV-014)
+- [ ] Editar um registro existente (via ícone Editar no grid → modal)
+- [ ] Excluir um registro (via ícone Excluir no grid → modal de confirmação)
+- [ ] Listar/consultar — grid sempre presente para arquétipos CRUD (AP-CONV-014, independente do legado ter grid); busca explícita (botão "Pesquisar"/Enter) retorna os resultados esperados
 - [ ] Validações obrigatórias disparam corretamente
 
 **`N4`-`N5`** (checklist acima **mais**):
@@ -71,6 +72,7 @@ Apresente a verificação estática (já concluída) e o checklist de teste manu
 - Nunca assuma que o checklist manual passou sem confirmação explícita do dev — ausência de resposta não é "passou".
 - Nunca aplique o checklist de `N-ESPECIAL` numa tela `N1`-`N3` — desperdiça o orçamento de tempo do dev.
 - Nunca aplique o checklist mínimo de `N1`-`N3` numa tela `N-ESPECIAL` — arrisca paridade quebrada.
-- Nunca aprove um campo/grid/botão adicionado além do que o legado/spec tem (AP-CONV-009) — é bloqueante, não uma observação.
+- Nunca aprove um campo/regra adicionado além do que o legado/spec tem (AP-CONV-009) — é bloqueante, não uma observação. Isso não inclui a estrutura Grid+Modal em arquétipos CRUD, que é sempre esperada (AP-CONV-014), mesmo sem correspondência no legado.
+- Nunca aprove um arquétipo CRUD que use form inline, `Dialog` cru ou `window.confirm` em vez de `FormModal` (AP-CONV-014) — é bloqueante.
 - Nunca commite sem a confirmação de teste manual do dev.
 - Divergência de comportamento sem classificação explícita (aceita vs. GAP) não é permitida.

@@ -135,7 +135,7 @@ Gere `.oai-flow/analysis/{ID}-conversao-plano.md`:
 Padrão sugerido: A | A+QueryService | B — [justificativa]
 
 ## Frontend
-Padrão UX sugerido: Pai-filho | CRUD simples — [justificativa]
+Padrão UX sugerido: Grid+Modal (CRUD simples/Pai-filho — obrigatório, AP-CONV-014) | Lookup | Ciclo de vida (grid-procedure fora do caso "cadastro") — [justificativa]
 
 ## GAPs
 - [item que não pode ser resolvido nesta conversão pontual — vai para gaps-log.md]

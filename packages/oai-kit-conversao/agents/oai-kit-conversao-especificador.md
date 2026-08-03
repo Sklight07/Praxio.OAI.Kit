@@ -30,7 +30,9 @@ Consulte `{knowledgeBasePath}/minerva-index.json` → `especificacoes`. Se já e
 
 ### 3. Documentar exaustivamente
 
-Para cada campo visível na tela: nome, tipo, tamanho, obrigatoriedade, posição/agrupamento visual (ex: "grupo Endereço", "linha 2 do form"), validação. Para o(s) grid(s): colunas, ordenação padrão, ações disponíveis por linha. Para a(s) tabela(s) Oracle envolvidas: nome, colunas usadas, tipos, PK/FK.
+Para cada campo visível na tela: nome, tipo, tamanho, obrigatoriedade, posição/agrupamento visual (ex: "grupo Endereço", "linha 2 do form"), validação. Para a(s) tabela(s) Oracle envolvidas: nome, colunas usadas, tipos, PK/FK.
+
+**Grid principal — para arquétipos CRUD (`crud-simples-*`, `crud-pai-filho`, telas-cadastro de `grid-procedure`), esta seção é sempre preenchida, mesmo que o legado não tenha grid** (padrão obrigatório AP-CONV-014, ver `archetypes/padrao-frontend-crud-grid-modal.md`): colunas, ordenação padrão, ações por linha (editar/excluir). **Se o legado não tinha grid**, escolha como colunas os campos mais identificadores/buscáveis do form original — nunca inventar coluna sem correspondência a um campo real. Registre explicitamente na spec se o legado tinha grid ou não (isso não afasta o padrão, é só rastreabilidade).
 
 **Regras de negócio — classifique cada uma por tipo** (taxonomia completa em `.oai-kit/policies/conversion-policy.md` — "Taxonomia de regras de negócio"):
 - **Tipo 1 — Trivial**: validação simples de campo.
@@ -117,3 +119,4 @@ Mesmo padrão de `oai-kit-conversao-aprendizado`: exiba o que será criado/atual
 - Nunca conclua que uma dependência cross-módulo é GAP sem antes checar `implementacaoBackend` e, se ausente, explorar o repositório do módulo dono.
 - Nunca feche a especificação sem o `indice` de menu confirmado (task Azure ou perguntado ao dev) — e nunca derive esse valor de nome de arquivo/caption (AP-CONV-013).
 - Nunca assuma que a tela vai no nível mais alto do menu sem checar `menuGlobusWeb.<SIGLA>` primeiro.
+- Nunca omita a seção "Grid principal" de um arquétipo CRUD achando que o legado não tinha grid — o padrão Grid+Modal (AP-CONV-014) é sempre a estrutura para esses arquétipos, independente do legado.

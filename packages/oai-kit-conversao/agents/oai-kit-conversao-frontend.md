@@ -25,16 +25,18 @@ Abra **apenas** o arquétipo indicado (`{knowledgeBasePath}/archetypes/<arquetip
 
 ### 2. Padrão de UX
 
-- **Pai-filho** (arquétipo `crud-pai-filho`): combobox de entidade-pai + grid filtrado + form de inclusão.
-- **CRUD simples** (arquétipos `crud-simples-*`): form no topo + grid abaixo, clique na linha carrega em modo edição.
-- **Lookup** (arquétipo `lookup-readonly`): `Combobox`/`ComboboxGrid` alimentado por módulo read-only do backend.
+- **CRUD simples** (arquétipos `crud-simples-*`) e **Pai-filho** (`crud-pai-filho`), e telas-cadastro de `grid-procedure` (ex.: `CadastroDefeito`): **sempre** o padrão Grid+Modal obrigatório (AP-CONV-014) — tela principal com busca explícita + grid (coluna Ações: Editar/Excluir) + botão "Novo"; criar/editar e excluir sempre via `FormModal` (nunca form inline, nunca `Dialog` cru). No caso de `crud-pai-filho`, o combobox de entidade-pai continua na tela principal filtrando o grid — só o formulário do filho vai para o modal. Receita completa em `{knowledgeBasePath}/archetypes/padrao-frontend-crud-grid-modal.md`.
+- **Lookup** (arquétipo `lookup-readonly`): `Combobox`/`ComboboxGrid` alimentado por módulo read-only do backend — sem CRUD, este padrão não se aplica.
+- Telas de ciclo de vida multi-etapa (grid-procedure fora do caso "cadastro") continuam sem padrão único — ver `grid-procedure.md`.
 
 ### 3. Implementar
 
 - Domain (`types`, `graphql/queries`, `schemas` Zod) → hooks TanStack Query → service (`gqlClient` + `handleApiError`) → página.
 - Importações **apenas** de `@praxio/globusweb-uikit` — nunca `@mui/*` direto.
 - Se o `.dfm` tiver `TPedeEmpresa`+`TPedeFilialGaragem`/`TPedeFilial` → `EmpresaFilialCombobox` (reaproveitar `useFiliaisOptions` do catálogo de reuso, nunca recriar).
-- `Datagrid`/`DataGridSearchServer`: `paginationModel` sempre `useState`, `getRowId` explícito quando PK ≠ `id`.
+- `Datagrid`/`DataGridSearchServer`: `paginationModel` sempre `useState`, `getRowId` explícito quando PK ≠ `id` (simples ou composto, conforme o arquétipo).
+- **Arquétipos CRUD (AP-CONV-014)**: busca da tela principal sempre com estado duplo (`searchText` rascunho + `appliedSearch` usado na query) e disparo explícito (botão "Pesquisar" + Enter) — nunca debounce automático a cada tecla. Modal de criar/editar: estado `isDialogOpen`/`editTarget`/`isEditing`, `editTarget` guarda o registro completo da linha (nunca um id para refetch), `formMethods` compartilhado via `FormProvider` entre página e modal. Exclusão: `FormModal` de confirmação com `deleteTarget` próprio. Ver `{knowledgeBasePath}/archetypes/padrao-frontend-crud-grid-modal.md` para a receita completa.
+- Mutations de create/update/delete cuidam de `toast`+`invalidateQueries` **dentro do próprio hook** — a página só passa `{ onSuccess: closeModal }` (criar/editar) ou `{ onSettled: () => setDeleteTarget(null) }` (excluir) no `mutate()`, nunca duplicando toast/invalidate (ver armadilha #18 em `armadilhas-comuns.md`).
 - Campos opcionais que o usuário pode limpar: enviar `null`, nunca `undefined`, na mutation.
 - Consultar `{knowledgeBasePath}/cheatsheets/armadilhas-comuns.md` antes de escrever qualquer trecho que pareça repetir um padrão já resolvido — nunca redescobrir uma armadilha já documentada.
 - Roteamento: os 4 pontos obrigatórios (config de rota, lazy import, `AppRouter`, menu) — tela só está "integrada" quando todos os 4 estiverem atualizados.
@@ -62,3 +64,6 @@ Registre em `.oai-flow/delivery/{ID}-conversao-patch.md` (mesmo arquivo do backe
 - Nunca explore `node_modules/@praxio/globusweb-uikit` ou a `ui-generator-kb.json` interna do UIKit como primeira fonte para entender um componente — sempre `catalogo-reuso/componentes/` primeiro (AP-CONV-011).
 - Nunca crie o item de menu direto no nível mais alto sem checar `menuGlobusWeb.<SIGLA>` — só crie os níveis que realmente faltam.
 - Nunca invente ou derive o `indice` de menu por nome/caption — sempre o valor exato da spec/plano, ou pergunte ao dev se estiver ausente (AP-CONV-013).
+- Nunca implemente form inline acima do grid para arquétipos CRUD (`crud-simples-*`, `crud-pai-filho`, telas-cadastro de `grid-procedure`) — sempre `FormModal` (AP-CONV-014).
+- Nunca use `Dialog`/`DialogTitle`/`DialogContent`/`DialogActions` cru ou `window.confirm` para criar/editar/excluir num arquétipo CRUD — sempre `FormModal`, inclusive para a confirmação de exclusão.
+- Nunca implemente busca com debounce automático a cada tecla na tela principal de um arquétipo CRUD — sempre busca explícita (botão "Pesquisar" + Enter).
