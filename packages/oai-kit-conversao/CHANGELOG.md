@@ -2,6 +2,14 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em ISO-8601.
 
+## [0.1.12] — 2026-08-04
+
+Origem: `oai-kit-conversao-especificador` criou `especificacoes/FLP/flp-criterios.md` (task Azure #617445) — uma pasta nova nomeada com a sigla do módulo, duplicando `especificacoes/folha/` que já existia com 5 outras telas do mesmo módulo (`FLP`). Corrigido no `GlobusEvo.Minerva` (arquivo movido para `especificacoes/folha/criterios.md`, `minerva-index.json` e `descobertas-oracle/FLP_CRITERIOS.md` atualizados).
+
+### Corrigido
+- **`oai-kit-conversao-especificador`**: passo 7 agora determina `<modulo>` (nome da pasta) a partir de `dicionarioModulos.siglas.<SIGLA>.repositorio` (ex.: `GlobusWeb.Folha` → `folha`) — nunca a sigla em si — e exige checar se a pasta já existe antes de criar uma nova. Nova restrição correspondente em Restrições Absolutas.
+- `especificacoes/README.md` (Minerva): regra de nomeação de pasta explicitada, com instrução de sempre reaproveitar uma pasta de módulo já existente.
+
 ## [0.1.11] — 2026-08-04
 
 Origem: feedback pós-conversão real de outra tela (Nacionalidades, FLP_617662) — dois bugs de UI só encontrados no teste manual do dev (verificação estática passou 100%, pois nenhum é erro de tipagem/sintaxe), mais uma observação de processo: o agente de backend implementou o frontend ele mesmo e commitou direto em `develop`, pulando o handoff para `oai-kit-conversao-frontend` e o checkpoint final de `oai-kit-conversao-paridade`.

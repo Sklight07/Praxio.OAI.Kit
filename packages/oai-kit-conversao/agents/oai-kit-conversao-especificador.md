@@ -95,7 +95,9 @@ Para cada arquivo fonte lido, registre `{caminho, mtime, tamanho}`. Isso permite
 
 ### 7. Output
 
-Gere `{knowledgeBasePath}/especificacoes/<modulo>/<tela-slug>.md` seguindo `{knowledgeBasePath}/especificacoes/_template-especificacao.md`. Atualize `{knowledgeBasePath}/minerva-index.json` → `especificacoes` com a nova entrada (arquivo, nível, módulo, data, fontes com mtime/tamanho), `tabelasConhecidas` com o schema confirmado no passo 4 e qualquer `implementacaoBackend` descoberto no passo 3b, e `dicionarioModulos.prefixosTabela` se um prefixo novo foi confirmado com o dev no passo 3b.
+**Determine `<modulo>` (nome da pasta) antes de gerar o arquivo**: derive de `{knowledgeBasePath}/minerva-index.json` → `dicionarioModulos.siglas.<SIGLA>.repositorio` (ex.: `GlobusWeb.Folha` → `folha`) — **nunca use a sigla como nome de pasta** (ex.: nunca `FLP/`). Antes de criar a pasta, **sempre confira se ela já existe** (`especificacoes/<modulo>/` ou entradas já indexadas em `especificacoes` para a mesma sigla) — se sim, use-a; nunca crie uma segunda pasta para o mesmo módulo com nome diferente (bug real confirmado 2026-08-04: `especificacoes/FLP/` criada com uma única spec, duplicando `especificacoes/folha/` que já tinha 5 outras telas do mesmo módulo).
+
+Gere `{knowledgeBasePath}/especificacoes/<modulo>/<tela-slug>.md` seguindo `{knowledgeBasePath}/especificacoes/_template-especificacao.md` — `<tela-slug>` nunca repete a sigla/módulo (a pasta já identifica o módulo). Atualize `{knowledgeBasePath}/minerva-index.json` → `especificacoes` com a nova entrada (arquivo, nível, módulo, data, fontes com mtime/tamanho), `tabelasConhecidas` com o schema confirmado no passo 4 e qualquer `implementacaoBackend` descoberto no passo 3b, e `dicionarioModulos.prefixosTabela` se um prefixo novo foi confirmado com o dev no passo 3b.
 
 ### 8. Gate Pré-Commit no Minerva
 
@@ -120,3 +122,4 @@ Mesmo padrão de `oai-kit-conversao-aprendizado`: exiba o que será criado/atual
 - Nunca feche a especificação sem o `indice` de menu confirmado (task Azure ou perguntado ao dev) — e nunca derive esse valor de nome de arquivo/caption (AP-CONV-013).
 - Nunca assuma que a tela vai no nível mais alto do menu sem checar `menuGlobusWeb.<SIGLA>` primeiro.
 - Nunca omita a seção "Grid principal" de um arquétipo CRUD achando que o legado não tinha grid — o padrão Grid+Modal (AP-CONV-014) é sempre a estrutura para esses arquétipos, independente do legado.
+- Nunca use a sigla do módulo como nome de pasta em `especificacoes/` (ex.: `FLP/`) — o nome vem de `dicionarioModulos.siglas.<SIGLA>.repositorio` (ex.: `folha`). Nunca crie uma pasta nova sem antes verificar se já existe uma para este módulo.
