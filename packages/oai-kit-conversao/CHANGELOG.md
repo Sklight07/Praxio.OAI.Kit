@@ -2,6 +2,19 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em ISO-8601.
 
+## [0.1.11] — 2026-08-04
+
+Origem: feedback pós-conversão real de outra tela (Nacionalidades, FLP_617662) — dois bugs de UI só encontrados no teste manual do dev (verificação estática passou 100%, pois nenhum é erro de tipagem/sintaxe), mais uma observação de processo: o agente de backend implementou o frontend ele mesmo e commitou direto em `develop`, pulando o handoff para `oai-kit-conversao-frontend` e o checkpoint final de `oai-kit-conversao-paridade`.
+
+### Adicionado
+- **Restrição ao prop `mask` do `TextField`**: incompatibilidade real confirmada entre o `TextField` do UIKit e `react-input-mask@^3.0.0-alpha.2` (dependência que o próprio UIKit fixa) — crash em runtime (`Cannot read properties of undefined (reading 'disabled')`) não detectável por build/typecheck. Padrão recomendado: `inputProps={{ maxLength: N }}` + regex Zod.
+- **Receita de altura do grid principal** (`containerHeight`, `pageSize` inicial 10): sem essa prop o container do `DataGridSearchServer` é sempre `height: 100vh` fixo, gerando sobra de espaço ou rolagem interna indevida. Fórmula (header + linhas reais × altura da linha + footer + folga) documentada em `archetypes/padrao-frontend-crud-grid-modal.md` e `catalogo-reuso/componentes/DataGridSearchServer.md`.
+- **Restrição a `fitColumns`**: desativa o autosize embutido (única proteção nativa contra corte de cabeçalho) — nunca usar no grid principal sem razão documentada. Tabela de largura de coluna inicial por tipo Oracle (com folga).
+- Convenção de nome `field: "acoes"` para a coluna de ações do grid (o `buildColumns` interno do UIKit identifica por esse nome exato).
+- **Reforço no `oai-kit-conversao-backend`**: nunca implementar a feature de frontend ele mesmo (sempre acionar `oai-kit-conversao-frontend`, mesmo em `N1`-`N3`) e nunca commitar antes do checkpoint final de `oai-kit-conversao-paridade`.
+- Novas armadilhas #21 (`mask`), #22 (grid sem `containerHeight`), #23 (`fitColumns`) em `cheatsheets/armadilhas-comuns.md` (Minerva).
+- Verificações estáticas correspondentes em `oai-kit-conversao-paridade` e `conversion-policy.md`.
+
 ## [0.1.10] — 2026-08-03
 
 Origem: feedback pós-conversão real de uma tela — o dev encontrou e corrigiu manualmente dois bugs (filtro de coluna do grid morto por `compliance`+`onFilterChange` stub; layout de cabeçalho quebrado por wrap numa única linha) que já estavam corretamente resolvidos em `GridCadastroDefeitos.tsx`/`GlobusWeb.Manutencao`, mas nunca haviam sido consultados.

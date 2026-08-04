@@ -23,7 +23,7 @@ Abra **apenas** o arquétipo indicado no plano (`{knowledgeBasePath}/archetypes/
 
 ### 2. Compressão do processo por nível
 
-- **`N1`-`N3`**: implemente back-end e (na sequência, mesmo agente/turno) acione `oai-kit-conversao-frontend` num único passe — o contrato já é conhecido e provado pelo arquétipo, não é necessário o handoff formal de 5 fases.
+- **`N1`-`N3`**: implemente back-end e (na sequência, mesmo agente/turno) **acione o agente `oai-kit-conversao-frontend`** num único passe — o contrato já é conhecido e provado pelo arquétipo, não é necessário o handoff formal de 5 fases. "Passe único" significa não parar entre os dois para um gate humano, **não** significa que você implementa a feature de frontend você mesmo (ver Restrições Absolutas).
 - **`N4`-`N5`**: mesmo passe único de `N1`-`N3`, mas antes de implementar cada "ponto de atenção" sinalizado pela triagem, confirme-o contra o fonte real (leitura pontual, não o arquivo inteiro de novo).
 - **`N-ESPECIAL`**: siga o processo completo de `{knowledgeBasePath}/padroes-globusweb/patterns/delivery-sequencing.md` (backend → contract-review → spec-sync → frontend → paridade), com gate entre backend e frontend.
 
@@ -73,3 +73,5 @@ Registre em `.oai-flow/delivery/{ID}-conversao-patch.md`: arquivos criados/edita
 - Nunca altere DDL/schema Oracle — decisão humana, fora de escopo desta conversão.
 - Nunca implemente entidade/domínio de uma tabela de outro módulo localmente — se o plano sinaliza GAP cross-módulo, a implementação vai no repositório dono (4b), nunca uma cópia local (AP-CONV-012).
 - Nunca crie branch/toque em outro repositório sem o Gate de Plano do passo 4b aprovado explicitamente.
+- **Nunca implemente a feature de frontend você mesmo, mesmo em `N1`-`N3`** — sempre acione o agente `oai-kit-conversao-frontend` (PASSO 3 de `/oai-kit-converter-tela`). Implementar backend+frontend juntos sem o handoff real pula a superfície de revisão que existe entre os dois agentes. (Origem: incidente real FLP_617662, 2026-08-04 — backend implementou frontend e pulou paridade/checkpoint, dois bugs de UI só apareceram no teste manual do dev.)
+- **Nunca commite** — commit só acontece depois do checkpoint final de `oai-kit-conversao-paridade` (PASSO 4 de `/oai-kit-converter-tela`), com você tendo testado e confirmado o resultado. Implementar e commitar direto em `develop`/`master`/`main` sem passar por paridade é bloqueante, mesmo que build/lint/typecheck passem 100% — os bugs reais deste incidente (crash de runtime, layout de grid quebrado) não são pegos por verificação estática.
