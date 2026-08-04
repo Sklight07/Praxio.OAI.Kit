@@ -80,6 +80,14 @@ Se a especificação prévia (passo 2) já preencheu "Dependências cross-módul
 
 Se a especificação prévia (passo 2) já preencheu "Menu e navegação", reaproveite — não repita. Senão: determine `indicemenu`/`nome` a partir da task do Azure (módulo já é conhecido pelo contexto — busca sempre em `menuLegado.<SIGLA>` deste módulo). Resolva por: os dois presentes → registro único exato; só um presente → um resultado usa direto, mais de um resultado divergente pergunta ao dev mostrando os candidatos, nenhum resultado pergunta o que falta; nenhum dos dois → pergunte ao dev diretamente. **O valor a documentar como `indice` é sempre `indicemenu`, nunca `indicemenu_glb7`** (índice do mesmo item em outra aplicação, irrelevante aqui). Consulte também `menuGlobusWeb.<SIGLA>` para saber quais níveis já existem implementados. Preencha a seção "Menu e navegação" do plano.
 
+### 4d. Detectar ausência de precedente local (Grid+Modal) — checagem cross-repo
+
+Se o arquétipo identificado usa o padrão Grid+Modal obrigatório (AP-CONV-014 — `crud-simples-*`, `crud-pai-filho`, telas-cadastro de `grid-procedure`) **e** o front-end do módulo-alvo estiver em estágio esqueleto (pasta `features/`/`src/features` vazia ou com só 1-2 features triviais, ex.: só `auth`) — ou seja, esta seria a primeira tela real convertida neste repositório: **verifique `knownRepos` (`.claude/.local-config.json`) por um repositório GlobusWeb irmão que já tenha uma tela do mesmo arquétipo implementada** (ex.: `GlobusWeb.Manutencao` → `CadastroDefeitos`, referência canônica já citada em `archetypes/padrao-frontend-crud-grid-modal.md`). Se `knownRepos` não tiver um repo cadastrado que sirva, pergunte ao dev se ele conhece um caminho local — nunca invente ou assuma.
+
+Registre o caminho encontrado no plano (campo "Referência estrutural cross-repo") — é isso que evita `oai-kit-conversao-frontend` inventar do zero layout de cabeçalho, props do `DataGridSearchServer` (`compliance`/`hasSearchField`) ou estrutura de busca sem comparar contra um precedente real já em produção. **Origem real deste passo**: bug real de conversão (2026-08-03) — um agente sem precedente local ligou `compliance` sem necessidade e montou o cabeçalho numa única linha com wrap; ambos os problemas já estavam resolvidos em `GridCadastroDefeitos.tsx`/`CadastroDefeitos.tsx` (GlobusWeb.Manutencao), que o agente não consultou por não ter sido instruído a procurar.
+
+Se o front-end já tiver outras telas do mesmo arquétipo convertidas (não é mais a primeira feature), pule este passo — o próprio repositório já é o precedente.
+
 ### 5. Confirmar schema Oracle (se esta triagem não veio de especificação prévia já confirmada)
 
 Se o plano veio de uma especificação prévia (passo 2) que já confirmou o schema, reaproveite — não repita. **Se não veio** (conversão direta, sem `/oai-kit-documentar-tela` antes), confirme o schema da tabela principal e das relacionadas por FK — isso **não é gateado por nível**, mas é **condicionado ao cache, tabela por tabela** (AP-CONV-006 em `.oai-kit/policies/conversion-policy.md`) — **o MCP Oracle não é obrigatório em toda conversão, só quando a tabela não estiver documentada ainda**:
@@ -136,6 +144,7 @@ Padrão sugerido: A | A+QueryService | B — [justificativa]
 
 ## Frontend
 Padrão UX sugerido: Grid+Modal (CRUD simples/Pai-filho — obrigatório, AP-CONV-014) | Lookup | Ciclo de vida (grid-procedure fora do caso "cadastro") — [justificativa]
+Referência estrutural cross-repo (se front-end sem precedente local — ver passo 4d): [caminho do arquivo de referência, ou "N/A — já há telas do arquétipo neste repositório"]
 
 ## GAPs
 - [item que não pode ser resolvido nesta conversão pontual — vai para gaps-log.md]
@@ -163,3 +172,4 @@ Padrão UX sugerido: Grid+Modal (CRUD simples/Pai-filho — obrigatório, AP-CON
 - Nunca resolva sigla implementadora de uma tabela pelo prefixo bruto sem checar `dicionarioModulos.prefixosTabela` — alguns prefixos implementam-se em sigla diferente (ex: `ESO_`→`FLP`).
 - Nunca feche o plano sem o `indice` de menu confirmado (task Azure, spec prévia, ou perguntado ao dev) — nunca derivado de nome de arquivo/caption (AP-CONV-013).
 - Nunca assuma que a tela vai no nível mais alto do menu sem checar `menuGlobusWeb.<SIGLA>` primeiro.
+- Nunca deixe de checar `knownRepos` por um precedente estrutural cross-repo (passo 4d) quando o arquétipo é Grid+Modal e o front-end do módulo-alvo está sem nenhuma feature real convertida ainda — deixar o frontend inventar do zero já causou bug real de conversão.

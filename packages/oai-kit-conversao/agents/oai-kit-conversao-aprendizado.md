@@ -52,8 +52,10 @@ Pergunte ao dev: *"Quanto tempo levou essa conversão, aproximadamente? (opciona
 
 Append (nunca sobrescreva) uma linha em `{knowledgeBasePath}/metrics/conversoes.jsonl` (schema completo em `metrics/README.md`):
 ```json
-{"ts": "ISO-8601", "tela": "NomeTela", "modulo": "SIGLA", "arquetipo": "crud-simples-pk-usuario", "nivel": "N1", "checkpoints": 1, "resultado": "convertido", "gapsAbertos": 0, "usouEspecificacaoPrevia": true, "duracaoMinutosAprox": 42, "padroesGlobusWebAbertos": []}
+{"ts": "ISO-8601", "tela": "NomeTela", "modulo": "SIGLA", "arquetipo": "crud-simples-pk-usuario", "nivel": "N1", "checkpoints": 1, "resultado": "convertido", "gapsAbertos": 0, "usouEspecificacaoPrevia": true, "duracaoMinutosAprox": 42, "padroesGlobusWebAbertos": [], "bugsConversaoCorrigidos": 0}
 ```
+
+`bugsConversaoCorrigidos`: conte quantas divergências foram classificadas como "Bug de conversão" (ver `oai-kit-conversao-paridade`, passo 3 — erro introduzido pela própria implementação, corrigido antes de commitar, distinto de GAP vs. Delphi). `0` é o esperado na maioria das conversões — um número recorrente >0 num mesmo tipo de erro entre conversões (ex.: `compliance` do `DataGridSearchServer`) é sinal de que falta reforçar a documentação/receita correspondente.
 
 `padroesGlobusWebAbertos`: liste aqui qualquer arquivo de `padroes-globusweb/patterns/*.md` que o backend/frontend precisou abrir por completo (fallback fora do cheatsheet/arquétipo, ver "Ordem de referência" em `.oai-kit/policies/conversion-policy.md`). Puxe essa informação do output de `oai-kit-conversao-backend`/`-frontend` — se um arquivo se repetir entre conversões, é sinal para enriquecer o cheatsheet correspondente.
 
