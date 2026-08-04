@@ -14,7 +14,8 @@
     "agents/",
     "commands/",
     "knowledge/",
-    "policies/"
+    "policies/",
+    "CHANGELOG.md"
   ],
   "dependencies": {
     "praxio-oai-kit": "^2.0.0"
