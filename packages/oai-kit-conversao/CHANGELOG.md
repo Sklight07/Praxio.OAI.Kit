@@ -2,7 +2,7 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em ISO-8601.
 
-## [Não Lançado] — 2026-08-05
+## [0.1.13] — 2026-08-05
 
 Origem: surgiu um novo padrão real de conversão (form inline 1:1 + grid de seleção, sem modal, com inteligência de campo-chave) confirmado em duas telas-irmãs de `GlobusWeb.Acidentes` (`CondicaoPavimento`/`CondicaoPista`), e um padrão para telas complexas com múltiplas `TabSheet`/`PageControl` do legado (accordion + índice numerado lateral, confirmado na tela de cadastro de Acidente do mesmo módulo). O padrão Grid+Modal (AP-CONV-014) deixa de ser a única estrutura obrigatória — agora é um de três padrões possíveis, escolhidos por tela via um novo mecanismo de decisão.
 
