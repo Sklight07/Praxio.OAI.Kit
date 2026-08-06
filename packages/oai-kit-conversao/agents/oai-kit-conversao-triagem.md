@@ -61,7 +61,7 @@ Leia **todos** os arquivos do conjunto antes de classificar — a regra de negó
 
 1. Leia `{knowledgeBasePath}/minerva-index.json` — é pequeno e deve ser lido antes de qualquer markdown completo (se ainda não leu no passo 2).
 2. Use o índice para achar o arquétipo candidato (`arquetipos`) e abra **só** o arquivo específico apontado.
-3. Verifique `tabelasConhecidas`/`descobertas-oracle/` — reaproveite descrições já feitas, não redescubra.
+3. Verifique `tabelasConhecidas.json` (grep pelo nome da tabela, nunca `Read` do arquivo inteiro — ver AP-CONV-006) / `descobertas-oracle/` — reaproveite descrições já feitas, não redescubra.
 4. Consulte `catalogo-reuso/hooks-e-utils.md` para reaproveitar hooks/services já prontos, e `catalogo-reuso/componentes/` (índice: `componentesUikit`) para componentes UIKit já mapeados.
 
 **Calcule o nível pela Escala de Classificação de `.oai-kit/policies/conversion-policy.md`:**
@@ -74,27 +74,37 @@ Pontuação estrutural (só se nenhum gatilho de exceção estiver presente): gr
 
 ### 4b. Detectar dependências cross-módulo (AP-CONV-012) — só quando não veio de especificação prévia já resolvida
 
-Se a especificação prévia (passo 2) já preencheu "Dependências cross-módulo", reaproveite — não repita. Senão, para cada tabela referenciada que não é a principal: resolva o prefixo via `minerva-index.json` → `dicionarioModulos.prefixosTabela` → sigla implementadora → `dicionarioModulos.siglas`, compare contra a sigla do módulo da tela (atenção ao caso `ESO_`→`FLP`: prefixo bruto não é a sigla implementadora). Divergem → cross-módulo real. Prefixo desconhecido → pergunte ao dev, persista. Se cross-módulo: checar `tabelasConhecidas.<TABELA>.implementacaoBackend` — `existe: true` conta como referência externa normal (acima); ausente ou `existe: false` sem ainda ter explorado o outro repositório → localizar o repo (`knownRepos` → convenção de caminho-irmão, sempre confirmando com o dev), sincronizar `develop`, verificar se já existe implementação antes de concluir GAP. GAP cross-módulo confirmado → gatilho de exceção, `N-ESPECIAL`.
+Se a especificação prévia (passo 2) já preencheu "Dependências cross-módulo", reaproveite — não repita. Senão, para cada tabela referenciada que não é a principal: resolva o prefixo via `minerva-index.json` → `dicionarioModulos.prefixosTabela` → sigla implementadora → `dicionarioModulos.siglas`, compare contra a sigla do módulo da tela (atenção ao caso `ESO_`→`FLP`: prefixo bruto não é a sigla implementadora). Divergem → cross-módulo real. Prefixo desconhecido → pergunte ao dev, persista. Se cross-módulo: checar `implementacaoBackend` da tabela (grep pelo nome exato em `tabelasConhecidas.json`, nunca `Read` do arquivo inteiro) — `existe: true` conta como referência externa normal (acima); ausente ou `existe: false` sem ainda ter explorado o outro repositório → localizar o repo (`knownRepos` → convenção de caminho-irmão, sempre confirmando com o dev), sincronizar `develop`, verificar se já existe implementação antes de concluir GAP. GAP cross-módulo confirmado → gatilho de exceção, `N-ESPECIAL`.
 
 ### 4c. Resolver menu e índice de permissão (AP-CONV-013) — só quando não veio de especificação prévia já resolvida
 
 Se a especificação prévia (passo 2) já preencheu "Menu e navegação", reaproveite — não repita. Senão: determine `indicemenu`/`nome` a partir da task do Azure (módulo já é conhecido pelo contexto — busca sempre em `menuLegado.<SIGLA>` deste módulo). Resolva por: os dois presentes → registro único exato; só um presente → um resultado usa direto, mais de um resultado divergente pergunta ao dev mostrando os candidatos, nenhum resultado pergunta o que falta; nenhum dos dois → pergunte ao dev diretamente. **O valor a documentar como `indice` é sempre `indicemenu`, nunca `indicemenu_glb7`** (índice do mesmo item em outra aplicação, irrelevante aqui). Consulte também `menuGlobusWeb.<SIGLA>` para saber quais níveis já existem implementados. Preencha a seção "Menu e navegação" do plano.
 
-### 4d. Detectar ausência de precedente local (Grid+Modal) — checagem cross-repo
+### 4d. Decidir o padrão de frontend (AP-CONV-015) — Grid+Modal | Inline+Grid | Accordion+Índice
 
-Se o arquétipo identificado usa o padrão Grid+Modal obrigatório (AP-CONV-014 — `crud-simples-*`, `crud-pai-filho`, telas-cadastro de `grid-procedure`) **e** o front-end do módulo-alvo estiver em estágio esqueleto (pasta `features/`/`src/features` vazia ou com só 1-2 features triviais, ex.: só `auth`) — ou seja, esta seria a primeira tela real convertida neste repositório: **verifique `knownRepos` (`.claude/.local-config.json`) por um repositório GlobusWeb irmão que já tenha uma tela do mesmo arquétipo implementada** (ex.: `GlobusWeb.Manutencao` → `CadastroDefeitos`, referência canônica já citada em `archetypes/padrao-frontend-crud-grid-modal.md`). Se `knownRepos` não tiver um repo cadastrado que sirva, pergunte ao dev se ele conhece um caminho local — nunca invente ou assuma.
+Aplica-se sempre que o arquétipo de backend for `crud-simples-*`/`crud-pai-filho`/`grid-procedure`-cadastro (que admitem Grid+Modal ou Inline+Grid) ou `accordion-secoes-indice-numerado` (que só tem um padrão de frontend possível). Siga a ordem do AP-CONV-015 em `.oai-kit/policies/conversion-policy.md`, registrando qual passo resolveu:
+
+1. **Convenção na task do Azure**: procure na descrição/comentário uma linha `Padrão de conversão: <valor>` (`grid-modal`/`inline-grid`/`accordion-indice`). Se encontrar, use direto — não infira, não pergunte.
+2. **Sem sinal na task → infira**: `PageControl`/múltiplas `TabSheet` no `.dfm` → `accordion-indice` (sem alternativa, é o próprio arquétipo). Cadastro simples/pai-filho, **com ou sem grid no legado** → default `inline-grid` (é a mesma conversão 1:1, só adaptada com grid quando faltava). Só infira `grid-modal` se houver motivo estrutural real e documentável (ex.: volume de campos incompatível com form inline) — nunca por hábito.
+3. **Ainda ambíguo → pergunte ao dev**, apresentando as opções disponíveis (com uma frase do que cada uma significa) para ele escolher — nunca uma pergunta sem contexto.
+
+Registre no plano (seção Frontend) o padrão decidido **e** a origem (sinalizado/inferido/perguntado).
+
+### 4e. Detectar ausência de precedente local (Grid+Modal) — checagem cross-repo
+
+**Só se o padrão decidido no passo 4d for Grid+Modal.** Se, além disso, o front-end do módulo-alvo estiver em estágio esqueleto (pasta `features/`/`src/features` vazia ou com só 1-2 features triviais, ex.: só `auth`) — ou seja, esta seria a primeira tela real convertida neste repositório: **verifique `knownRepos` (`.claude/.local-config.json`) por um repositório GlobusWeb irmão que já tenha uma tela do mesmo arquétipo implementada** (ex.: `GlobusWeb.Manutencao` → `CadastroDefeitos`, referência canônica já citada em `archetypes/padrao-frontend-crud-grid-modal.md`). Se `knownRepos` não tiver um repo cadastrado que sirva, pergunte ao dev se ele conhece um caminho local — nunca invente ou assuma.
 
 Registre o caminho encontrado no plano (campo "Referência estrutural cross-repo") — é isso que evita `oai-kit-conversao-frontend` inventar do zero layout de cabeçalho, props do `DataGridSearchServer` (`compliance`/`hasSearchField`) ou estrutura de busca sem comparar contra um precedente real já em produção. **Origem real deste passo**: bug real de conversão (2026-08-03) — um agente sem precedente local ligou `compliance` sem necessidade e montou o cabeçalho numa única linha com wrap; ambos os problemas já estavam resolvidos em `GridCadastroDefeitos.tsx`/`CadastroDefeitos.tsx` (GlobusWeb.Manutencao), que o agente não consultou por não ter sido instruído a procurar.
 
-Se o front-end já tiver outras telas do mesmo arquétipo convertidas (não é mais a primeira feature), pule este passo — o próprio repositório já é o precedente.
+Se o front-end já tiver outras telas do mesmo arquétipo convertidas (não é mais a primeira feature), pule este passo — o próprio repositório já é o precedente. Se o padrão decidido for Inline+Grid ou Accordion+Índice, este passo não se aplica (mas vale o mesmo espírito: se houver telas-irmãs já convertidas no mesmo padrão neste ou em outro módulo, prefira consultá-las como referência estrutural antes de inventar do zero).
 
 ### 5. Confirmar schema Oracle (se esta triagem não veio de especificação prévia já confirmada)
 
 Se o plano veio de uma especificação prévia (passo 2) que já confirmou o schema, reaproveite — não repita. **Se não veio** (conversão direta, sem `/oai-kit-documentar-tela` antes), confirme o schema da tabela principal e das relacionadas por FK — isso **não é gateado por nível**, mas é **condicionado ao cache, tabela por tabela** (AP-CONV-006 em `.oai-kit/policies/conversion-policy.md`) — **o MCP Oracle não é obrigatório em toda conversão, só quando a tabela não estiver documentada ainda**:
 
-Para cada tabela: `tabelasConhecidas.<TABELA>` existe? → **sim, leia `descobertas-oracle/<TABELA>.md` direto, MCP não é chamado para esta tabela** (o índice só tem o ponteiro — colunas/tipos/PK/FK completos estão no arquivo). → não existe (ou stale de verdade) → tool dedicada (`describe_table`/`list_constraints`, qualificando pelo owner em `conversao.oracleSchemaOwner`) → fallback de dicionário de dados (`execute_sql` restrito à allowlist do AP-CONV-005) → **perguntar ao dev** se tudo falhar ou o MCP não estiver configurado.
+Para cada tabela: **grep pelo nome exato da tabela em `{knowledgeBasePath}/tabelasConhecidas.json`** (nunca `Read` do arquivo inteiro — tem 1500+ entradas, ~286KB; ver nota de tamanho em AP-CONV-006). Entrada existe? → **sim, leia `descobertas-oracle/<TABELA>.md` direto, MCP não é chamado para esta tabela** (o arquivo de tabelas conhecidas só tem o ponteiro — colunas/tipos/PK/FK completos estão no arquivo de descoberta). → não existe (ou stale de verdade) → tool dedicada (`describe_table`/`list_constraints`, qualificando pelo owner em `conversao.oracleSchemaOwner`) → fallback de dicionário de dados (`execute_sql` restrito à allowlist do AP-CONV-005) → **perguntar ao dev** se tudo falhar ou o MCP não estiver configurado.
 
-Cruze o tipo confirmado (do cache ou recém-descoberto) contra o inferido do Delphi e sinalize divergência (ex: `AsString` no Delphi vs `NUMBER` no Oracle). Para tabela nova, persista em `descobertas-oracle/<tabela>.md` (nunca cite o owner no nome/conteúdo/índice) e adicione a entrada leve em `tabelasConhecidas` (`arquivo`/`verificadoEm`/`origem`/`moduloDono` — nunca duplicar colunas/PK/FK no índice) — não delegue isso para `oai-kit-conversao-aprendizado` sem garantir que a descoberta não se perde se o dev não chegar até o fim da conversão.
+Cruze o tipo confirmado (do cache ou recém-descoberto) contra o inferido do Delphi e sinalize divergência (ex: `AsString` no Delphi vs `NUMBER` no Oracle). Para tabela nova, persista em `descobertas-oracle/<tabela>.md` (nunca cite o owner no nome/conteúdo/índice) e adicione a entrada leve em `tabelasConhecidas.json` (`arquivo`/`verificadoEm`/`origem`/`moduloDono` — nunca duplicar colunas/PK/FK ali; abrir o arquivo para editar é esperado nesta operação de escrita, diferente da consulta por grep) — não delegue isso para `oai-kit-conversao-aprendizado` sem garantir que a descoberta não se perde se o dev não chegar até o fim da conversão.
 
 Se, mesmo assim, o schema não puder ser confirmado, marque o campo correspondente como `INFERRED` em vez de `CONFIRMED` no plano — nunca bloqueie a conversão por isso, mas nunca apresente como certo.
 
@@ -143,8 +153,9 @@ Gere `.oai-flow/analysis/{ID}-conversao-plano.md`:
 Padrão sugerido: A | A+QueryService | B — [justificativa]
 
 ## Frontend
-Padrão UX sugerido: Grid+Modal (CRUD simples/Pai-filho — obrigatório, AP-CONV-014) | Lookup | Ciclo de vida (grid-procedure fora do caso "cadastro") — [justificativa]
-Referência estrutural cross-repo (se front-end sem precedente local — ver passo 4d): [caminho do arquivo de referência, ou "N/A — já há telas do arquétipo neste repositório"]
+Padrão UX decidido: Grid+Modal | Inline+Grid | Accordion+Índice Numerado | Lookup | Ciclo de vida (grid-procedure fora do caso "cadastro") — [justificativa]
+Origem da decisão (AP-CONV-015, passo 4d): [sinalizado na task Azure | inferido a partir dos sinais do legado | perguntado ao dev em AAAA-MM-DD]
+Referência estrutural cross-repo (se padrão Grid+Modal sem precedente local — ver passo 4e): [caminho do arquivo de referência, ou "N/A — já há telas do arquétipo neste repositório", ou "N/A — padrão não é Grid+Modal"]
 
 ## GAPs
 - [item que não pode ser resolvido nesta conversão pontual — vai para gaps-log.md]
@@ -172,4 +183,6 @@ Referência estrutural cross-repo (se front-end sem precedente local — ver pas
 - Nunca resolva sigla implementadora de uma tabela pelo prefixo bruto sem checar `dicionarioModulos.prefixosTabela` — alguns prefixos implementam-se em sigla diferente (ex: `ESO_`→`FLP`).
 - Nunca feche o plano sem o `indice` de menu confirmado (task Azure, spec prévia, ou perguntado ao dev) — nunca derivado de nome de arquivo/caption (AP-CONV-013).
 - Nunca assuma que a tela vai no nível mais alto do menu sem checar `menuGlobusWeb.<SIGLA>` primeiro.
-- Nunca deixe de checar `knownRepos` por um precedente estrutural cross-repo (passo 4d) quando o arquétipo é Grid+Modal e o front-end do módulo-alvo está sem nenhuma feature real convertida ainda — deixar o frontend inventar do zero já causou bug real de conversão.
+- Nunca deixe de checar `knownRepos` por um precedente estrutural cross-repo (passo 4e) quando o padrão decidido é Grid+Modal e o front-end do módulo-alvo está sem nenhuma feature real convertida ainda — deixar o frontend inventar do zero já causou bug real de conversão.
+- Nunca decida o padrão de frontend (passo 4d) sem registrar a origem da decisão (sinalizado/inferido/perguntado) — sem isso, ninguém consegue auditar depois se a inferência do AP-CONV-015 está calibrada certo.
+- Nunca infira `grid-modal` por hábito quando o arquétipo admite `inline-grid` — a partir de 2026-08 o default é `inline-grid` para cadastro simples/pai-filho; `grid-modal` exige justificativa estrutural real.

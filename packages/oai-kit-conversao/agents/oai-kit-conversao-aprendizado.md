@@ -20,13 +20,18 @@ Você fecha o ciclo de toda conversão, simples ou complexa. **Não é um passo 
 
 ### 1. Atualizar `minerva-index.json`
 
-Abra `{knowledgeBasePath}/minerva-index.json`. Atualize:
-- `tabelasConhecidas`: se uma tabela/procedure/view Oracle foi descrita nesta conversão (via MCP ou lida do `.pas`/descrição de tabela) e ainda não está no índice, adicione a entrada apontando para `descobertas-oracle/<objeto>.md`.
-- `gapsAbertos`: adicione qualquer GAP novo registrado pela `oai-kit-conversao-paridade` ou pela triagem.
+Abra `{knowledgeBasePath}/minerva-index.json` (~40KB, seguro para `Read` completo). Atualize:
+- `gapsAbertos`: adicione qualquer GAP novo registrado pela `oai-kit-conversao-paridade` ou pela triagem (depois de passar pelo Critério de GAP — ver seção própria em `conversion-policy.md`).
 - `arquetipos`: se a triagem marcou a tela como candidata a novo arquétipo (não encaixou em nenhum existente), e você concluir que o padrão é genuinamente reutilizável (não específico desta tela), proponha um arquétipo novo em `archetypes/_template-arquetipo.md` preenchido.
 - `modulos`: garanta que o módulo da tela aponta para seu arquivo em `modulos/<modulo>.md`.
 - `dicionarioModulos.prefixosTabela`: se a triagem/especificador confirmou com o dev a sigla implementadora de um prefixo novo (AP-CONV-012), persista aqui — nunca mais perguntar de novo para aquele prefixo.
-- `tabelasConhecidas.<TABELA>.implementacaoBackend`: se houve investigação de dependência cross-módulo (entidade já existia em outro módulo, ou foi criada agora via fluxo multi-repo do backend), registre/atualize aqui.
+- `padroesFrontend`: normalmente estático (hoje só `grid-modal`/`inline-grid`) — só toque se uma conversão descobrir uma variante genuinamente nova de padrão de frontend (mesmo critério "reutilizável, não particularidade de uma tela" usado para arquétipos).
+
+### 1b. Atualizar `tabelasConhecidas.json` (arquivo separado desde 2026-08-05 — nunca faz parte de `minerva-index.json`)
+
+**Nunca `Read` este arquivo por inteiro** para checar se uma tabela já está lá (1500+ entradas, ~286KB) — grep pelo nome exato primeiro. Abrir para editar (esta etapa) é esperado, é escrita pontual, não a consulta frequente:
+- Se uma tabela/procedure/view Oracle foi descrita nesta conversão (via MCP ou lida do `.pas`/descrição de tabela) e ainda não está lá, adicione a entrada apontando para `descobertas-oracle/<objeto>.md`.
+- `implementacaoBackend` da tabela: se houve investigação de dependência cross-módulo (entidade já existia em outro módulo, ou foi criada agora via fluxo multi-repo do backend), registre/atualize aqui.
 
 **O JSON deve permanecer válido a qualquer momento** — nunca salve um estado intermediário quebrado.
 
@@ -39,12 +44,17 @@ Para cada tabela/procedure/view Oracle confirmada nesta conversão, crie ou atua
 - Armadilha nova descoberta (não estava em `cheatsheets/armadilhas-comuns.md`) → proponha adição.
 - Regra de negócio ou comportamento de UI não óbvio → proponha adição em `modulos/<modulo>.md`.
 - Hook/service reutilizável criado nesta conversão → proponha adição em `catalogo-reuso/hooks-e-utils.md`.
+- Componente de app compartilhado **não vindo do UIKit** (ex.: usado no arquétipo `accordion-secoes-indice-numerado` — `CustomAccordionGroup`/`AccordionSectionsNavRail` ou equivalente novo) criado/portado nesta conversão sem entrada ainda → proponha adição em `catalogo-reuso/hooks-e-utils.md`, seção "Componentes compartilhados de app (não-UIKit)".
 - Componente `@praxio/globusweb-uikit` usado sem entrada em `catalogo-reuso/componentes/` (não catalogado ainda), ou usado pela primeira vez de verdade num componente com `temExemploReal: false` → crie/atualize a entrada correspondente (`_template-componente.md`) e o índice `componentesUikit` em `minerva-index.json`. Armadilha nova encontrada num componente já catalogado → adicione à seção "Comportamento não-óbvio / armadilhas" existente.
 - Nível(is) de menu criado(s) nesta conversão (grupo/submenu novo em `menu.constants.tsx`, reportado pelo frontend) → atualize `menus/globusweb/<SIGLA>.md` (novo grupo/submenu, rotas filhas, `indice`) e `minerva-index.json` → `menuGlobusWeb.<SIGLA>.ultimaAtualizacao`. Sem isso, a próxima tela do mesmo módulo não sabe que aquele nível já existe.
 
-### 4. Registrar GAPs não resolvíveis
+### 4. Registrar GAPs não resolvíveis — critério estrito, ver "Critério de GAP" em `conversion-policy.md`
 
-GAP/HUMAN DECISION que não pode ser resolvido nesta conversão pontual sem risco a outros módulos ou à arquitetura → append em `{knowledgeBasePath}/gaps/gaps-log.md` (nunca sobrescreva entradas anteriores).
+**Antes de registrar qualquer coisa em `gaps-log.md`, aplique o teste**: "isso exige que alguém tome uma decisão/ação futura para desbloquear algo, ou é só uma nota de que um dado estava errado e a conversão já contornou sozinha?" Só o primeiro caso é GAP.
+
+**Nunca registre** (exemplos reais já removidos de `gaps-log.md` por não passarem o teste, 2026-08-05): inconsistência de dado no card do Azure (índice de menu, SIM/PSE ausente) que a própria conversão já resolveu usando o valor correto; convenção de processo já estabelecida sendo aplicada normalmente (ex.: ID da Task no lugar de SIM/PSE ausente); nome de branch/pasta/commit que já segue regra definida e foi seguida certo. Essas coisas, se valem menção, vão só no output da conversão (`.oai-flow/delivery/{ID}-conversao-patch.md`) — nunca em `gaps-log.md`.
+
+**Registre só** GAP/HUMAN DECISION genuíno que não pôde ser resolvido nesta conversão pontual sem risco a outros módulos ou à arquitetura (decisão de negócio pendente, dependência cross-módulo sem implementação — AP-CONV-012, ambiguidade real não resolvida nem pela base central nem pelo dev) → append em `{knowledgeBasePath}/gaps/gaps-log.md` (nunca sobrescreva entradas anteriores).
 
 ### 5. Registrar métrica
 
@@ -67,7 +77,8 @@ Append (nunca sobrescreva) uma linha em `{knowledgeBasePath}/metrics/conversoes.
 ═══════════════════════════════════════════
 ATUALIZAÇÕES PROPOSTAS EM GlobusEvo.Minerva
 ═══════════════════════════════════════════
-• minerva-index.json — [o que mudou, incl. implementacaoBackend/prefixosTabela se aplicável]
+• minerva-index.json — [o que mudou: gapsAbertos/arquetipos/modulos/dicionarioModulos/padroesFrontend]
+• tabelasConhecidas.json — [entrada(s) nova(s)/atualizada(s), incl. implementacaoBackend se aplicável — arquivo separado do índice]
 • descobertas-oracle/<objeto>.md — [novo/atualizado]
 • archetypes/<...>.md — [se houver arquétipo novo]
 • cheatsheets/armadilhas-comuns.md — [se houver armadilha nova]
@@ -79,7 +90,7 @@ ATUALIZAÇÕES PROPOSTAS EM GlobusEvo.Minerva
 ═══════════════════════════════════════════
 ```
 
-Pergunte: *"Posso commitar e subir (push) essas atualizações no GlobusEvo.Minerva? (sim/não)"* Se sim, commite localmente e **sempre tente o push em seguida** — não é uma pergunta separada opcional; o pull obrigatório do início (ver Pré-condições) só protege o *próximo* dev se este *dev* também sincronizar de volta. Se o push for rejeitado por non-fast-forward, tente `git pull --rebase` + push **uma vez** automaticamente. Se ainda assim conflitar (mais provável em `minerva-index.json`, o único arquivo não append-only aqui), pare e mostre o conflito ao dev — nunca decida sozinho como resolver.
+Pergunte: *"Posso commitar e subir (push) essas atualizações no GlobusEvo.Minerva? (sim/não)"* Se sim, commite localmente e **sempre tente o push em seguida** — não é uma pergunta separada opcional; o pull obrigatório do início (ver Pré-condições) só protege o *próximo* dev se este *dev* também sincronizar de volta. Se o push for rejeitado por non-fast-forward, tente `git pull --rebase` + push **uma vez** automaticamente. Se ainda assim conflitar (mais provável em `minerva-index.json`/`tabelasConhecidas.json`, os únicos arquivos não append-only tocados aqui), pare e mostre o conflito ao dev — nunca decida sozinho como resolver.
 
 ### 7. Output
 
@@ -94,5 +105,6 @@ Confirme ao dev o resumo final: tela convertida, nível, checkpoints usados, o q
 - Nunca resolva um conflito de push sozinho — se o retry automático falhar, pare e mostre ao dev.
 - Nunca descarte uma descoberta de schema/regra de negócio só porque a conversão terminou — se não for persistido agora, se perde.
 - Nunca proponha um arquétipo novo para um padrão que apareceu uma única vez e não parece genuinamente reutilizável — isso põe lixo na base central.
+- Nunca registre em `gaps-log.md` uma inconsistência de dado do Azure ou desvio de processo que a própria conversão já resolveu/seguiu corretamente — isso também põe lixo na base central (ver "Critério de GAP" em `conversion-policy.md`).
 - Nunca esqueça de persistir `implementacaoBackend`/`dicionarioModulos.prefixosTabela` quando a conversão envolveu dependência cross-módulo — sem isso, a próxima tela do mesmo prefixo reexplora do zero.
 - Nunca esqueça de atualizar `menus/globusweb/<SIGLA>.md` quando a conversão criou nível de menu novo — sem isso, a próxima tela do mesmo módulo recria o que já existe.

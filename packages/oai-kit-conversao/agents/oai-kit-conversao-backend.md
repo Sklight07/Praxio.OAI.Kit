@@ -35,6 +35,7 @@ Abra **apenas** o arquétipo indicado no plano (`{knowledgeBasePath}/archetypes/
 - `@Directive('@key(...)')` casando com `referenceBy.key` no module.
 - `UpdateInput` via `PartialType(CreateInput)` como padrão — só usar `PartialType(OmitType(...))` quando o Delphi bloqueia edição de campos de PK.
 - Se a tela envolve procedure/function Oracle (arquétipo `grid-procedure`, nível `N-ESPECIAL`): schema tipado em `stored-procedures`/`functions`, seguindo `{knowledgeBasePath}/cheatsheets/delphi-para-nestjs.md`.
+- Se o arquétipo é `accordion-secoes-indice-numerado` (múltiplas seções/`TabSheet` do legado): sub-entidades **próprias** desta tela (FK direta para a entidade principal, criadas/editadas/excluídas por ela) usam `@OneToMany({ cascade: true, onDelete: 'CASCADE', orphanedRowAction: 'delete' })` — cascade pode ter mais de um nível (ex.: filho→nieto). **Nunca use este cascade para dado de outro domínio** (consultado, não gerido, por esta tela) — esse caso vai por controller REST dedicado (Padrão B), sempre somente-leitura aqui. Ver `{knowledgeBasePath}/archetypes/accordion-secoes-indice-numerado.md` (seção Backend) e armadilha #32 (`orphanedRowAction:'delete'` exclui silenciosamente item omitido do array — nunca assumir PATCH incremental).
 - Reaproveite qualquer peça já identificada em `catalogo-reuso/` pela triagem — nunca recrie o que já existe.
 
 ### 4. Gate (só quando `N-ESPECIAL`)

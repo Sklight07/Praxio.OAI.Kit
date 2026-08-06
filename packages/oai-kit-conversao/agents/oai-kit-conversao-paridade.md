@@ -20,10 +20,12 @@ Você verifica **estaticamente** (build/lint/typecheck/revisão de código vs. e
 ### 1. Verificação estática (você faz isso)
 
 - `npm run build` / lint / typecheck sem erro (backend e frontend).
-- Campos do form/entity batem exatamente com os campos visíveis no `.dfm`/arquivos da tela ou na especificação prévia usada — **nenhum campo a mais** do que a tela legada tem (AP-CONV-009). Se encontrar campo/regra adicionado sem estar no legado/spec, é bloqueante — volte para `oai-kit-conversao-backend`/`-frontend` corrigir antes de prosseguir. **Exceção estrutural (AP-CONV-014)**: para arquétipos CRUD, grid principal + `FormModal` sempre presentes, mesmo que o legado não tivesse grid ou tivesse form inline — isso não é "adicionado além do legado", é o padrão obrigatório; só campos/regras de negócio continuam sob fidelidade estrita.
-- Se o arquétipo é CRUD: criar/editar/excluir usam `FormModal` (nunca form inline, nunca `Dialog` cru, nunca `window.confirm` — AP-CONV-014); busca da tela principal é explícita (botão/Enter), não debounce automático; cabeçalho em 2 linhas distintas (título+Novo; busca+Pesquisar), nunca 1 linha com wrap (armadilha #20).
-- Se a tela usa `DataGridSearchServer`: comparar as props passadas contra `catalogo-reuso/componentes/DataGridSearchServer.md` — sinalizar como ponto de atenção qualquer prop não coberto pela receita do arquétipo, em especial `compliance`/`hasSearchField` ligados sem uma necessidade documentada (ex.: `compliance={true}` com `onFilterChange` que é só um stub — bug real confirmado, ver armadilha #19). Arquétipos Grid+Modal (AP-CONV-014) nunca devem ter `compliance` ligado.
-- Grid principal de listagem (Grid+Modal): confirmar `containerHeight` computado dinamicamente (nunca ausente — default é `height: 100vh` fixo, armadilha #24) e `pageSize` inicial `10`; confirmar que `fitColumns` não está presente sem razão documentada (armadilha #25); coluna de ações com `field: "acoes"`.
+- Campos do form/entity batem exatamente com os campos visíveis no `.dfm`/arquivos da tela ou na especificação prévia usada — **nenhum campo a mais** do que a tela legada tem (AP-CONV-009). Se encontrar campo/regra adicionado sem estar no legado/spec, é bloqueante — volte para `oai-kit-conversao-backend`/`-frontend` corrigir antes de prosseguir. **Exceção estrutural (AP-CONV-014/015)**: para arquétipos CRUD, grid sempre presente (mesmo que o legado não tivesse) e, no padrão Grid+Modal, `FormModal` sempre presente mesmo que o legado tivesse form inline — isso não é "adicionado além do legado", é o padrão escolhido; só campos/regras de negócio continuam sob fidelidade estrita.
+- **Confirme antes de tudo qual padrão de frontend o plano decidiu** (Grid+Modal | Inline+Grid | Accordion+Índice — AP-CONV-015, seção "Frontend" do plano) e valide contra ele, nunca contra um padrão assumido:
+  - **Grid+Modal**: criar/editar/excluir usam `FormModal` (nunca form inline, nunca `Dialog` cru, nunca `window.confirm`); busca da tela principal é explícita (botão/Enter), não debounce automático; cabeçalho em 2 linhas distintas (título+Novo; busca+Pesquisar), nunca 1 linha com wrap (armadilha #20); grid com `containerHeight` computado dinamicamente (nunca ausente — default `100vh` fixo, armadilha #24) e `pageSize` inicial `10`; `fitColumns` nunca sem razão documentada (armadilha #25); coluna de ações com `field: "acoes"`; `compliance` do `DataGridSearchServer` nunca ligado sem necessidade real (armadilha #19).
+  - **Inline+Grid**: campos sempre visíveis (nunca modal); grid de seleção **sem** coluna "Ações" (o inverso do Grid+Modal — presença de coluna Ações aqui é bloqueante, não ausência); `fitColumns`+`autoHeight` são esperados (não é a mesma proibição do Grid+Modal — armadilha #25 tem nota de escopo); duplo clique carrega a linha no form; campo-chave com `onBlur` de autofill.
+  - **Accordion+Índice Numerado**: `CustomAccordionGroup` em modo controlado (nunca o `AccordionGroup` puro do UIKit); seções 1:1 com as `TabSheet` do legado (nenhuma seção/campo a mais ou a menos); `id` de seção compatível com permissão legada quando houver; sub-listas próprias via `RepeatableForm`, dados de outro domínio via `Table` read-only (nunca o inverso).
+- Se a tela usa `DataGridSearchServer` fora do escopo dos itens acima: comparar as props passadas contra `catalogo-reuso/componentes/DataGridSearchServer.md` — sinalizar como ponto de atenção qualquer prop não coberto pela receita do padrão escolhido.
 - Nenhum `TextField` usa o prop `mask` (crash em runtime confirmado — armadilha #23); campos numéricos/alfanuméricos de tamanho fixo usam `inputProps={{ maxLength: N }}` + regex Zod.
 - Os 4 pontos de roteamento estão atualizados (frontend).
 - Nenhuma chamada a `execute_sql`/`query_table`/`sample_data` no histórico de ferramentas usadas (AP-CONV-005).
@@ -34,11 +36,11 @@ Você verifica **estaticamente** (build/lint/typecheck/revisão de código vs. e
 
 Monte o checklist proporcional ao nível — você **entrega**, não executa:
 
-**`N1`-`N3`:**
-- [ ] Incluir um registro novo (via modal "Novo", se arquétipo CRUD — AP-CONV-014)
-- [ ] Editar um registro existente (via ícone Editar no grid → modal)
-- [ ] Excluir um registro (via ícone Excluir no grid → modal de confirmação)
-- [ ] Listar/consultar — grid sempre presente para arquétipos CRUD (AP-CONV-014, independente do legado ter grid); busca explícita (botão "Pesquisar"/Enter) retorna os resultados esperados
+**`N1`-`N3`** (adaptar aos passos reais do padrão de frontend escolhido — AP-CONV-015):
+- [ ] Incluir um registro novo (modal "Novo" no Grid+Modal; preencher o form e Gravar no Inline+Grid)
+- [ ] Editar um registro existente (ícone Editar → modal no Grid+Modal; duplo clique na linha do grid → form no Inline+Grid)
+- [ ] Excluir um registro (ícone Excluir → modal de confirmação no Grid+Modal; botão Excluir do form → modal de confirmação no Inline+Grid)
+- [ ] Listar/consultar — grid sempre presente para arquétipos CRUD (independente do legado ter grid); no Grid+Modal, busca explícita (botão "Pesquisar"/Enter) retorna os resultados esperados; no Inline+Grid, campo-chave com código existente autopreenche os demais campos ao sair do campo (`onBlur`)
 - [ ] Validações obrigatórias disparam corretamente
 
 **`N4`-`N5`** (checklist acima **mais**):
@@ -93,8 +95,8 @@ Pergunte: *"Posso dar push na branch agora? E já seguimos para retroalimentar o
 - Nunca assuma que o checklist manual passou sem confirmação explícita do dev — ausência de resposta não é "passou".
 - Nunca aplique o checklist de `N-ESPECIAL` numa tela `N1`-`N3` — desperdiça o orçamento de tempo do dev.
 - Nunca aplique o checklist mínimo de `N1`-`N3` numa tela `N-ESPECIAL` — arrisca paridade quebrada.
-- Nunca aprove um campo/regra adicionado além do que o legado/spec tem (AP-CONV-009) — é bloqueante, não uma observação. Isso não inclui a estrutura Grid+Modal em arquétipos CRUD, que é sempre esperada (AP-CONV-014), mesmo sem correspondência no legado.
-- Nunca aprove um arquétipo CRUD que use form inline, `Dialog` cru ou `window.confirm` em vez de `FormModal` (AP-CONV-014) — é bloqueante.
+- Nunca aprove um campo/regra adicionado além do que o legado/spec tem (AP-CONV-009) — é bloqueante, não uma observação. Isso não inclui a estrutura de frontend (grid, `FormModal`, form inline) esperada pelo padrão decidido no plano (AP-CONV-015), mesmo sem correspondência estrutural no legado.
+- **Verifique sempre contra o padrão decidido no plano, nunca contra Grid+Modal por padrão-de-hábito.** É bloqueante tanto usar form inline/`Dialog` cru/`window.confirm` quando o plano decidiu Grid+Modal, **quanto** usar `FormModal` para criar/editar ou incluir coluna "Ações" no grid quando o plano decidiu Inline+Grid — os dois sentidos do erro são igualmente bloqueantes.
 - Nunca commite sem a confirmação de teste manual do dev.
 - Divergência de comportamento sem classificação explícita (Aceita vs. GAP vs. Bug de conversão) não é permitida.
 - Nunca trate um bug de conversão (erro introduzido pela própria implementação) como GAP a adiar — corrigir antes de commitar é obrigatório; só a métrica de recorrência fica registrada para depois.

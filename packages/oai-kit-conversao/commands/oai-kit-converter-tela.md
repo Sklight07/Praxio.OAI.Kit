@@ -21,6 +21,7 @@ Invoque `oai-kit-conversao-triagem`:
 - Se não houver especificação (ou o nível exigir leitura), e Modo A sem anexo, localiza os arquivos no legado via `_shared/oai-kit-legacy-screen-locate.md` — **confirma com você que achou a tela certa antes de continuar**.
 - Lê todos os arquivos do conjunto quando precisar ler (não assume 1 arquivo = 1 tela).
 - Casa contra os arquétipos da base central e calcula o **nível**: `N1`-`N5` (pontuação estrutural: grid, PK composta, master-detail, referências externas) ou `N-ESPECIAL` (gatilho de exceção: procedure/function, integração, gravação em tabela não-relacionada, muitas regras de negócio — sempre vence a pontuação).
+- **Decide o padrão de frontend** (Grid+Modal | Inline+Grid | Accordion+Índice Numerado) via AP-CONV-015: convenção de texto na task do Azure primeiro, senão inferência a partir dos sinais do legado, senão pergunta ao dev — nunca decidido por hábito.
 - Gera `.oai-flow/analysis/{ID}-conversao-plano.md`.
 
 ### ⚡ CHECKPOINT — proporcional ao nível

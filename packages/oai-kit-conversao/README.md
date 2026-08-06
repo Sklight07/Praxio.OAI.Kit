@@ -79,7 +79,7 @@ Toda conversão devolve o que aprendeu, para nunca ser redescoberto na próxima 
 
 ## Políticas
 
-`policies/conversion-policy.md` reúne as regras que os agentes desta extensão não podem ignorar (AP-CONV-001 a AP-CONV-014+) — cobrem desde nunca adivinhar nome de tabela/objeto por aproximação até o padrão obrigatório Grid+Modal para telas CRUD e as regras de branch/commit no gate final de paridade. São bloqueadores, não sugestões.
+`policies/conversion-policy.md` reúne as regras que os agentes desta extensão não podem ignorar (AP-CONV-001 a AP-CONV-015+) — cobrem desde nunca adivinhar nome de tabela/objeto por aproximação até a escolha do padrão de frontend para telas CRUD (Grid+Modal, Inline+Grid ou Accordion+Índice Numerado, conforme AP-CONV-015) e as regras de branch/commit no gate final de paridade. São bloqueadores, não sugestões.
 
 ## Agentes
 
