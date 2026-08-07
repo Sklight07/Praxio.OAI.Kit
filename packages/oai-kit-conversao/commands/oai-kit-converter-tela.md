@@ -21,7 +21,8 @@ Invoque `oai-kit-conversao-triagem`:
 - **Consulta `minerva-index.json` → `especificacoes` primeiro** — se já existir uma especificação prévia para esta tela (feita via `/oai-kit-documentar-tela`), verifica staleness e reaproveita conforme o nível registrado (ver abaixo), sem precisar localizar/ler o fonte Delphi inteiro.
 - Se não houver especificação (ou o nível exigir leitura), e Modo A sem anexo, localiza os arquivos no legado via `_shared/oai-kit-legacy-screen-locate.md` — **confirma com você que achou a tela certa antes de continuar**.
 - Lê todos os arquivos do conjunto quando precisar ler (não assume 1 arquivo = 1 tela).
-- Casa contra os arquétipos da base central e calcula o **nível**: `N1`-`N5` (pontuação estrutural: grid, PK composta, master-detail, referências externas) ou `N-ESPECIAL` (gatilho de exceção: procedure/function, integração, gravação em tabela não-relacionada, muitas regras de negócio — sempre vence a pontuação).
+- Casa contra os arquétipos da base central e calcula o **nível**: `N1`-`N5` (pontuação estrutural: grid, PK composta, master-detail, referências externas — lupa/browser da própria PK nunca conta como referência externa, AP-CONV-017) ou `N-ESPECIAL` (gatilho de exceção: procedure/function, integração, gravação em tabela não-relacionada, muitas regras de negócio — sempre vence a pontuação).
+- Se não veio de especificação prévia, detecta campo sensível (AP-CONV-016) e campo de referência com lupa/browser — combobox (AP-CONV-017) diretamente no fonte, para o backend/frontend não pularem essas medidas por falta de seção correspondente na spec.
 - **Decide o padrão de frontend** (Grid+Modal | Inline+Grid | Accordion+Índice Numerado) via AP-CONV-015: convenção de texto na task do Azure primeiro, senão inferência a partir dos sinais do legado, senão pergunta ao dev — nunca decidido por hábito.
 - Gera `.oai-flow/analysis/{ID}-conversao-plano.md`.
 

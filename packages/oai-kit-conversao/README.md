@@ -49,7 +49,7 @@ Dentro do Claude Code (ou Cursor), no repositório onde a extensão foi instalad
 /oai-kit-converter-tela {ID_AZURE}                          # Modo A — só Azure
 /oai-kit-converter-tela --fontes [caminho1] [caminho2] ...  # Modo B — só fontes locais
 /oai-kit-converter-tela {ID_AZURE} --fontes [...]           # Modo C — combinação
-/oai-kit-registrar-gap                                       # registra um GAP a qualquer momento
+/oai-kit-registrar-gap                                       # registra um GAP ou um Descarte consciente a qualquer momento
 ```
 
 `/oai-kit-converter-tela` classifica a tela numa escala graduada (`N1`-`N5`, por sinais estruturais como grid/PK composta/master-detail/referências externas, ou `N-ESPECIAL` quando há procedure/integração/gravação em tabela não-relacionada/muitas regras de negócio) antes de implementar, decidindo quanto do fonte legado precisa ser lido e quantos checkpoints a conversão tem. Se uma especificação prévia já existir (via `/oai-kit-documentar-tela`), a leitura do fonte é pulada total ou parcialmente.
@@ -79,7 +79,7 @@ Toda conversão devolve o que aprendeu, para nunca ser redescoberto na próxima 
 
 ## Políticas
 
-`policies/conversion-policy.md` reúne as regras que os agentes desta extensão não podem ignorar (AP-CONV-001 a AP-CONV-015+) — cobrem desde nunca adivinhar nome de tabela/objeto por aproximação até a escolha do padrão de frontend para telas CRUD (Grid+Modal, Inline+Grid ou Accordion+Índice Numerado, conforme AP-CONV-015) e as regras de branch/commit no gate final de paridade. São bloqueadores, não sugestões.
+`policies/conversion-policy.md` reúne as regras que os agentes desta extensão não podem ignorar (AP-CONV-001 a AP-CONV-017+) — cobrem desde nunca adivinhar nome de tabela/objeto por aproximação até a escolha do padrão de frontend para telas CRUD (Grid+Modal, Inline+Grid ou Accordion+Índice Numerado, conforme AP-CONV-015), a criação da branch já no início da triagem (nunca no gate final — a branch é só commitada ali, AP-CONV-008), dados sensíveis/LGPD (AP-CONV-016) e campo de referência com lupa/browser (combobox, AP-CONV-017). São bloqueadores, não sugestões.
 
 ## Agentes
 
