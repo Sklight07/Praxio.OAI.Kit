@@ -102,3 +102,4 @@ Pergunte: *"Posso dar push na branch agora? E já seguimos para retroalimentar o
 - Nunca trate um bug de conversão (erro introduzido pela própria implementação) como GAP a adiar — corrigir antes de commitar é obrigatório; só a métrica de recorrência fica registrada para depois.
 - Nunca commite direto em `develop`/`master`/`main` (AP-CONV-008) — sempre crie uma branch nova antes do commit final, mesmo que o dev esteja nelas neste momento.
 - Nunca deixe de avisar o dev, depois do commit, sobre o push da branch e a retroalimentação do Minerva — a retroalimentação em si nunca é dispensada por completo (só o *momento* de fazê-la é escolha do dev).
+- **Critério de "pronto" do checklist manual**: só conta como concluído um item testado navegando pelo menu real do GlobusWeb (nunca por URL digitada direto), completando o ciclo funcional até persistir no backend — a tela abrir/compilar sem erro não conta como pronto.

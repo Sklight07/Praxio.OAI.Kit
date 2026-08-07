@@ -29,6 +29,17 @@ Substitui a antiga classificação binária trivial/não-trivial. Toda regra de 
 
 Ver o padrão "guarda de exclusão referencial" documentado em `{knowledgeBasePath}/cheatsheets/armadilhas-comuns.md` para a receita de implementação (back: `COUNT` contra a(s) tabela(s) referenciadora(s) antes do `DELETE`; front: capturar erro e mostrar toast) — nunca reinventar isso a cada tela.
 
+### Classificação de elemento Delphi sem equivalente visual (eixo diferente da taxonomia de regras acima)
+
+Usada por `oai-kit-conversao-especificador` ao encontrar um componente/objeto Delphi que não é controle de UI (ex.: `TFDStoredProc`, `TTimer`, `TIdHTTP`, thread) — antes de forçar o achado em Tipo 2/3 ou GAP, classifique-o em um dos 4 baldes:
+
+- **Descartar**: mecanismo puramente da VCL/event loop do Delphi, sem efeito de negócio observável no alvo (ex.: timer que só força repaint). Não migra, não vira regra de negócio, não é GAP — só uma nota no output do que foi conscientemente descartado e por quê.
+- **Migrar para backend**: lógica que pertence ao backend (chamada de procedure/function, integração externa, geração de arquivo, processamento em lote) — vira service/resolver, nunca componente de UI.
+- **Migrar como comportamento**: não tem componente equivalente, mas o efeito observável (ex.: refresh periódico, side-effect ao focar/perder foco) precisa ser preservado por outro mecanismo no alvo (hook, polling, listener) — documentar o efeito, não o componente que o gerava.
+- **Decisão humana**: genuinamente ambíguo se/como migrar — vira GAP.
+
+Registrar a classificação escolhida e o motivo na especificação, seção "De/para de componente" — nunca deixar o elemento sem classificação explícita nem forçá-lo dentro de Tipo 2/3 só porque não há categoria própria.
+
 **Cortes de uso** (configuráveis, calibrar com o tempo):
 - **N1-N3**: especificação prévia (se existir) é suficiente sozinha — zero leitura do fonte Delphi.
 - **N4-N5**: especificação prévia é usada, mas os "pontos de atenção" que o especificador sinalizou devem ser confirmados pontualmente contra o fonte (leitura parcial, não do conjunto inteiro).
@@ -63,6 +74,28 @@ Aplica-se a `oai-kit-conversao-aprendizado` e a `/oai-kit-registrar-gap` (os doi
 - Divergência de comportamento vs. Delphi, reportada no teste manual, que o dev não aprovou como melhoria consciente (categoria "GAP" de `oai-kit-conversao-paridade`, passo 3 — este uso já é corretamente restrito, manter).
 
 **Teste rápido antes de registrar**: "isso exige que alguém tome uma decisão ou ação futura para desbloquear algo, ou é só uma nota de que um dado estava errado e a conversão já contornou sozinha?" — só o primeiro caso é GAP. Na dúvida genuína (não a maioria dos casos), prefira **não registrar** e mencionar o achado só no output da conversão (`.oai-flow/delivery/{ID}-conversao-patch.md`) — `gaps-log.md` é lido por todo o time; ruído ali custa tempo de todo mundo, não só de quem registrou.
+
+## Critério de Descarte — o que registrar em `gaps/descartes-log.md` e o que não registrar
+
+Aplica-se a `oai-kit-conversao-especificador` (ao documentar, quando encontra comportamento candidato) e a `oai-kit-conversao-aprendizado` (único escritor de `descartes-log.md`). Categoria distinta de GAP e de "Aceita" (`oai-kit-conversao-paridade`):
+
+- **GAP** = decisão/problema que **ainda** precisa de ação futura de alguém para ser desbloqueado.
+- **Descarte** = decisão **já tomada** nesta conversão de não replicar um comportamento real do legado, com risco/trade-off que vale documentar — não é rotina resolvida, é uma escolha.
+- **Aceita** (`oai-kit-conversao-paridade`) = divergência descoberta **depois** de implementado, durante teste manual, validada pelo dev — ponto diferente do pipeline (pós-implementação, não pré-implementação).
+
+**Teste rápido**: "o legado realmente faz/tem isso, e a conversão decidiu conscientemente não replicar, com um motivo que vale registrar (segurança, bug conhecido, inconsistência, incompatibilidade arquitetural)?" → Descarte. "Alguém ainda precisa decidir/agir no futuro?" → GAP. "O legado não fazia isso mesmo, ou o valor já estava certo?" → nenhum dos dois, nem nota.
+
+**Sempre registrar como Descarte:**
+- Comportamento legado que é um risco (ex.: folga de segurança — AP-CONV-009, nota 2026-08-07) — nunca replicado.
+- Comportamento legado reconhecidamente um bug/inconsistência que a conversão decide corrigir em vez de replicar fielmente.
+- Mecanismo do legado (ex.: estado local de edição) sem equivalente necessário na arquitetura alvo — não é bug nem GAP, é diferença arquitetural por design.
+
+**Nunca registrar como Descarte:**
+- Comportamento que vira regra de negócio Tipo 2/3 e **é** replicado normalmente.
+- Ausência de algo que o legado nunca teve.
+- Dado incorreto que a conversão já contornou usando o valor certo (isso é rotina resolvida — ver Critério de GAP).
+
+Formato de entrada em `descartes-log.md`: origem (arquivo:linha), descrição, justificativa, vínculo a mudança de padrão/arquitetura (o que substitui, se houver), risco de descartar.
 
 ## Proibições Absolutas
 
@@ -122,6 +155,8 @@ Nenhum agente adiciona campo, grid, botão ou qualquer funcionalidade que a tela
 Qualquer sugestão de adicionar algo que o legado não tinha (melhoria de UX, padronização) é registrada como proposta em `gaps/gaps-log.md` para decisão humana — nunca implementada silenciosamente como parte da conversão. (Origem: bug real encontrado na primeira conversão de teste — `especificacoes/folha/estado-civil.md`, corrigido em 2026-07-29.)
 
 **Nota (2026-08-03, atualizada 2026-08-05): o exemplo acima sobre grid foi superado, especificamente quanto à decisão estrutural, pelos AP-CONV-014/015** — para arquétipos CRUD, a tela sempre tem grid (mesmo que o legado não tivesse), mas a estrutura em si (Grid+Modal, Inline+Grid, ou Accordion+Índice) é escolhida por tela via AP-CONV-015, não é mais um único padrão fixo para todos os casos. Este AP-CONV-009 continua valendo integralmente para **fidelidade de campos, regras de negócio e dados** (nunca adicionar campo/regra que o legado não tem) — só a decisão "grid sim/não, qual estrutura de container" deixou de ser regida por fidelidade estrutural 1:1 para esses arquétipos.
+
+**Nota (2026-08-07): fidelidade não se estende a falha de segurança confirmada.** Quando o comportamento do legado é uma falha de segurança sem justificativa de negócio identificável (ex.: liberar incondicionalmente todas as permissões de um recurso ao fechar uma tela, "para o caso de não existir definição para o usuário"), a regra de fidelidade deste AP-CONV-009 não se aplica no sentido de obrigar a replicar — a conversão não reproduz o comportamento e registra `GAP` para investigação humana antes de decidir o que fazer no alvo. Diferente do carve-out do AP-CONV-014/015 (que é sobre *adicionar* estrutura nova): aqui a exceção é sobre **não replicar** algo que o legado de fato tem. (Origem: achado analisado em pacote de conversão real de terceiro, 2026-08-07.)
 
 ### AP-CONV-010 — Agentes nunca executam os projetos
 
@@ -215,6 +250,18 @@ Toda tela cai em um de três padrões de frontend — **Grid+Modal** (`padrao-fr
 
 Registrar no plano da triagem **qual dos 3 passos resolveu** (sinalizado na task | inferido | perguntado ao dev) — é isso que permite auditar depois se a inferência está calibrada certo (ex.: se o passo 3 está sendo acionado com frequência alta para um tipo de tela, é sinal de que a regra de inferência do passo 2 precisa de mais um caso coberto).
 
+### AP-CONV-016 — Checklist LGPD para campo sensível
+
+Quando a tela manipula CPF, dado de saúde, dado financeiro sigiloso, ou outro campo classificável como dado pessoal sensível pela LGPD, `oai-kit-conversao-especificador` documenta e `oai-kit-conversao-backend`/`-frontend` implementam, e `oai-kit-conversao-paridade` verifica:
+
+- **Autorização de acesso**: campo sensível visível/editável só para perfil de permissão apropriado — nunca exposto a todo usuário autenticado por padrão.
+- **Minimização de payload**: query/resolver GraphQL retorna só os campos sensíveis que a tela realmente exibe — nunca o registro inteiro "por via das dúvidas".
+- **Mascaramento de exibição**: quando a tela não precisa do dado completo à vista, mascarar parcialmente (ex.: CPF com dígitos ocultos) — seguir o padrão já usado no legado, se existir; se o legado não mascarava, registrar `GAP` (decisão de segurança/compliance) em vez de decidir sozinho.
+- **Trilha de auditoria**: alteração de dado sensível registrada (quem, quando, valor anterior) só se o módulo já tiver mecanismo de auditoria equivalente — não invente um mecanismo novo fora de escopo; se não existir e a regra parecer exigir, registre `GAP`.
+- **Bloqueio de exportação/cópia**: exportar/imprimir/copiar não inclui dado sensível não mascarado além do que o legado já permitia.
+
+Isso é verificação adicional — não substitui `security-policy.md` (credenciais/SQL/XSS, genérico ao kit, não específico de dado pessoal em tela convertida).
+
 ## Ordem de referência para padrões (economia de tempo)
 
 `{knowledgeBasePath}/padroes-globusweb/patterns/*.md` são documentos de governança, escritos para arquitetos — completos, mas caros de ler por inteiro a cada tela. O arquétipo (`archetypes/<x>.md`), os cheatsheets e o catálogo de componentes (`catalogo-reuso/componentes/`) já resumem o que é necessário para os casos comuns (`N1`-`N5`).
@@ -241,5 +288,7 @@ Antes de aprovar qualquer conversão, verifique:
 - Nenhum `TextField` usa o prop `mask` — incompatível em runtime com a versão de `react-input-mask` fixada pelo UIKit, mesmo corretamente tipado (armadilha #23, bug real confirmado 2026-08-04); usar `inputProps={{ maxLength: N }}` + regex Zod.
 - Backend nunca implementa a feature de frontend ele mesmo (mesmo em `N1`-`N3` — sempre aciona `oai-kit-conversao-frontend`) e nunca commita antes do checkpoint final de `oai-kit-conversao-paridade` (AP-CONV-008 — origem: incidente real FLP_617662, 2026-08-04).
 - Divergência de comportamento reportada pelo dev classificada em uma de 3 categorias — **Aceita** (melhoria consciente vs. Delphi), **GAP** (não resolvível agora vs. Delphi) ou **Bug de conversão** (erro introduzido pela própria implementação — corrigido antes de commitar, nunca adiado como GAP; contabilizado em `metrics/conversoes.jsonl` → `bugsConversaoCorrigidos` para rastrear recorrência).
+- **Critério de "pronto" do checklist manual** (2026-08-07): só conta como concluído um item testado navegando pelo menu real do GlobusWeb (nunca por URL digitada direto), completando o ciclo funcional até persistir no backend — a tela abrir/compilar sem erro não conta como pronto.
+- Se a tela manipula campo sensível (LGPD), o checklist AP-CONV-016 foi aplicado (autorização, minimização de payload, mascaramento, auditoria quando já existir, bloqueio de exportação).
 
 Qualquer hit de violação = veredicto BLOQUEADO até resolução.

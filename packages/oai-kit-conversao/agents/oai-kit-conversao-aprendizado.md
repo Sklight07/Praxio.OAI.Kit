@@ -56,6 +56,20 @@ Para cada tabela/procedure/view Oracle confirmada nesta conversão, crie ou atua
 
 **Registre só** GAP/HUMAN DECISION genuíno que não pôde ser resolvido nesta conversão pontual sem risco a outros módulos ou à arquitetura (decisão de negócio pendente, dependência cross-módulo sem implementação — AP-CONV-012, ambiguidade real não resolvida nem pela base central nem pelo dev) → append em `{knowledgeBasePath}/gaps/gaps-log.md` (nunca sobrescreva entradas anteriores).
 
+### 4b. Decisão revertida por fato novo — nunca reescrever, sempre anexar nota de revisão datada
+
+Se, durante esta conversão, você descobrir um fato que invalida uma decisão já registrada anteriormente (GAP resolvido, HUMAN DECISION, nota de armadilha, ou qualquer entrada de `gaps-log.md`/`gaps-resolvidos.md`/`modulos/<modulo>.md`), **nunca reescreva ou apague o texto original** — anexe um bloco de revisão logo após a entrada original, no mesmo arquivo:
+
+```
+[Revisão — {data}]: decisão registrada acima superada por fato novo. Motivo: {explicação}. Propagar para: {lista de arquivos/specs afetados, se houver}.
+```
+
+Isso preserva o raciocínio original como histórico (útil se a mesma pergunta reaparecer) e deixa rastro auditável de quando/por que mudou — em vez de uma correção silenciosa que faz a entrada antiga parecer ainda válida para quem ler depois.
+
+### 4c. Persistir descartes conscientes
+
+Se a especificação/plano registrou algo na seção "Descartes conscientes" (ver "Critério de Descarte" em `conversion-policy.md` — comportamento real do legado que a conversão decidiu conscientemente não replicar, distinto de GAP), append em `{knowledgeBasePath}/gaps/descartes-log.md` (nunca sobrescreva entradas anteriores), seguindo o formato do próprio arquivo.
+
 ### 5. Registrar métrica
 
 Pergunte ao dev: *"Quanto tempo levou essa conversão, aproximadamente? (opcional, ajuda a calibrar estimativas futuras)"* — você não tem noção de wall-clock, só o dev sabe; se não informar, grave `null`, nunca invente um número.
@@ -86,6 +100,7 @@ ATUALIZAÇÕES PROPOSTAS EM GlobusEvo.Minerva
 • modulos/_dicionario-modulos.md — [se um prefixo novo foi confirmado com o dev]
 • menus/globusweb/<SIGLA>.md — [se houve criação/reaproveitamento de nível de menu]
 • gaps/gaps-log.md — [se houver GAP novo]
+• gaps/descartes-log.md — [se houver descarte consciente novo]
 • metrics/conversoes.jsonl — 1 linha nova
 ═══════════════════════════════════════════
 ```
@@ -108,3 +123,4 @@ Confirme ao dev o resumo final: tela convertida, nível, checkpoints usados, o q
 - Nunca registre em `gaps-log.md` uma inconsistência de dado do Azure ou desvio de processo que a própria conversão já resolveu/seguiu corretamente — isso também põe lixo na base central (ver "Critério de GAP" em `conversion-policy.md`).
 - Nunca esqueça de persistir `implementacaoBackend`/`dicionarioModulos.prefixosTabela` quando a conversão envolveu dependência cross-módulo — sem isso, a próxima tela do mesmo prefixo reexplora do zero.
 - Nunca esqueça de atualizar `menus/globusweb/<SIGLA>.md` quando a conversão criou nível de menu novo — sem isso, a próxima tela do mesmo módulo recria o que já existe.
+- Nunca reescreva/apague uma entrada já registrada (GAP, decisão, armadilha) que se mostrou errada — anexe nota de revisão datada (passo 4b); apagar destrói o histórico de raciocínio.

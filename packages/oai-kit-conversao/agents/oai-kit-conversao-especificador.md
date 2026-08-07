@@ -32,9 +32,11 @@ Consulte `{knowledgeBasePath}/minerva-index.json` → `especificacoes`. Se já e
 
 ### 3. Documentar exaustivamente
 
-Para cada campo visível na tela: nome, tipo, tamanho, obrigatoriedade, posição/agrupamento visual (ex: "grupo Endereço", "linha 2 do form"), validação. Para a(s) tabela(s) Oracle envolvidas: nome, colunas usadas, tipos, PK/FK.
+Para cada campo visível na tela: nome, tipo, tamanho, obrigatoriedade, posição/agrupamento visual (ex: "grupo Endereço", "linha 2 do form"), validação. Para a(s) tabela(s) Oracle envolvidas: nome, colunas usadas, tipos, PK/FK. Se mais de um método/procedure grava a mesma coluna, preencha também a subseção "Colunas com mais de um caminho de escrita" dentro de Tabela(s) Oracle. Se algum campo for dado pessoal sensível (CPF, saúde, dado financeiro sigiloso), preencha também a seção "Dados sensíveis / LGPD" aplicando o checklist AP-CONV-016.
 
-**Grid — para arquétipos CRUD (`crud-simples-*`, `crud-pai-filho`, telas-cadastro de `grid-procedure`), esta seção é sempre preenchida, mesmo que o legado não tenha grid** (algum dos dois padrões de frontend possíveis sempre tem grid, ver passo 3d): colunas, ordenação padrão, e — só se o padrão decidido no passo 3d for Grid+Modal — ações por linha (editar/excluir); se for Inline+Grid, não há coluna de ações (edição é sempre pelo form). **Se o legado não tinha grid**, escolha como colunas os campos mais identificadores/buscáveis do form original — nunca inventar coluna sem correspondência a um campo real. Registre explicitamente na spec se o legado tinha grid ou não (isso não afasta o padrão, é só rastreabilidade).
+**Grid — para arquétipos CRUD (`crud-simples-*`, `crud-pai-filho`, telas-cadastro de `grid-procedure`), esta seção é sempre preenchida, mesmo que o legado não tenha grid** (algum dos dois padrões de frontend possíveis sempre tem grid, ver passo 3d): colunas, ordenação padrão, e — só se o padrão decidido no passo 3d for Grid+Modal — ações por linha (editar/excluir); se for Inline+Grid, não há coluna de ações (edição é sempre pelo form). **Se o legado não tinha grid**, escolha como colunas os campos mais identificadores/buscáveis do form original — nunca inventar coluna sem correspondência a um campo real. Registre explicitamente na spec se o legado tinha grid ou não (isso não afasta o padrão, é só rastreabilidade). Se a tela tem comportamento de habilitação diferente por estado do registro (a maioria dos CRUDs tem), preencha "Estados e habilitação de controles" de forma exaustiva — célula por célula, nunca só descrição solta.
+
+**Elemento sem equivalente visual** (procedure/function chamada diretamente, timer, chamada HTTP/webservice, thread): antes de forçar em Tipo 2/3 ou GAP, classifique pela taxonomia de `.oai-kit/policies/conversion-policy.md` ("Classificação de elemento Delphi sem equivalente visual") — Descartar / Migrar para backend / Migrar como comportamento / Decisão humana. Registre a classificação e o motivo na spec.
 
 **Regras de negócio — classifique cada uma por tipo** (taxonomia completa em `.oai-kit/policies/conversion-policy.md` — "Taxonomia de regras de negócio"):
 - **Tipo 1 — Trivial**: validação simples de campo.
@@ -43,9 +45,13 @@ Para cada campo visível na tela: nome, tipo, tamanho, obrigatoriedade, posiçã
 
 **Conte só as regras Tipo 3** — esse número (não a soma de Tipo 1+2+3) alimenta o gatilho "muitas regras" da classificação. Regras Tipo 2, por mais numerosas que sejam, nunca elevam a classificação sozinhas — desde que estejam 100% especificadas como condição→efeito.
 
+Se houver múltiplas escritas na mesma coluna por caminhos diferentes, ou o nível já for `N-ESPECIAL` por outro motivo, preencha também "Fluxo crítico" (diagrama Mermaid) — não obrigatório para toda tela, só quando o gatilho se aplica.
+
 **Já resolva o de/para de componente** consultando primeiro `{knowledgeBasePath}/catalogo-reuso/componentes/<Componente>.md` (índice: `minerva-index.json` → `componentesUikit`; nunca `node_modules`/`ui-generator-kb.json` do UIKit como primeira parada — AP-CONV-011) e `{knowledgeBasePath}/catalogo-reuso/hooks-e-utils.md` para hooks reutilizáveis, além dos cheatsheets (`delphi-para-react.md`, `delphi-para-nestjs.md`) e `{knowledgeBasePath}/padroes-globusweb/patterns/legacy-uikit-mapping.md` (só se nada acima cobrir — ver "Ordem de referência" em `.oai-kit/policies/conversion-policy.md`) — a spec deve dizer explicitamente "este campo X vira `EmpresaFilialCombobox`", não deixar essa dedução para quando a tela for de fato convertida. Se o componente indicado não estiver catalogado ainda, sinalize isso na spec para que `oai-kit-conversao-aprendizado` gere a entrada nova quando a tela for convertida.
 
 **Os sinais estruturais reais sempre vencem a receita "comum" do arquétipo sugerido** (AP-CONV-009). Se o arquétipo mais próximo normalmente tem grid/campo/botão que esta tela não tem, a especificação registra a ausência tal como está no legado — nunca propõe "adicionar X porque é o padrão do arquétipo". Sugestão de melhoria de UX que diverge do legado vira nota para `GAP`, não instrução de implementação.
+
+**Comportamento do legado que você decide não replicar** (não confundir com ausência de algo que o legado nunca teve): aplique o "Critério de Descarte" de `conversion-policy.md`. Se for descarte de verdade (não GAP, não regra normal), preencha a seção "Descartes conscientes" da especificação — `oai-kit-conversao-aprendizado` persiste em `gaps/descartes-log.md` ao final da conversão.
 
 ### 3b. Detectar dependências cross-módulo (AP-CONV-012)
 
@@ -136,3 +142,4 @@ Mesmo padrão de `oai-kit-conversao-aprendizado`: exiba o que será criado/atual
 - Nunca omita a seção "Grid" de um arquétipo CRUD achando que o legado não tinha grid — algum dos dois padrões de frontend (Grid+Modal ou Inline+Grid) sempre tem grid, independente do legado.
 - Nunca deixe o campo "Padrão de conversão de frontend" da especificação em branco ou preenchido sem registrar a origem (sinalizado/inferido/perguntado) — ver passo 3d, AP-CONV-015.
 - Nunca use a sigla do módulo como nome de pasta em `especificacoes/` (ex.: `FLP/`) — o nome vem de `dicionarioModulos.siglas.<SIGLA>.repositorio` (ex.: `folha`). Nunca crie uma pasta nova sem antes verificar se já existe uma para este módulo.
+- Nunca force um elemento Delphi sem equivalente visual (procedure, timer, chamada externa) dentro da taxonomia de regras de negócio (Tipo 2/3) ou o descarte sem registrar — classifique explicitamente (Descartar/Migrar para backend/Migrar como comportamento/Decisão humana).

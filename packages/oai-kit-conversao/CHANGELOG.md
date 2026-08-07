@@ -2,6 +2,22 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em ISO-8601.
 
+## [Não lançado]
+
+Origem: análise comparativa de um pacote de documentação real gerado por outra ferramenta de conversão (`migration-control-plane`/Reversa) para uma conversão já concluída (`GlobusWeb.Folha`, tela Cadastro de Horários) — usado para extrair formatos e capturas que o método markdown-based ainda não tinha. Achado relevante: `GlobusWeb.Folha/.oai-kit/` já é uma cópia real do kit (pós-AP-CONV-015) em uso de produção, confirmado pelo dev.
+
+### Adicionado
+- Passo 4b em `oai-kit-conversao-aprendizado.md`: decisão revertida por fato novo nunca reescreve entrada existente — sempre anexa nota `[Revisão — data]` preservando o raciocínio original. Convenção espelhada em `gaps-resolvidos.md`/`gaps-log.md` (Minerva).
+- **Critério de Descarte** (`conversion-policy.md`, nova seção) e `gaps/descartes-log.md` (Minerva, novo arquivo append-only): categoria distinta de GAP para comportamento real do legado conscientemente não replicado (ex.: falha de segurança, bug conhecido, incompatibilidade arquitetural) — antes não tinha lar formal. Nova seção "Descartes conscientes" em `_template-especificacao.md`.
+- **AP-CONV-009**: nota de exceção — fidelidade ao legado não se estende a falha de segurança confirmada (nunca replicar fallback de permissão liberado incondicionalmente). Nova armadilha #34 em `armadilhas-comuns.md` (Minerva).
+- **Taxonomia para elemento Delphi sem equivalente visual** (`conversion-policy.md`): Descartar / Migrar para backend / Migrar como comportamento / Decisão humana — para `TFDStoredProc`/`TTimer`/`TIdHTTP`/thread, que antes eram forçados dentro da taxonomia de regras de negócio. Exemplos em `cheatsheets/delphi-para-nestjs.md` (Minerva).
+- Nova categoria no Minerva: `cheatsheets/convencoes-implementacao.md` — convenções de código real descobertas por leitura de implementação (`insert: false` para coluna com trigger, `type: 'timestamp'` para hora-only, padrão de teste de `QueryService`, convenção `id: String(pk)` em mutations `nestjs-query-graphql`). `oai-kit-conversao-backend` passa a consultá-la.
+- 3 seções condicionais em `_template-especificacao.md` (Minerva): "Fluxo crítico" (Mermaid, múltiplas escritas na mesma coluna), "Estados e habilitação de controles" (tabela exaustiva por estado do registro), "Colunas com mais de um caminho de escrita" (dentro de Tabela(s) Oracle).
+- **AP-CONV-016** (`conversion-policy.md`): checklist LGPD para campo sensível (autorização, minimização de payload, mascaramento, auditoria quando já existir, bloqueio de exportação) — nova seção "Dados sensíveis / LGPD" em `_template-especificacao.md`.
+- Critério de "pronto" mais estrito no checklist de `oai-kit-conversao-paridade`: item só conta como concluído se testado navegando pelo menu real (não URL direta), com ciclo funcional persistindo no backend.
+
+Plano completo: `packages/oai-kit-conversao/docs/plano-aprendizados-migration-control-plane.md`.
+
 ## [0.1.13] — 2026-08-05
 
 Origem: surgiu um novo padrão real de conversão (form inline 1:1 + grid de seleção, sem modal, com inteligência de campo-chave) confirmado em duas telas-irmãs de `GlobusWeb.Acidentes` (`CondicaoPavimento`/`CondicaoPista`), e um padrão para telas complexas com múltiplas `TabSheet`/`PageControl` do legado (accordion + índice numerado lateral, confirmado na tela de cadastro de Acidente do mesmo módulo). O padrão Grid+Modal (AP-CONV-014) deixa de ser a única estrutura obrigatória — agora é um de três padrões possíveis, escolhidos por tela via um novo mecanismo de decisão.
