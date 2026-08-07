@@ -39,6 +39,15 @@ Plano completo: `packages/oai-kit-conversao/docs/plano-aprendizados-migration-co
 - `_template-especificacao.md` (Minerva): nova seção condicional "Campos de referência (combobox)" — campo exibido vs. persistido de fato vs. evidência que confirmou a ligação.
 - `oai-kit-conversao-especificador.md`: passo novo no de/para de componente aplicando o critério do AP-CONV-017 antes de mapear um campo com lupa.
 
+**Origem (2026-08-07, quarta rodada)**: mudança de processo pedida pelo dev — a branch deixa de ser criada no gate final (depois do teste manual) e passa a ser criada **no início** de `/oai-kit-converter-tela`, antes de qualquer classificação/implementação. Plano completo: `packages/oai-kit-conversao/docs/plano-branch-antecipada.md`.
+
+### Alterado
+- **AP-CONV-008** (`conversion-policy.md`): reescrito — a branch é criada na etapa 1b de `oai-kit-conversao-triagem` (sincroniza `develop`, cria/faz checkout), não mais no gate final de `oai-kit-conversao-paridade` (que agora só commita). Nova regra absoluta: nunca fazer merge da branch para `develop`/`master`/`main`, em nenhuma circunstância — isso é sempre decisão do dev via PR, fora do escopo dos agentes.
+- `oai-kit-conversao-triagem.md`: nova etapa "1b — Sincronizar develop e criar a branch", antes de qualquer classificação; template do plano ganha campo "Branch".
+- `commands/oai-kit-converter-tela.md`: PASSO 1 e CHECKPOINT FINAL atualizados para refletir que a branch já existe desde o início.
+- `oai-kit-conversao-paridade.md`: gate final não cria mais branch (só commita nela); nova Restrição Absoluta contra merge/commit em `develop`/`master`/`main`.
+- Fora de escopo, confirmado: `/oai-kit-documentar-tela` (nunca implementa/commita) e o fluxo multi-repo de GAP cross-módulo (AP-CONV-012, branch criada só quando o GAP é confirmado, não há como antecipar).
+
 ## [0.1.13] — 2026-08-05
 
 Origem: surgiu um novo padrão real de conversão (form inline 1:1 + grid de seleção, sem modal, com inteligência de campo-chave) confirmado em duas telas-irmãs de `GlobusWeb.Acidentes` (`CondicaoPavimento`/`CondicaoPista`), e um padrão para telas complexas com múltiplas `TabSheet`/`PageControl` do legado (accordion + índice numerado lateral, confirmado na tela de cadastro de Acidente do mesmo módulo). O padrão Grid+Modal (AP-CONV-014) deixa de ser a única estrutura obrigatória — agora é um de três padrões possíveis, escolhidos por tela via um novo mecanismo de decisão.

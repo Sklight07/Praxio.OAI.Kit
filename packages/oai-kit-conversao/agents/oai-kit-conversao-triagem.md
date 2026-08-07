@@ -34,6 +34,18 @@ O comando `/oai-kit-converter-tela` aceita 3 modos — identifique qual foi usad
 
 **Regra geral: o MCP do Azure nunca é chamado só por hábito — apenas quando falta um insumo que só ele fornece.**
 
+### 1b. Sincronizar `develop` e criar a branch — antes de qualquer classificação/implementação
+
+Com o identificador da tela resolvido no passo 1 (sigla do módulo + SIM/PSE, ou ID da Task do Azure como fallback):
+
+1. **Confirme a sigla do módulo com o dev** se ainda não estiver confirmada nesta sessão — nunca assuma (princípio inegociável do `oai-kit.md` central).
+2. **Resolva `SIM`/`PSE`** navegando a hierarquia Task→Feature→Epic; se não houver vínculo, use o número da própria Task do Azure (`AP-CONV-008` em `.oai-kit/policies/conversion-policy.md`).
+3. No repositório GlobusWeb-alvo (diretório de trabalho atual da sessão): `git fetch`, `git checkout develop`, `git pull`. **Pare e informe o dev** se a working tree estiver suja ou o pull falhar — nunca prossiga sobre uma base desatualizada ou com mudanças locais não commitadas.
+4. **Crie e faça checkout da branch nova** a partir de `develop`: `feature/{SIGLA}_{SIM|PSE}_{numero}` (ou `feature/{SIGLA}_TASK_{ID_AZURE}` se a Task não tiver SIM/PSE vinculado).
+5. Registre o nome da branch no plano (`.oai-flow/analysis/{ID}-conversao-plano.md`, passo 7) — os agentes seguintes (`oai-kit-conversao-backend`/`-frontend`/`-paridade`) implementam e commitam **nesta branch**, nunca mais em `develop`.
+
+**Isso substitui a criação de branch que antes só acontecia no gate final de `oai-kit-conversao-paridade`** — a partir de agora a branch já existe desde o início do fluxo; o gate final só aplica o commit nela (ver AP-CONV-008).
+
 ### 2. Verificar se já existe especificação prévia — antes de tentar ler o fonte
 
 Consulte `{knowledgeBasePath}/minerva-index.json` → `especificacoes`, buscando pelo identificador provisório da tela (nome exato ou correspondência inequívoca — nunca fuzzy match; se ambíguo, confirme com o dev qual entrada corresponde).
@@ -124,6 +136,7 @@ Gere `.oai-flow/analysis/{ID}-conversao-plano.md`:
 ## Tela
 **Nome:** [nome da tela/menu]
 **Módulo legado:** [sigla]
+**Branch:** [ex: feature/FLP_617445, criada a partir de develop na etapa 1b]
 **Origem do conteúdo:** especificação prévia ({especificacoes/<modulo>/<tela-slug>.md}) | leitura direta do fonte
 **Arquivos identificados/referenciados:**
 - [caminho1] — [papel: View/Service/Repository/UseCase/clássico]
@@ -186,3 +199,5 @@ Referência estrutural cross-repo (se padrão Grid+Modal sem precedente local �
 - Nunca deixe de checar `knownRepos` por um precedente estrutural cross-repo (passo 4e) quando o padrão decidido é Grid+Modal e o front-end do módulo-alvo está sem nenhuma feature real convertida ainda — deixar o frontend inventar do zero já causou bug real de conversão.
 - Nunca decida o padrão de frontend (passo 4d) sem registrar a origem da decisão (sinalizado/inferido/perguntado) — sem isso, ninguém consegue auditar depois se a inferência do AP-CONV-015 está calibrada certo.
 - Nunca infira `grid-modal` por hábito quando o arquétipo admite `inline-grid` — a partir de 2026-08 o default é `inline-grid` para cadastro simples/pai-filho; `grid-modal` exige justificativa estrutural real.
+- Nunca prossiga com a sincronização de `develop` (etapa 1b) se a working tree estiver suja ou o `git pull` falhar — pare e informe o dev.
+- Nunca commite nada em `develop` ao criar a branch (etapa 1b) — o checkout em si não commita; a branch nova é sempre criada a partir de `develop` sincronizada, nunca modificando `develop` diretamente.

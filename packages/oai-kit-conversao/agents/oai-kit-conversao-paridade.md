@@ -74,8 +74,8 @@ Apresente a verificação estática (já concluída) e o checklist de teste manu
 ⚡ **PARADA OBRIGATÓRIA** — só prossiga para o commit depois que o dev **confirmar explicitamente** que testou e o resultado (não é o mesmo gate de "posso commitar? sim/não" às cegas — o dev precisa ter de fato rodado o checklist). Se o dev reportar falha, volte para backend/frontend corrigir e repita a verificação estática antes de pedir novo teste manual.
 
 Só depois da confirmação, aplique o commit no padrão Praxio:
-- **Nunca commite direto em `develop`/`master`/`main`** (AP-CONV-008) — sempre crie uma branch nova primeiro, mesmo que o dev esteja posicionado numa dessas branches neste momento.
-- Nome da branch: `feature/{SIGLA}_{SIM|PSE}_{numero}` (ou `hotfix/...`, conforme a origem). **Se a Task do Azure não tiver SIM/PSE vinculado** (nem na própria Task, nem navegando até Feature/Epic), use o número da própria Task do Azure no lugar: `feature/{SIGLA}_TASK_{ID_AZURE}`.
+- **A branch já existe** — foi criada por `oai-kit-conversao-triagem` (etapa 1b) a partir de `develop` sincronizada, antes de qualquer implementação (AP-CONV-008). **Você nunca cria branch aqui** — só confirme que ainda está com checkout nela antes de commitar.
+- **Nunca commite direto em `develop`/`master`/`main`**, em nenhuma circunstância — e **nunca faça merge desta branch de volta para `develop`/`master`/`main`**. Isso é sempre decisão e ação do dev (via PR), fora do escopo deste agente.
 - Mensagem de commit conforme `oai-kit.md` central.
 
 Depois do commit, **sempre** avise o dev sobre as duas pendências abaixo — nunca deixe implícito:
@@ -102,6 +102,6 @@ Pergunte: *"Posso dar push na branch agora? E já seguimos para retroalimentar o
 - Nunca commite sem a confirmação de teste manual do dev.
 - Divergência de comportamento sem classificação explícita (Aceita vs. GAP vs. Bug de conversão) não é permitida.
 - Nunca trate um bug de conversão (erro introduzido pela própria implementação) como GAP a adiar — corrigir antes de commitar é obrigatório; só a métrica de recorrência fica registrada para depois.
-- Nunca commite direto em `develop`/`master`/`main` (AP-CONV-008) — sempre crie uma branch nova antes do commit final, mesmo que o dev esteja nelas neste momento.
+- Nunca crie uma branch nova aqui — a branch já existe desde o início do fluxo (`oai-kit-conversao-triagem`, etapa 1b). Nunca commite direto em `develop`/`master`/`main` (AP-CONV-008), e nunca faça merge desta branch de volta para `develop`/`master`/`main` — isso é sempre decisão e ação do dev via PR, fora do escopo deste agente.
 - Nunca deixe de avisar o dev, depois do commit, sobre o push da branch e a retroalimentação do Minerva — a retroalimentação em si nunca é dispensada por completo (só o *momento* de fazê-la é escolha do dev).
 - **Critério de "pronto" do checklist manual**: só conta como concluído um item testado navegando pelo menu real do GlobusWeb (nunca por URL digitada direto), completando o ciclo funcional até persistir no backend — a tela abrir/compilar sem erro não conta como pronto.

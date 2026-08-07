@@ -17,6 +17,7 @@ O Modo B/C aceita **quantos arquivos forem necessários** — não é limitado a
 Invoque `oai-kit-conversao-triagem`:
 - `git pull` obrigatório em `GlobusEvo.Minerva` antes de qualquer leitura.
 - Determina o modo de entrada e o identificador provisório da tela.
+- **Etapa 1b — antes de qualquer classificação**: sincroniza `develop` do repositório GlobusWeb-alvo e já cria/faz checkout da branch nova (`feature/{SIGLA}_{SIM|PSE}_{numero}`, ou `feature/{SIGLA}_TASK_{ID_AZURE}` como fallback — AP-CONV-008). Toda a implementação dos passos seguintes (backend, frontend) acontece **nesta branch**, nunca mais em `develop`.
 - **Consulta `minerva-index.json` → `especificacoes` primeiro** — se já existir uma especificação prévia para esta tela (feita via `/oai-kit-documentar-tela`), verifica staleness e reaproveita conforme o nível registrado (ver abaixo), sem precisar localizar/ler o fonte Delphi inteiro.
 - Se não houver especificação (ou o nível exigir leitura), e Modo A sem anexo, localiza os arquivos no legado via `_shared/oai-kit-legacy-screen-locate.md` — **confirma com você que achou a tela certa antes de continuar**.
 - Lê todos os arquivos do conjunto quando precisar ler (não assume 1 arquivo = 1 tela).
@@ -51,7 +52,7 @@ Invoque `oai-kit-conversao-paridade`:
 
 ### ⚡ CHECKPOINT FINAL — espera você testar, nunca assume sucesso
 
-**PARADA OBRIGATÓRIA.** Apresenta a verificação estática + o checklist de teste manual, e pede que você rode o checklist na aplicação (subir o projeto é sua parte, não do agente) e confirme o resultado. Só commite (branch/commit no padrão Praxio, sigla do módulo confirmada) depois que você confirmar explicitamente que testou e passou — silêncio ou "deve estar ok" não bastam.
+**PARADA OBRIGATÓRIA.** Apresenta a verificação estática + o checklist de teste manual, e pede que você rode o checklist na aplicação (subir o projeto é sua parte, não do agente) e confirme o resultado. Só commite (na branch já criada no PASSO 1, padrão Praxio) depois que você confirmar explicitamente que testou e passou — silêncio ou "deve estar ok" não bastam. Nunca cria branch nova aqui (já existe desde o início) e nunca faz merge dela para `develop`/`master`/`main`.
 
 ### PASSO 5 — Aprendizado
 
