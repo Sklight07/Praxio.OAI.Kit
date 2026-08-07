@@ -78,7 +78,7 @@ Leia **todos** os arquivos do conjunto antes de classificar — a regra de negó
 
 **Calcule o nível pela Escala de Classificação de `.oai-kit/policies/conversion-policy.md`:**
 
-Pontuação estrutural (só se nenhum gatilho de exceção estiver presente): grid presente (+1), PK composta (+1), master-detail/tabela-filha (+1), referências externas — nenhuma (0) / poucas 1-2 (+1) / muitas 3+ (+2); dependência cross-módulo **já implementada** (`implementacaoBackend.existe: true`, ver 4b abaixo) conta aqui, como referência externa normal. Soma 0→N1, 1→N2, 2-3→N3, 4-5→N4/N5.
+Pontuação estrutural (só se nenhum gatilho de exceção estiver presente): grid presente (+1), PK composta (+1), master-detail/tabela-filha (+1), referências externas — nenhuma (0) / poucas 1-2 (+1) / muitas 3+ (+2); dependência cross-módulo **já implementada** (`implementacaoBackend.existe: true`, ver 4b abaixo) conta aqui, como referência externa normal. **Atenção (AP-CONV-017)**: lupa/browser de pesquisa referenciando a **mesma entidade** sendo cadastrada nesta tela nunca conta como referência externa — é redundância do legado sem grid embutido, resolvida pelo grid que o arquétipo já sempre tem (ver passo 4f). Só conta lupa/browser referenciando uma **tabela diferente**. Soma 0→N1, 1→N2, 2-3→N3, 4-5→N4/N5.
 
 **Gatilho de exceção → nível é sempre `N-ESPECIAL`**, independente da pontuação: procedure/function chamada no `.pas`, integração externa, gravação em tabela **não-relacionada** como efeito colateral (diferente de master-detail — isso é escrita em tabela fora da família da entidade), muitas regras de negócio **Tipo 3 — Complexa** (6+; regras Tipo 2 — Condicional especificável, ex: habilitar/desabilitar campo, filtrar combobox, guarda de exclusão referencial, **não contam** — ver taxonomia completa em `.oai-kit/policies/conversion-policy.md`), ou GAP cross-módulo que exige nova implementação (AP-CONV-012, ver 4b).
 
@@ -109,6 +109,13 @@ Registre no plano (seção Frontend) o padrão decidido **e** a origem (sinaliza
 Registre o caminho encontrado no plano (campo "Referência estrutural cross-repo") — é isso que evita `oai-kit-conversao-frontend` inventar do zero layout de cabeçalho, props do `DataGridSearchServer` (`compliance`/`hasSearchField`) ou estrutura de busca sem comparar contra um precedente real já em produção. **Origem real deste passo**: bug real de conversão (2026-08-03) — um agente sem precedente local ligou `compliance` sem necessidade e montou o cabeçalho numa única linha com wrap; ambos os problemas já estavam resolvidos em `GridCadastroDefeitos.tsx`/`CadastroDefeitos.tsx` (GlobusWeb.Manutencao), que o agente não consultou por não ter sido instruído a procurar.
 
 Se o front-end já tiver outras telas do mesmo arquétipo convertidas (não é mais a primeira feature), pule este passo — o próprio repositório já é o precedente. Se o padrão decidido for Inline+Grid ou Accordion+Índice, este passo não se aplica (mas vale o mesmo espírito: se houver telas-irmãs já convertidas no mesmo padrão neste ou em outro módulo, prefira consultá-las como referência estrutural antes de inventar do zero).
+
+### 4f. Detectar campos sensíveis e campos de referência (AP-CONV-016/017) — só quando não veio de especificação prévia já resolvida
+
+Se a especificação prévia (passo 2) já preencheu "Dados sensíveis (LGPD)" e "Campos de referência (combobox)", reaproveite — não repita. Senão, ao ler os campos da tela (passo 3):
+
+- **Campo sensível** (CPF, dado de saúde, dado financeiro sigiloso, ou outro campo classificável pela LGPD): flag na seção "Dados sensíveis (LGPD)" do plano — `oai-kit-conversao-backend`/`-frontend` aplicam o checklist completo do AP-CONV-016 na implementação.
+- **Campo com lupa/browser de pesquisa** (`TEdit` código + lupa + `TEdit` descrição): decida se referencia a **mesma entidade** desta tela (não conta como referência externa na pontuação do passo 4 — é redundância resolvida pelo grid, AP-CONV-017) ou uma **tabela diferente** (conta como referência externa normal **e** flag na seção "Campos de referência (combobox)" do plano — a confirmação de campo exibido vs. persistido de fato fica para `oai-kit-conversao-backend`/`-especificador`, nunca decidida aqui só pelo schema).
 
 ### 5. Confirmar schema Oracle (se esta triagem não veio de especificação prévia já confirmada)
 
@@ -156,6 +163,12 @@ Gere `.oai-flow/analysis/{ID}-conversao-plano.md`:
 **Hierarquia:** [nível 1 > nível 2 (se houver) > tela] — [quais níveis já existem no GlobusWeb, quais precisam ser criados]
 **Rota sugerida:** [ex: /cadastro-x]
 
+## Dados sensíveis (LGPD) (se houver — ver AP-CONV-016)
+- [campo] — [tipo: CPF/dado de saúde/dado financeiro/outro]
+
+## Campos de referência (combobox) (se houver — ver AP-CONV-017)
+- [campo] — [tabela referenciada] — [confirmação de exibido vs. persistido pendente para backend/especificador]
+
 ## Reuso identificado
 - [componente/hook/service já existente que será reaproveitado]
 
@@ -201,3 +214,5 @@ Referência estrutural cross-repo (se padrão Grid+Modal sem precedente local �
 - Nunca infira `grid-modal` por hábito quando o arquétipo admite `inline-grid` — a partir de 2026-08 o default é `inline-grid` para cadastro simples/pai-filho; `grid-modal` exige justificativa estrutural real.
 - Nunca prossiga com a sincronização de `develop` (etapa 1b) se a working tree estiver suja ou o `git pull` falhar — pare e informe o dev.
 - Nunca commite nada em `develop` ao criar a branch (etapa 1b) — o checkout em si não commita; a branch nova é sempre criada a partir de `develop` sincronizada, nunca modificando `develop` diretamente.
+- Nunca conte lupa/browser de pesquisa referenciando a própria entidade desta tela como referência externa na pontuação — só tabela diferente conta (AP-CONV-017).
+- Nunca feche o plano sem checar campo sensível (LGPD) e campo de referência com lupa (AP-CONV-016/017), quando não veio de especificação prévia já resolvida — passo 4f.
