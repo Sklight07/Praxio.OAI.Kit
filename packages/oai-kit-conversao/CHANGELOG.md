@@ -2,7 +2,7 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em ISO-8601.
 
-## [Não lançado]
+## [0.1.14] — 2026-08-07
 
 Origem: análise comparativa de um pacote de documentação real gerado por outra ferramenta de conversão (`migration-control-plane`/Reversa) para uma conversão já concluída (`GlobusWeb.Folha`, tela Cadastro de Horários) — usado para extrair formatos e capturas que o método markdown-based ainda não tinha. Achado relevante: `GlobusWeb.Folha/.oai-kit/` já é uma cópia real do kit (pós-AP-CONV-015) em uso de produção, confirmado pelo dev.
 
