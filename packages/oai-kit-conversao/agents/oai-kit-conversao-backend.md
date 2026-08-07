@@ -38,6 +38,10 @@ Abra **apenas** o arquétipo indicado no plano (`{knowledgeBasePath}/archetypes/
 - Se o arquétipo é `accordion-secoes-indice-numerado` (múltiplas seções/`TabSheet` do legado): sub-entidades **próprias** desta tela (FK direta para a entidade principal, criadas/editadas/excluídas por ela) usam `@OneToMany({ cascade: true, onDelete: 'CASCADE', orphanedRowAction: 'delete' })` — cascade pode ter mais de um nível (ex.: filho→nieto). **Nunca use este cascade para dado de outro domínio** (consultado, não gerido, por esta tela) — esse caso vai por controller REST dedicado (Padrão B), sempre somente-leitura aqui. Ver `{knowledgeBasePath}/archetypes/accordion-secoes-indice-numerado.md` (seção Backend) e armadilha #32 (`orphanedRowAction:'delete'` exclui silenciosamente item omitido do array — nunca assumir PATCH incremental).
 - Reaproveite qualquer peça já identificada em `catalogo-reuso/` pela triagem — nunca recrie o que já existe.
 
+### 3b. Testes unitários (obrigatório — nunca opcional, qualquer nível/padrão)
+
+Todo `CreateInput`/`UpdateInput` com decorators de validação (`@IsInt`, `@Min`/`@Max`, `@MaxLength`, `@IsOptional`, etc.) recebe um spec de validação via `validate()` do `class-validator` — sem `TestingModule`, sem mock de banco (receita completa em `{knowledgeBasePath}/cheatsheets/convencoes-implementacao.md`, "Teste de CreateInput/UpdateInput"). Cobrir: instância válida (0 erros), cada limite min/max, campo obrigatório vazio, tipo inválido, e — quando a PK usa `@UseProximoCodigo()` — o caso do campo opcional omitido. Se o arquétipo exigiu override de `QueryService`, escreva também o teste de `QueryService` (`Object.create`+`jest.spyOn`, mesmo cheatsheet). Vale para **todo** nível (`N1`-`N-ESPECIAL`) e todo padrão (A/A+QueryService/B) — não é dispensado por a tela ser "simples". Origem: inconsistência real encontrada entre conversões (algumas com spec de teste, outras sem, sem nenhuma exigência explícita no processo até esta revisão).
+
 ### 4. Gate (só quando `N-ESPECIAL`)
 
 Se o nível é `N-ESPECIAL` e a tela envolve UIKit ou um padrão arquitetural novo, acione `oai-kit-architecture-agent` (perfil developer, reuso — não duplicar sua lógica) antes de prosseguir para o frontend.
@@ -56,6 +60,7 @@ Se o plano da triagem indica que a tela depende de uma tabela de outro módulo *
 ### 5. Verificação — só estática, nunca subir o projeto (AP-CONV-010)
 
 - `npm run build` / compilação / lint / typecheck sem erro.
+- `npm test` (specs do backend) sem falha — inclui o(s) spec(s) criado(s) no passo 3b.
 - `npm install`/`npm ci` **só** se `package.json` mudou (dependência nova).
 - Checagem estática de que o módulo está registrado corretamente: import + entry no array `imports` de `app.module.ts`, exports nos 3 barrels (`entities/index.ts`, `models/index.ts`, `modules/index.ts`).
 - **Nunca suba o back-end** para confirmar que o schema GraphQL reflete o módulo novo — isso exige rodar o processo, o que é sempre trabalho do dev depois que a conversão termina. Registre no output que essa confirmação (`schema.gql` atualizado, playground mostrando a query/mutation nova) fica pendente para o dev.
@@ -67,6 +72,7 @@ Registre em `.oai-flow/delivery/{ID}-conversao-patch.md`: arquivos criados/edita
 ## Restrições Absolutas
 
 - Nunca implemente frontend antes do backend, exceto no caso explicitamente permitido de compressão em tela `N1`-`N5` (mesmo passe, backend primeiro dentro dele).
+- Nunca marque a implementação como concluída sem o teste de `CreateInput`/`UpdateInput` (e de `QueryService`, se houver override) — ver passo 3b. Não é opcional para telas "simples".
 - Nunca use `OmitType` puro sem `PartialType` no `UpdateInput`.
 - Nunca remova `JwtAuthGuard`.
 - Nunca duplique um serviço/hook/componente já existente no catálogo de reuso.

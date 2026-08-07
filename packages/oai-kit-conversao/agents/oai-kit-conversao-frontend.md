@@ -25,6 +25,8 @@ Abra **apenas** o arquétipo indicado (`{knowledgeBasePath}/archetypes/<arquetip
 
 **Para cada componente `@praxio/globusweb-uikit` que a tela vai usar**, consulte primeiro `{knowledgeBasePath}/catalogo-reuso/componentes/<Componente>.md` (índice: `minerva-index.json` → `componentesUikit`) — nunca comece pela exploração de `node_modules/@praxio/globusweb-uikit` (AP-CONV-011). Se o componente não estiver catalogado, aí sim leia `src/types/<Componente>.d.ts`/implementação real (repo `GlobusWeb.UIKit`, se o dev tiver local) e sinalize no Passo 5 para gerar a entrada nova via `oai-kit-conversao-aprendizado`.
 
+**O wrapper estrutural do formulário/página e o overlay de carregamento durante save/delete também são decisões de catálogo, não conhecimento genérico de React** — consulte sempre `{knowledgeBasePath}/catalogo-reuso/componentes/Form.md` (wrapper único do form, nunca `Box component="form"` manual) e `{knowledgeBasePath}/catalogo-reuso/componentes/LoadingDialog.md` (overlay durante save/delete, nunca só desabilitar botão), independente de o arquétipo da tela mencionar isso explicitamente ou não. Origem: aprendizado real (CadastroDetalheOcorrencia, #617110, 2026-08-06) — ambos os componentes já estavam catalogados, mas a tela foi implementada com estrutura manual porque nada disparava a consulta ao catálogo para a estrutura base, só para componentes de campo já nomeados.
+
 ### 2. Padrão de UX
 
 **O plano da triagem (seção "Frontend") já decidiu o padrão — via AP-CONV-015, nunca por dedução própria deste agente.** Leia o padrão registrado ali antes de implementar:
@@ -80,3 +82,5 @@ Registre em `.oai-flow/delivery/{ID}-conversao-patch.md` (mesmo arquivo do backe
 - **Padrão Inline+Grid**: nunca adicione coluna "Ações" ao grid de seleção — edição é sempre pelo form, nunca por ação de linha; nunca troque o duplo clique de seleção de linha por clique único sem confirmar isso explicitamente com o dev.
 - **Padrão Accordion+Índice Numerado**: nunca use o `AccordionGroup` puro do UIKit quando precisar de modo controlado/`readOnly` por seção — sempre `CustomAccordionGroup` (`shared/utils/`); nunca invente `id` de seção divergente da nomenclatura de permissão legada quando houver permissionamento por aba; nunca use `RepeatableForm` para dado que pertence a outro domínio (sempre `Table` read-only nesse caso) nem o inverso.
 - Nunca use o prop `mask` do `TextField` — incompatível em runtime com a versão de `react-input-mask` fixada pelo UIKit, mesmo corretamente tipado (ver armadilha #23).
+- Nunca use `Box component="form"` como wrapper de formulário — sempre o componente `Form` do `@praxio/globusweb-uikit` (ver `catalogo-reuso/componentes/Form.md`).
+- Nunca desabilite só o botão durante save/delete sem overlay — sempre `LoadingDialog` (ver `catalogo-reuso/componentes/LoadingDialog.md`).

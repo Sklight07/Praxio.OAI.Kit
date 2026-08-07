@@ -18,6 +18,27 @@ Origem: análise comparativa de um pacote de documentação real gerado por outr
 
 Plano completo: `packages/oai-kit-conversao/docs/plano-aprendizados-migration-control-plane.md`.
 
+**Origem (2026-08-07, segunda rodada)**: harmonização de 9 padrões de layout/componente reais (commit `e380f9ea9b8862a8db63c5b6c82715e78bc926d0` do Minerva) que só tinham sido corrigidos em 2 de 7 arquétipos — causa raiz: `oai-kit-conversao-frontend.md` nunca tratava wrapper de form/overlay como decisão de catálogo, e `oai-kit-conversao-aprendizado.md` nunca perguntava se um achado era transversal. Plano completo: `packages/oai-kit-conversao/docs/plano-harmonizacao-padroes-frontend.md`.
+
+### Adicionado (continuação)
+- `oai-kit-conversao-frontend.md`: novo passo tratando wrapper de formulário/overlay de loading como decisão de catálogo (AP-CONV-011), independente do arquétipo mencionar; 2 Restrições Absolutas novas (`Box component="form"` e ausência de `LoadingDialog`).
+- `oai-kit-conversao-paridade.md` + `conversion-policy.md`: 6 itens novos de checklist grep-detectáveis para os 9 padrões (wrapper de form, ícones, PK readOnly, overlay de loading, pares de campo, coerção de PK numérica).
+- `oai-kit-conversao-aprendizado.md`: pergunta de propagação transversal no passo 3 — todo achado precisa ser avaliado quanto a valer para todos os arquétipos CRUD, não só o de origem.
+- 7 correções de contradição ativa nos arquétipos (`disabled`→`readOnly` em 4 arquivos, 2 referências de armadilha erradas, `@UseProximoCodigo()` incluído em `crud-simples-pk-gerada.md`) e propagação dos padrões omitidos para `padrao-frontend-crud-grid-modal.md`, `accordion-secoes-indice-numerado.md`, `grid-procedure.md`, `lookup-readonly.md`.
+- Limpeza estrutural do Minerva: armadilha #33 reordenada, chave duplicada `EmpresaFilialGaragemCombobox` removida de `minerva-index.json`, referência quebrada corrigida em `DataGridSearchServer.md`, nova armadilha #40 (`size:"auto"`/`"grow"`).
+- **Testes unitários do backend, obrigatórios em todo nível/padrão** (`oai-kit-conversao-backend.md`, novo passo 3b): `CreateInput`/`UpdateInput` sempre tem spec de `class-validator`; `QueryService` também, se houve override — checklist de `oai-kit-conversao-paridade` passa a bloquear ausência. Origem: inconsistência real entre conversões (algumas com spec, outras sem, sem exigência explícita no processo).
+- `cheatsheets/convencoes-implementacao.md` (Minerva) ganha 2 entradas confirmadas por leitura de código real (`CadastroDetalheOcorrencia`/`CadastroCriterios`, GlobusWeb.Folha): wrapper key de `CreateOne<X>Input` segue o `@ObjectType()` (não o nome do método/mutation); padrão de teste de `CreateInput`/`UpdateInput` via `class-validator`.
+
+**Origem (2026-08-07, terceira rodada)**: comportamento de conversão discutido com o dev — campos com lupa/browser de pesquisa no legado (`TEdit` código + lupa + `TEdit` descrição) precisam distinguir se referenciam a própria entidade da tela (lupa redundante, resolvida pelo grid embutido) ou uma tabela diferente (referência/FK genuína, vira `Combobox`). Referência real analisada: `GlobusWeb.Acidentes/front-end/src/features/Prestacao/CadastroPrestacao2.tsx` (`TipoPrestacoesComboBox`/`useTipoPrestacoesOptions`). Plano completo: `packages/oai-kit-conversao/docs/plano-combobox-referencia-fk.md`.
+
+### Adicionado (continuação 2)
+- **AP-CONV-017** (`conversion-policy.md`, novo): distingue lupa própria (nunca replicada, grid resolve) de lupa de referência genuína (vira `Combobox`); valor a persistir nunca assumido só pelo schema Oracle (mesmo princípio do AP-CONV-001) — confirmar via comportamento do legado + schema de ambas as tabelas + dev, nunca por nome parecido; cruza com AP-CONV-012 quando a tabela é de outro módulo.
+- `cheatsheets/delphi-para-react.md`: linha de mapeamento do padrão `TEdit(código)+lupa+TEdit(descrição)` dividida em duas, pelo critério correto (mesma entidade vs. tabela diferente).
+- `archetypes/lookup-readonly.md`: nova seção "Uso como sub-padrão de campo, dentro de outro arquétipo" (a receita vale para um campo isolado, não só telas classificadas inteiramente como lookup-readonly) + seções "O que trazer/exibir" e "O que persistir — não confiar só no schema Oracle" (procedimento de confirmação em 3 passos).
+- `catalogo-reuso/hooks-e-utils.md` (Minerva): nova receita genérica "Combobox de referência (hook + wrapper)" para quando não existe componente pronto — `use<Entidade>Options()` + `<Entidade>Combobox` fino, referência real `TipoPrestacoesComboBox`.
+- `_template-especificacao.md` (Minerva): nova seção condicional "Campos de referência (combobox)" — campo exibido vs. persistido de fato vs. evidência que confirmou a ligação.
+- `oai-kit-conversao-especificador.md`: passo novo no de/para de componente aplicando o critério do AP-CONV-017 antes de mapear um campo com lupa.
+
 ## [0.1.13] — 2026-08-05
 
 Origem: surgiu um novo padrão real de conversão (form inline 1:1 + grid de seleção, sem modal, com inteligência de campo-chave) confirmado em duas telas-irmãs de `GlobusWeb.Acidentes` (`CondicaoPavimento`/`CondicaoPista`), e um padrão para telas complexas com múltiplas `TabSheet`/`PageControl` do legado (accordion + índice numerado lateral, confirmado na tela de cadastro de Acidente do mesmo módulo). O padrão Grid+Modal (AP-CONV-014) deixa de ser a única estrutura obrigatória — agora é um de três padrões possíveis, escolhidos por tela via um novo mecanismo de decisão.

@@ -41,6 +41,8 @@ Para cada tabela/procedure/view Oracle confirmada nesta conversão, crie ou atua
 
 ### 3. Atualizar cheatsheets/arquétipos/notas de módulo
 
+**Antes de decidir onde persistir qualquer achado abaixo, pergunte-se**: *"este padrão é específico desta tela/arquétipo, ou é uma convenção transversal de UI (wrapper de form, overlay de loading, PK read-only, layout de par de campos, etc.) que deveria valer para todos os arquétipos CRUD?"* Se for transversal, **não baste corrigir só o arquétipo de origem do achado** — proponha também: (a) a mesma correção nos arquétipos irmãos (`archetypes/*.md` que compartilham o mesmo tipo de UI), (b) uma Restrição Absoluta nova em `oai-kit-conversao-frontend.md` se o padrão for sobre estrutura/componente base, e (c) um item novo no checklist estático de `oai-kit-conversao-paridade.md` se for verificável por grep. Origem desta regra: episódio real (2026-08-06/07) onde uma correção de 9 padrões de layout foi aplicada só nos 2 arquétipos tocados pela conversão que a originou — os outros 4-5 arquétipos continuaram ensinando/permitindo o padrão errado, e `oai-kit-conversao-paridade.md` não ganhou nenhum item novo de checklist, deixando a próxima conversão nesses arquétipos destinada a repetir o mesmo erro.
+
 - Armadilha nova descoberta (não estava em `cheatsheets/armadilhas-comuns.md`) → proponha adição.
 - Regra de negócio ou comportamento de UI não óbvio → proponha adição em `modulos/<modulo>.md`.
 - Hook/service reutilizável criado nesta conversão → proponha adição em `catalogo-reuso/hooks-e-utils.md`.
