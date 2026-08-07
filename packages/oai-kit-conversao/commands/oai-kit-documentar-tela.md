@@ -16,7 +16,10 @@ Invoque `oai-kit-conversao-especificador`:
 - `git pull` obrigatório em `GlobusEvo.Minerva` antes de qualquer leitura.
 - Determina o modo de entrada e localiza/lê **todos** os arquivos do conjunto da tela (clássica ou multi-arquivo moderna).
 - Checa se já existe especificação para esta tela — se sim, pergunta antes de sobrescrever.
-- Documenta campos, grid, tabela(s), regras de negócio (contadas), e já resolve o de/para de componente Delphi→UIKit.
+- Documenta campos, grid, tabela(s) (incluindo colunas com mais de um caminho de escrita, se houver), regras de negócio (contadas), e já resolve o de/para de componente Delphi→UIKit.
+- Classifica elemento Delphi sem equivalente visual (procedure/timer/chamada externa) e comportamento do legado conscientemente não replicado (Critério de Descarte), quando aplicável.
+- Detecta dependências cross-módulo (AP-CONV-012), campo sensível para LGPD (AP-CONV-016) e campo de referência com lupa/browser — combobox (AP-CONV-017), quando aplicável.
+- Resolve menu e índice de permissão (AP-CONV-013).
 - **Resolve o padrão de conversão de frontend** (Grid+Modal | Inline+Grid | Accordion+Índice Numerado) via AP-CONV-015: convenção de texto na task do Azure primeiro, senão inferência a partir dos sinais do legado (múltiplas `TabSheet` → accordion; cadastro simples com/sem grid → default inline-grid), senão pergunta ao dev — registrado na spec com a origem, para `oai-kit-conversao-triagem` reaproveitar sem decidir de novo.
 - Calcula pontuação estrutural + verifica gatilhos de exceção → nível N1-N5 ou N-ESPECIAL (ver `.oai-kit/policies/conversion-policy.md` — arquivo local do projeto, depositado pelo kit; não fica no Minerva).
 - Registra staleness (mtime/tamanho dos fontes lidos).
