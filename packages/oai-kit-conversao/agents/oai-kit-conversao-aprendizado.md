@@ -49,6 +49,7 @@ Para cada tabela/procedure/view Oracle confirmada nesta conversão, crie ou atua
 - Componente de app compartilhado **não vindo do UIKit** (ex.: usado no arquétipo `accordion-secoes-indice-numerado` — `CustomAccordionGroup`/`AccordionSectionsNavRail` ou equivalente novo) criado/portado nesta conversão sem entrada ainda → proponha adição em `catalogo-reuso/hooks-e-utils.md`, seção "Componentes compartilhados de app (não-UIKit)".
 - Componente `@praxio/globusweb-uikit` usado sem entrada em `catalogo-reuso/componentes/` (não catalogado ainda), ou usado pela primeira vez de verdade num componente com `temExemploReal: false` → crie/atualize a entrada correspondente (`_template-componente.md`) e o índice `componentesUikit` em `minerva-index.json`. Armadilha nova encontrada num componente já catalogado → adicione à seção "Comportamento não-óbvio / armadilhas" existente.
 - Nível(is) de menu criado(s) nesta conversão (grupo/submenu novo em `menu.constants.tsx`, reportado pelo frontend) → atualize `menus/globusweb/<SIGLA>.md` (novo grupo/submenu, rotas filhas, `indice`) e `minerva-index.json` → `menuGlobusWeb.<SIGLA>.ultimaAtualizacao`. Sem isso, a próxima tela do mesmo módulo não sabe que aquele nível já existe.
+- Convenção de implementação de backend não óbvia descoberta nesta conversão (ex.: campo wrapper de mutation, padrão de teste, coluna com trigger) → proponha adição em `cheatsheets/convencoes-implementacao.md`.
 
 ### 4. Registrar GAPs não resolvíveis — critério estrito, ver "Critério de GAP" em `conversion-policy.md`
 
@@ -98,6 +99,9 @@ ATUALIZAÇÕES PROPOSTAS EM GlobusEvo.Minerva
 • descobertas-oracle/<objeto>.md — [novo/atualizado]
 • archetypes/<...>.md — [se houver arquétipo novo]
 • cheatsheets/armadilhas-comuns.md — [se houver armadilha nova]
+• cheatsheets/convencoes-implementacao.md — [se houver convenção de backend nova]
+• catalogo-reuso/hooks-e-utils.md — [hook/service novo, se houver]
+• catalogo-reuso/componentes/<Componente>.md — [componente UIKit novo catalogado, se houver]
 • modulos/<modulo>.md — [se houver nota nova]
 • modulos/_dicionario-modulos.md — [se um prefixo novo foi confirmado com o dev]
 • menus/globusweb/<SIGLA>.md — [se houve criação/reaproveitamento de nível de menu]
