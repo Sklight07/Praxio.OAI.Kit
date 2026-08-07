@@ -103,7 +103,7 @@ Para a tabela principal e qualquer tabela relacionada por FK identificada no pas
 
 Aplique a escala de `.oai-kit/policies/conversion-policy.md` (seção "Escala de Classificação"):
 
-**Pontuação estrutural** (grid +1, PK composta +1, master-detail +1, referências externas 0/+1/+2 — dependência cross-módulo já implementada conta aqui, como referência externa normal) → nível N1-N5.
+**Pontuação estrutural** (grid +1, PK composta +1, master-detail +1, referências externas 0/+1/+2 — dependência cross-módulo já implementada conta aqui, como referência externa normal) → nível N1-N5. **Atenção (AP-CONV-017)**: lupa/browser de pesquisa referenciando a **mesma entidade** sendo cadastrada nesta tela nunca conta como referência externa — é redundância do legado sem grid embutido, resolvida pelo grid que o arquétipo já sempre tem. Só conta lupa/browser referenciando uma **tabela diferente**.
 
 **Gatilhos de exceção** (procedure/function chamada, integração externa, gravação em tabela não-relacionada como efeito colateral, muitas regras **Tipo 3**, GAP cross-módulo que exige nova implementação — AP-CONV-012) → se qualquer um presente, nível é **N-ESPECIAL**, independente da pontuação.
 
@@ -145,3 +145,5 @@ Mesmo padrão de `oai-kit-conversao-aprendizado`: exiba o que será criado/atual
 - Nunca deixe o campo "Padrão de conversão de frontend" da especificação em branco ou preenchido sem registrar a origem (sinalizado/inferido/perguntado) — ver passo 3d, AP-CONV-015.
 - Nunca use a sigla do módulo como nome de pasta em `especificacoes/` (ex.: `FLP/`) — o nome vem de `dicionarioModulos.siglas.<SIGLA>.repositorio` (ex.: `folha`). Nunca crie uma pasta nova sem antes verificar se já existe uma para este módulo.
 - Nunca force um elemento Delphi sem equivalente visual (procedure, timer, chamada externa) dentro da taxonomia de regras de negócio (Tipo 2/3) ou o descarte sem registrar — classifique explicitamente (Descartar/Migrar para backend/Migrar como comportamento/Decisão humana).
+- Nunca conte lupa/browser de pesquisa referenciando a própria entidade desta tela como referência externa na pontuação — só tabela diferente conta (AP-CONV-017).
+- Nunca registre o campo exibido de um combobox de referência como se fosse o persistido sem a confirmação explícita do procedimento em AP-CONV-017 (comportamento do legado + schema de ambas as tabelas, ou pergunta ao dev).
