@@ -14,6 +14,7 @@ Você implementa o back-end NestJS de uma tela Delphi já classificada por `oai-
 
 - `.oai-flow/analysis/{ID}-conversao-plano.md` existe e (se `N-ESPECIAL`) foi aprovado no gate da triagem.
 - Arquétipo e nível conhecidos.
+- Branch já criada e com checkout feito (`oai-kit-conversao-triagem`, etapa 1b) — confirme antes de implementar.
 
 ## Processo
 
@@ -37,6 +38,8 @@ Abra **apenas** o arquétipo indicado no plano (`{knowledgeBasePath}/archetypes/
 - Se a tela envolve procedure/function Oracle (arquétipo `grid-procedure`, nível `N-ESPECIAL`): schema tipado em `stored-procedures`/`functions`, seguindo `{knowledgeBasePath}/cheatsheets/delphi-para-nestjs.md`.
 - Se o arquétipo é `accordion-secoes-indice-numerado` (múltiplas seções/`TabSheet` do legado): sub-entidades **próprias** desta tela (FK direta para a entidade principal, criadas/editadas/excluídas por ela) usam `@OneToMany({ cascade: true, onDelete: 'CASCADE', orphanedRowAction: 'delete' })` — cascade pode ter mais de um nível (ex.: filho→nieto). **Nunca use este cascade para dado de outro domínio** (consultado, não gerido, por esta tela) — esse caso vai por controller REST dedicado (Padrão B), sempre somente-leitura aqui. Ver `{knowledgeBasePath}/archetypes/accordion-secoes-indice-numerado.md` (seção Backend) e armadilha #32 (`orphanedRowAction:'delete'` exclui silenciosamente item omitido do array — nunca assumir PATCH incremental).
 - Reaproveite qualquer peça já identificada em `catalogo-reuso/` pela triagem — nunca recrie o que já existe.
+- Se a especificação tem a seção "Dados sensíveis / LGPD" (AP-CONV-016): implemente as medidas atribuídas ao backend — autorização por perfil, minimização de payload (resolver retorna só os campos necessários, nunca a entidade inteira "por via das dúvidas").
+- Se a especificação tem a seção "Campos de referência (combobox)" (AP-CONV-017): crie ou confirme o módulo backend read-only da tabela referenciada (receita em `{knowledgeBasePath}/archetypes/lookup-readonly.md`) — reaproveitar se já existir (catálogo/Federation) antes de criar um novo; nunca assumir que o campo persistido é o mesmo exibido sem a confirmação já registrada na spec.
 
 ### 3b. Testes unitários (obrigatório — nunca opcional, qualquer nível/padrão)
 
@@ -81,4 +84,4 @@ Registre em `.oai-flow/delivery/{ID}-conversao-patch.md`: arquivos criados/edita
 - Nunca implemente entidade/domínio de uma tabela de outro módulo localmente — se o plano sinaliza GAP cross-módulo, a implementação vai no repositório dono (4b), nunca uma cópia local (AP-CONV-012).
 - Nunca crie branch/toque em outro repositório sem o Gate de Plano do passo 4b aprovado explicitamente.
 - **Nunca implemente a feature de frontend você mesmo, mesmo em `N1`-`N3`** — sempre acione o agente `oai-kit-conversao-frontend` (PASSO 3 de `/oai-kit-converter-tela`). Implementar backend+frontend juntos sem o handoff real pula a superfície de revisão que existe entre os dois agentes. (Origem: incidente real FLP_617662, 2026-08-04 — backend implementou frontend e pulou paridade/checkpoint, dois bugs de UI só apareceram no teste manual do dev.)
-- **Nunca commite** — commit só acontece depois do checkpoint final de `oai-kit-conversao-paridade` (PASSO 4 de `/oai-kit-converter-tela`), com você tendo testado e confirmado o resultado. Implementar e commitar direto em `develop`/`master`/`main` sem passar por paridade é bloqueante, mesmo que build/lint/typecheck passem 100% — os bugs reais deste incidente (crash de runtime, layout de grid quebrado) não são pegos por verificação estática.
+- **Nunca commite** — você já está na branch criada por `oai-kit-conversao-triagem` (etapa 1b, nunca `develop`/`master`/`main`), mas o commit em si só acontece depois do checkpoint final de `oai-kit-conversao-paridade` (PASSO 4 de `/oai-kit-converter-tela`), com você tendo testado e confirmado o resultado. Commitar aqui, mesmo na branch certa, sem passar por paridade é bloqueante, mesmo que build/lint/typecheck passem 100% — os bugs reais do incidente que originou esta regra (crash de runtime, layout de grid quebrado) não são pegos por verificação estática.

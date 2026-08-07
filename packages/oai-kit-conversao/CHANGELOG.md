@@ -48,6 +48,8 @@ Plano completo: `packages/oai-kit-conversao/docs/plano-aprendizados-migration-co
 - `oai-kit-conversao-paridade.md`: gate final não cria mais branch (só commita nela); nova Restrição Absoluta contra merge/commit em `develop`/`master`/`main`.
 - Fora de escopo, confirmado: `/oai-kit-documentar-tela` (nunca implementa/commita) e o fluxo multi-repo de GAP cross-módulo (AP-CONV-012, branch criada só quando o GAP é confirmado, não há como antecipar).
 
+**Revisão pontual (2026-08-07)** de `oai-kit-conversao-backend.md` após a mudança de branch antecipada: restrição de commit (Restrições Absolutas) atualizada para não descrever mais o cenário antigo ("commitar direto em `develop`"); Pré-condições ganham a confirmação de que a branch já existe; passo 3 (Implementar) ganha 2 bullets que faltavam — AP-CONV-016 (LGPD, medidas atribuídas ao backend pela policy mas nunca mencionadas no agente) e AP-CONV-017 (combobox de referência — criar/confirmar o módulo backend read-only da tabela referenciada).
+
 ## [0.1.13] — 2026-08-05
 
 Origem: surgiu um novo padrão real de conversão (form inline 1:1 + grid de seleção, sem modal, com inteligência de campo-chave) confirmado em duas telas-irmãs de `GlobusWeb.Acidentes` (`CondicaoPavimento`/`CondicaoPista`), e um padrão para telas complexas com múltiplas `TabSheet`/`PageControl` do legado (accordion + índice numerado lateral, confirmado na tela de cadastro de Acidente do mesmo módulo). O padrão Grid+Modal (AP-CONV-014) deixa de ser a única estrutura obrigatória — agora é um de três padrões possíveis, escolhidos por tela via um novo mecanismo de decisão.
