@@ -14,6 +14,7 @@ Você implementa a feature React de uma tela Delphi já classificada por `oai-ki
 
 - Back-end já implementado e schema GraphQL atualizado (contrato conhecido, não hipotético).
 - `.oai-flow/analysis/{ID}-conversao-plano.md` com arquétipo/nível/padrão UX.
+- Branch já criada e com checkout feito (`oai-kit-conversao-triagem`, etapa 1b).
 
 ## Processo
 
@@ -34,7 +35,7 @@ Abra **apenas** o arquétipo indicado (`{knowledgeBasePath}/archetypes/<arquetip
 - **Grid+Modal**: tela principal com busca explícita + grid (coluna Ações: Editar/Excluir) + botão "Novo"; criar/editar e excluir sempre via `FormModal` (nunca form inline, nunca `Dialog` cru). No caso de `crud-pai-filho`, o combobox de entidade-pai continua na tela principal filtrando o grid — só o formulário do filho vai para o modal. Receita completa em `{knowledgeBasePath}/archetypes/padrao-frontend-crud-grid-modal.md`.
 - **Inline+Grid** (default a partir de 2026-08 para cadastro simples/pai-filho, salvo o plano indicar outro padrão): campos sempre visíveis num único `Form` (nunca modal) + grid de seleção abaixo **sem coluna "Ações"**, duplo clique carrega o registro no form; botões Limpar/Excluir/Gravar; inteligência de campo-chave (`onBlur` autopreenche por código existente, código vazio no submit deixa o backend gerar via `@UseProximoCodigo`). Receita completa em `{knowledgeBasePath}/archetypes/padrao-frontend-crud-inline-grid.md`.
 - **Accordion+Índice Numerado** (arquétipo `accordion-secoes-indice-numerado`, telas com múltiplas `TabSheet`/`PageControl` no legado): cada seção do legado vira um item de `CustomAccordionGroup` (modo controlado, nunca o `AccordionGroup` puro do UIKit), com índice lateral (`AccordionSectionsNavRail`) se houver muitas seções. Conteúdo de cada seção varia (form simples, sub-abas, `RepeatableForm`, `Table` read-only, upload) — decidir por seção conforme o que a `TabSheet` original tinha, nunca um único template para todas. Receita completa em `{knowledgeBasePath}/archetypes/accordion-secoes-indice-numerado.md`.
-- **Lookup** (arquétipo `lookup-readonly`): `Combobox`/`ComboboxGrid` alimentado por módulo read-only do backend — sem CRUD, nenhum dos padrões acima se aplica.
+- **Lookup** (arquétipo `lookup-readonly`): `Combobox`/`ComboboxGrid` alimentado por módulo read-only do backend — sem CRUD, nenhum dos padrões acima se aplica. Vale também como sub-padrão de campo dentro de outro arquétipo (AP-CONV-017) — não só para tela inteira.
 - Telas de ciclo de vida multi-etapa (grid-procedure fora do caso "cadastro") continuam sem padrão único — ver `grid-procedure.md`.
 
 ### 3. Implementar
@@ -53,6 +54,8 @@ Abra **apenas** o arquétipo indicado (`{knowledgeBasePath}/archetypes/<arquetip
 - Campos opcionais que o usuário pode limpar: enviar `null`, nunca `undefined`, na mutation.
 - Consultar `{knowledgeBasePath}/cheatsheets/armadilhas-comuns.md` antes de escrever qualquer trecho que pareça repetir um padrão já resolvido — nunca redescobrir uma armadilha já documentada.
 - Roteamento: os 4 pontos obrigatórios (config de rota, lazy import, `AppRouter`, menu) — tela só está "integrada" quando todos os 4 estiverem atualizados.
+- Se a especificação tem a seção "Dados sensíveis / LGPD" (AP-CONV-016): mascaramento de exibição (ex.: CPF parcialmente oculto) e bloqueio de exportação/cópia de dado sensível não mascarado.
+- Se a especificação tem a seção "Campos de referência (combobox)" (AP-CONV-017): usar o componente já pronto (catálogo/Federation) ou o hook+wrapper de `{knowledgeBasePath}/catalogo-reuso/hooks-e-utils.md` — **na mutation, enviar o campo "persistido de fato" registrado na spec, nunca o campo exibido no combobox por padrão** (podem ser colunas diferentes da mesma tabela referenciada).
 - **Menu e índice de permissão (ver armadilha #16 em `armadilhas-comuns.md` e AP-CONV-013)**: use a seção "Menu e navegação" do plano/spec — ela já traz o `indice`, a hierarquia (até 3 níveis) e quais níveis já existem no GlobusWeb (`menuGlobusWeb.<SIGLA>`). **Nunca crie o item direto no nível mais alto por padrão** — crie só os níveis que realmente faltam, reaproveitando grupo/submenu já existentes. Adicione `labels[rota] = indice` em `menu.constants.tsx` com o valor exato da spec — nunca inventado. Se for o primeiro caso de 3 níveis do módulo, sinalize como novidade no Output (passo 5), não como bloqueio. Se o plano não trouxer essa seção preenchida (fluxo sem `oai-kit-conversao-especificador` prévio), pare e pergunte ao dev o `indice` antes de tocar em `menu.constants.tsx` — nunca adivinhe.
 
 ### 4. Verificação — só estática, nunca subir o projeto (AP-CONV-010)
@@ -64,7 +67,7 @@ Abra **apenas** o arquétipo indicado (`{knowledgeBasePath}/archetypes/<arquetip
 
 ### 5. Output
 
-Registre em `.oai-flow/delivery/{ID}-conversao-patch.md` (mesmo arquivo do backend, seção própria): arquivos criados/editados no frontend, armadilhas encontradas (novas ou já catalogadas), GAPs, **se precisou abrir `padroes-globusweb/patterns/*.md` por completo** (fora do arquétipo/cheatsheet), **se usou algum componente `@praxio/globusweb-uikit` que não estava em `catalogo-reuso/componentes/`** (proposta de nova entrada para `oai-kit-conversao-aprendizado`), e **qual(is) nível(is) de menu foram criados vs. reaproveitados** (para `oai-kit-conversao-aprendizado` atualizar `menuGlobusWeb.<SIGLA>`).
+Registre em `.oai-flow/delivery/{ID}-conversao-patch.md` (mesmo arquivo do backend, seção própria): arquivos criados/editados no frontend, armadilhas encontradas (novas ou já catalogadas), GAPs, **se precisou abrir `padroes-globusweb/patterns/*.md` por completo** (fora do arquétipo/cheatsheet), **se usou algum componente `@praxio/globusweb-uikit` que não estava em `catalogo-reuso/componentes/`** (proposta de nova entrada para `oai-kit-conversao-aprendizado`), **se criou um wrapper novo de combobox de referência** (hook+wrapper, AP-CONV-017 — proposta de entrada em `hooks-e-utils.md`), e **qual(is) nível(is) de menu foram criados vs. reaproveitados** (para `oai-kit-conversao-aprendizado` atualizar `menuGlobusWeb.<SIGLA>`).
 
 ## Restrições Absolutas
 
@@ -84,3 +87,6 @@ Registre em `.oai-flow/delivery/{ID}-conversao-patch.md` (mesmo arquivo do backe
 - Nunca use o prop `mask` do `TextField` — incompatível em runtime com a versão de `react-input-mask` fixada pelo UIKit, mesmo corretamente tipado (ver armadilha #23).
 - Nunca use `Box component="form"` como wrapper de formulário — sempre o componente `Form` do `@praxio/globusweb-uikit` (ver `catalogo-reuso/componentes/Form.md`).
 - Nunca desabilite só o botão durante save/delete sem overlay — sempre `LoadingDialog` (ver `catalogo-reuso/componentes/LoadingDialog.md`).
+- **Nunca commite** — você já está na branch criada por `oai-kit-conversao-triagem` (etapa 1b); commit só acontece depois do checkpoint final de `oai-kit-conversao-paridade`.
+- Nunca implemente lupa/browser de pesquisa para a própria PK da tela — o grid embutido já resolve (AP-CONV-017).
+- Nunca envie o campo exibido de um combobox de referência na mutation sem confirmar contra a spec que é o mesmo persistido de fato (AP-CONV-017).
