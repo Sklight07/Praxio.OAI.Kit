@@ -102,13 +102,13 @@ Aplica-se sempre que o arquétipo de backend for `crud-simples-*`/`crud-pai-filh
 
 Registre no plano (seção Frontend) o padrão decidido **e** a origem (sinalizado/inferido/perguntado).
 
-### 4e. Detectar ausência de precedente local (Grid+Modal) — checagem cross-repo
+### 4e. Detectar ausência de precedente local — checagem cross-repo via `telas-referencia.md`
 
-**Só se o padrão decidido no passo 4d for Grid+Modal.** Se, além disso, o front-end do módulo-alvo estiver em estágio esqueleto (pasta `features/`/`src/features` vazia ou com só 1-2 features triviais, ex.: só `auth`) — ou seja, esta seria a primeira tela real convertida neste repositório: **verifique `knownRepos` (`.claude/.local-config.json`) por um repositório GlobusWeb irmão que já tenha uma tela do mesmo arquétipo implementada** (ex.: `GlobusWeb.Manutencao` → `CadastroDefeitos`, referência canônica já citada em `archetypes/padrao-frontend-crud-grid-modal.md`). Se `knownRepos` não tiver um repo cadastrado que sirva, pergunte ao dev se ele conhece um caminho local — nunca invente ou assuma.
+**Se o front-end do módulo-alvo estiver em estágio esqueleto** (pasta `features/`/`src/features` vazia ou com só 1-2 features triviais, ex.: só `auth`) — ou seja, esta seria a primeira tela real convertida neste repositório com o padrão decidido no passo 4d — **consulte primeiro `{knowledgeBasePath}/catalogo-reuso/telas-referencia.md`** por uma entrada cuja tag bata com o padrão decidido (Grid+Modal, Inline+Grid ou Accordion+Índice — o catálogo cobre os 3, não só Grid+Modal). Se houver entrada aplicável, use o caminho indicado ali. **Só se o catálogo não tiver entrada aplicável**, caia para o comportamento anterior: verifique `knownRepos` (`.claude/.local-config.json`) por um repositório GlobusWeb irmão que já tenha uma tela do mesmo arquétipo implementada. Se nenhum dos dois resolver, pergunte ao dev se ele conhece um caminho local — nunca invente ou assuma.
 
 Registre o caminho encontrado no plano (campo "Referência estrutural cross-repo") — é isso que evita `oai-kit-conversao-frontend` inventar do zero layout de cabeçalho, props do `DataGridSearchServer` (`compliance`/`hasSearchField`) ou estrutura de busca sem comparar contra um precedente real já em produção. **Origem real deste passo**: bug real de conversão (2026-08-03) — um agente sem precedente local ligou `compliance` sem necessidade e montou o cabeçalho numa única linha com wrap; ambos os problemas já estavam resolvidos em `GridCadastroDefeitos.tsx`/`CadastroDefeitos.tsx` (GlobusWeb.Manutencao), que o agente não consultou por não ter sido instruído a procurar.
 
-Se o front-end já tiver outras telas do mesmo arquétipo convertidas (não é mais a primeira feature), pule este passo — o próprio repositório já é o precedente. Se o padrão decidido for Inline+Grid ou Accordion+Índice, este passo não se aplica (mas vale o mesmo espírito: se houver telas-irmãs já convertidas no mesmo padrão neste ou em outro módulo, prefira consultá-las como referência estrutural antes de inventar do zero).
+Se o front-end já tiver outras telas do mesmo arquétipo convertidas (não é mais a primeira feature), pule este passo — **o próprio repositório já é o precedente**, mas sinalize isso no output para `oai-kit-conversao-aprendizado` avaliar como candidato a entrada nova em `telas-referencia.md` (ver passo de manutenção do catálogo em `oai-kit-conversao-aprendizado.md`).
 
 ### 4f. Detectar campos sensíveis e campos de referência (AP-CONV-016/017) — só quando não veio de especificação prévia já resolvida
 
@@ -181,7 +181,7 @@ Padrão sugerido: A | A+QueryService | B — [justificativa]
 ## Frontend
 Padrão UX decidido: Grid+Modal | Inline+Grid | Accordion+Índice Numerado | Lookup | Ciclo de vida (grid-procedure fora do caso "cadastro") — [justificativa]
 Origem da decisão (AP-CONV-015, passo 4d): [sinalizado na task Azure | inferido a partir dos sinais do legado | perguntado ao dev em AAAA-MM-DD]
-Referência estrutural cross-repo (se padrão Grid+Modal sem precedente local — ver passo 4e): [caminho do arquivo de referência, ou "N/A — já há telas do arquétipo neste repositório", ou "N/A — padrão não é Grid+Modal"]
+Referência estrutural cross-repo (se front-end esqueleto sem precedente local — ver passo 4e): [caminho do arquivo de referência (de `telas-referencia.md` ou `knownRepos`), ou "N/A — já há telas do arquétipo neste repositório"]
 
 ## GAPs
 - [item que não pode ser resolvido nesta conversão pontual — vai para gaps-log.md]
@@ -209,7 +209,7 @@ Referência estrutural cross-repo (se padrão Grid+Modal sem precedente local �
 - Nunca resolva sigla implementadora de uma tabela pelo prefixo bruto sem checar `dicionarioModulos.prefixosTabela` — alguns prefixos implementam-se em sigla diferente (ex: `ESO_`→`FLP`).
 - Nunca feche o plano sem o `indice` de menu confirmado (task Azure, spec prévia, ou perguntado ao dev) — nunca derivado de nome de arquivo/caption (AP-CONV-013).
 - Nunca assuma que a tela vai no nível mais alto do menu sem checar `menuGlobusWeb.<SIGLA>` primeiro.
-- Nunca deixe de checar `knownRepos` por um precedente estrutural cross-repo (passo 4e) quando o padrão decidido é Grid+Modal e o front-end do módulo-alvo está sem nenhuma feature real convertida ainda — deixar o frontend inventar do zero já causou bug real de conversão.
+- Nunca deixe de checar `catalogo-reuso/telas-referencia.md` (e, na ausência de entrada aplicável, `knownRepos`) por um precedente estrutural cross-repo (passo 4e) quando o front-end do módulo-alvo está sem nenhuma feature real convertida ainda, independente do padrão decidido — deixar o frontend inventar do zero já causou bug real de conversão.
 - Nunca decida o padrão de frontend (passo 4d) sem registrar a origem da decisão (sinalizado/inferido/perguntado) — sem isso, ninguém consegue auditar depois se a inferência do AP-CONV-015 está calibrada certo.
 - Nunca infira `grid-modal` por hábito quando o arquétipo admite `inline-grid` — a partir de 2026-08 o default é `inline-grid` para cadastro simples/pai-filho; `grid-modal` exige justificativa estrutural real.
 - Nunca prossiga com a sincronização de `develop` (etapa 1b) se a working tree estiver suja ou o `git pull` falhar — pare e informe o dev.

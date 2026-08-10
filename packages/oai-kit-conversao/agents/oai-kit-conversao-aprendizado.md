@@ -51,6 +51,12 @@ Para cada tabela/procedure/view Oracle confirmada nesta conversão, crie ou atua
 - Nível(is) de menu criado(s) nesta conversão (grupo/submenu novo em `menu.constants.tsx`, reportado pelo frontend) → atualize `menus/globusweb/<SIGLA>.md` (novo grupo/submenu, rotas filhas, `indice`) e `minerva-index.json` → `menuGlobusWeb.<SIGLA>.ultimaAtualizacao`. Sem isso, a próxima tela do mesmo módulo não sabe que aquele nível já existe.
 - Convenção de implementação de backend não óbvia descoberta nesta conversão (ex.: campo wrapper de mutation, padrão de teste, coluna com trigger) → proponha adição em `cheatsheets/convencoes-implementacao.md`.
 
+### 3b. Avaliar candidatura a `catalogo-reuso/telas-referencia.md`
+
+Mesmo espírito do passo 3 (avaliar se um achado é transversal o bastante para virar arquétipo/componente novo): avalie se a tela recém-convertida é candidata a **entrar** (ou **promover** uma entrada existente mais fraca) no catálogo de telas-referência. Critério: cobre múltiplos padrões/componentes corretamente (não só um único detalhe), e não teve nenhum "Bug de conversão" encontrado no teste manual/paridade (`oai-kit-conversao-paridade`, passo 3 — zero nesta conversão). Se aplicável, inclua a proposta (tela, tags dos padrões/componentes exemplificados, tier sugerido — ★★★/★★/★) no Gate Pré-Commit do Minerva.
+
+Se a tela recém-convertida preenche uma lacuna documentada na seção "Lacunas de cobertura" de `telas-referencia.md`, remova ou atualize essa entrada de lacuna no mesmo commit — nunca deixe uma lacuna já preenchida registrada como se ainda estivesse aberta.
+
 ### 4. Registrar GAPs não resolvíveis — critério estrito, ver "Critério de GAP" em `conversion-policy.md`
 
 **Antes de registrar qualquer coisa em `gaps-log.md`, aplique o teste**: "isso exige que alguém tome uma decisão/ação futura para desbloquear algo, ou é só uma nota de que um dado estava errado e a conversão já contornou sozinha?" Só o primeiro caso é GAP.
@@ -103,6 +109,7 @@ ATUALIZAÇÕES PROPOSTAS EM GlobusEvo.Minerva
 • cheatsheets/armadilhas-comuns.md — [se houver armadilha nova]
 • cheatsheets/convencoes-implementacao.md — [se houver convenção de backend nova]
 • catalogo-reuso/hooks-e-utils.md — [hook/service novo, se houver]
+• catalogo-reuso/telas-referencia.md — [entrada nova/promovida, se a tela for candidata; lacuna removida/atualizada, se aplicável]
 • catalogo-reuso/componentes/<Componente>.md — [componente UIKit novo catalogado, se houver]
 • modulos/<modulo>.md — [se houver nota nova]
 • modulos/_dicionario-modulos.md — [se um prefixo novo foi confirmado com o dev]

@@ -79,6 +79,7 @@ Toda conversão devolve o que aprendeu, para nunca ser redescoberto na próxima 
 - Schema Oracle descoberto (tabelas, procedures, views).
 - GAPs não resolvíveis na conversão pontual, para decisão humana.
 - Métricas por tela convertida (nível, checkpoints, duração aproximada, bugs de conversão corrigidos) — usadas para calibrar estimativas futuras.
+- Telas-modelo/catálogo de referência para construção (`catalogo-reuso/telas-referencia.md`) — quais telas já convertidas servem de melhor exemplo completo por padrão/componente, e onde ainda não há exemplar forte.
 
 ## Políticas
 

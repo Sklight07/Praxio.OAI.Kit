@@ -2,6 +2,19 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em ISO-8601.
 
+## [Não lançado]
+
+Origem: o dev observou que os arquétipos só citam telas como evidência pontual de uma regra específica ("Confirmado em") — não existia um documento único respondendo "qual tela eu abro pra ver, de ponta a ponta, como fazer uma conversão bem feita?". Apontou `CadastroParametrosAlimentacao.tsx` (FLP/Folha) como hoje o melhor exemplo desse tipo, e observou que nem todo padrão tem um exemplar assim ainda (ex.: accordion no próprio Folha). Plano completo: `packages/oai-kit-conversao/docs/plano-telas-referencia.md`.
+
+### Adicionado
+- **`catalogo-reuso/telas-referencia.md`** (Minerva, novo): catálogo cross-módulo, ranqueado em 3 tiers (★★★/★★/★), de telas já convertidas que servem de exemplo completo de construção (padrões, uso de componentes, comportamento) — não só a estrutura do arquétipo. Seed inicial com 9 entradas (`Parâmetros Alimentação`/Folha, `CadastroDefeitos`/Manutencao e `CadastroAcidente`/Acidentes como ★★★; mais 6 entradas ★★/★ cross-módulo), mais uma seção "Lacunas de cobertura" listando padrões sem exemplar forte em nenhum módulo ainda (fluxo `N-ESPECIAL` completo, LGPD aplicado de verdade, fluxo cross-módulo Federation concluído).
+- Consulta **obrigatória** ao catálogo em `oai-kit-conversao-frontend.md` (antes de implementar) e `oai-kit-conversao-especificador.md` (ao resolver de/para de componente e padrão de frontend).
+- `oai-kit-conversao-aprendizado.md`, novo passo 3b: avalia, ao final de cada conversão, se a tela recém-convertida é candidata a entrar/promover no catálogo, e atualiza a seção de lacunas quando uma delas for preenchida.
+
+### Alterado
+- `oai-kit-conversao-triagem.md`, passo 4e: unificado com o catálogo — passa a consultar `telas-referencia.md` primeiro (cobre os 3 padrões de frontend, não só Grid+Modal), caindo para `knownRepos` só na ausência de entrada aplicável.
+- `README.md`: novo bullet na lista do que retroalimenta a base de conhecimento central.
+
 ## [0.1.15] — 2026-08-10
 
 Origem: pedido do dev para a conversão ganhar uma camada de verificação dinâmica (Cypress, headless) antes do checkpoint de teste manual, capturando e corrigindo parte dos bugs que hoje só apareceriam ali — com a exigência explícita de que os testes sejam construídos contra os **padrões/AP-CONVs já definidos**, nunca só contra o front implementado (senão um bug do front seria "aprendido" como certo pelo teste). Plano completo: `packages/oai-kit-conversao/docs/plano-cypress-e2e.md`.

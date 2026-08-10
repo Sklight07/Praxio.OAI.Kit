@@ -88,6 +88,8 @@ Siga a mesma ordem do passo 4d de `oai-kit-conversao-triagem` (é a mesma decis�
 
 Preencha o campo "Padrão de conversão de frontend" da especificação com o valor e a origem (sinalizado/inferido/perguntado) — isso permite que `oai-kit-conversao-triagem`, ao reaproveitar esta spec depois, pule esta decisão inteira (não é reavaliada de novo, a menos que a spec esteja stale).
 
+**Consulte `{knowledgeBasePath}/catalogo-reuso/telas-referencia.md`** ao resolver o de/para de componente e o padrão de frontend — se houver uma entrada com tag aplicável (mesmo padrão, mesmo tipo de campo/componente), registre na especificação uma nota "ver tela-modelo `<Tela>` para exemplo real deste padrão". Isso não é uma investigação nova, é aproveitar o catálogo já existente para enriquecer a spec para quem for implementar depois.
+
 ### 3e. Esboçar casos de teste (pular se `/oai-kit-documentar-tela` foi chamado com `--sem-cypress`)
 
 Reaproveitando o que já foi levantado nos passos 3/3a-3d (regras de negócio, de/para de componente, padrão de frontend) — **não é uma investigação nova**, é registrar como cenário de teste o que já foi documentado: golden path de cada operação CRUD, cada regra Tipo 2 (condição→efeito já especificada vira um cenário "condição X → efeito Y observável"), e validações Tipo 1 relevantes (campo obrigatório, tamanho). Preencha a seção "Casos de teste (inferidos do Delphi)" da especificação (tabela `Cenário | Passos | Resultado esperado | Origem`), marcando a `Origem` de cada linha honestamente (`confirmado no .pas` | `inferido por convenção do arquétipo` | `não coberto pelo Delphi`) — **nunca marcar como confirmado um cenário que foi só deduzido**. Se `--sem-cypress` foi passado, omita esta seção inteira da especificação (não gere a seção vazia).
