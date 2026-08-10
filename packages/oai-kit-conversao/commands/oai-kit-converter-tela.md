@@ -10,6 +10,8 @@ Converte uma tela do sistema legado Delphi (Globus) para o GlobusWeb. Checkpoint
 
 O Modo B/C aceita **quantos arquivos forem necessários** — não é limitado a um `.pas`+`.dfm`. Telas no estilo Clean Architecture moderno do legado têm View/Service/Repository/UseCase em arquivos separados; passe todos.
 
+**Flag opcional `--sem-cypress`** (combinável com qualquer modo acima, ex.: `/oai-kit-converter-tela {ID_AZURE} --sem-cypress`): pula por completo o PASSO 4 (Testes E2E) — `oai-kit-conversao-e2e` não é acionado, mesmo que a especificação reaproveitada já tenha a seção "Casos de teste". Independente da flag usada (ou não) em `/oai-kit-documentar-tela` para esta mesma tela.
+
 ## Sequência de Execução
 
 ### PASSO 1 — Triagem
@@ -44,18 +46,29 @@ Invoque `oai-kit-conversao-frontend`:
 - Implementa a feature React consumindo o contrato já validado no PASSO 2.
 - Mesmo passe do backend quando `N1`-`N5`; gate próprio entre backend e frontend quando `N-ESPECIAL` (contract-review).
 
-### PASSO 4 — Paridade
+### PASSO 4 — Testes E2E (Cypress) — pulado se `--sem-cypress`
+
+Invoque `oai-kit-conversao-e2e` (a menos que `--sem-cypress` tenha sido passado — nesse caso, siga direto para o PASSO 5):
+- Configura Cypress no repositório-alvo se ainda não tiver (uma vez por repositório, mesmo na primeira conversão).
+- Constrói os testes a partir de duas fontes: "Casos de teste" da especificação (se existir) + `cheatsheets/cypress-checks-por-padrao.md` (sempre) — nunca só a partir do front implementado.
+- Sobe a stack local (backend do módulo → backend do `GlobusWeb.Gateway` → frontend do módulo) e roda `cypress run` headless.
+- Corrige por erro individual, até 3 tentativas por erro, sempre respeitando os padrões/AP-CONVs — erro esgotado (ou que só se corrigiria contrariando um padrão) vira GAP e o passo segue normalmente.
+- Deriva a stack local ao final, sucesso ou não.
+- Não introduz checkpoint bloqueante novo — GAPs de erro esgotado seguem para o informe normal, revisados por `oai-kit-conversao-paridade` no PASSO 5.
+
+### PASSO 5 — Paridade
 
 Invoque `oai-kit-conversao-paridade`:
-- Verificação **estática** apenas (build/lint/typecheck/revisão de código vs. spec) — **nunca sobe o projeto** (AP-CONV-010).
-- Prepara o checklist de teste manual proporcional ao nível (mínimo `N1`-`N3`, intermediário `N4`-`N5`, completo — `parity-checklist.md` — `N-ESPECIAL`) para **você** rodar na aplicação.
+- Verificação **estática** apenas (build/lint/typecheck/revisão de código vs. spec) — **nunca sobe o projeto** (AP-CONV-010; a única exceção é `oai-kit-conversao-e2e` no PASSO 4, quando não pulado).
+- Confirma que o PASSO 4 rodou (ou foi pulado por `--sem-cypress`) e revisa os GAPs que ele tenha aberto, se houver.
+- Prepara o checklist de teste manual proporcional ao nível (mínimo `N1`-`N3`, intermediário `N4`-`N5`, completo — `parity-checklist.md` — `N-ESPECIAL`) para **você** rodar na aplicação — **sem redução por causa da cobertura do PASSO 4**, a redundância com o checklist manual é intencional.
 - Classifica divergências que você reportar ao testar: aceitas vs. GAP.
 
 ### ⚡ CHECKPOINT FINAL — espera você testar, nunca assume sucesso
 
 **PARADA OBRIGATÓRIA.** Apresenta a verificação estática + o checklist de teste manual, e pede que você rode o checklist na aplicação (subir o projeto é sua parte, não do agente) e confirme o resultado. Só commite (na branch já criada no PASSO 1, padrão Praxio) depois que você confirmar explicitamente que testou e passou — silêncio ou "deve estar ok" não bastam. Nunca cria branch nova aqui (já existe desde o início) e nunca faz merge dela para `develop`/`master`/`main`.
 
-### PASSO 5 — Aprendizado
+### PASSO 6 — Aprendizado
 
 Invoque `oai-kit-conversao-aprendizado`:
 - `git pull` obrigatório em `GlobusEvo.Minerva` antes de qualquer atualização.

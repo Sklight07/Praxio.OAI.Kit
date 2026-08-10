@@ -8,6 +8,8 @@ Documenta uma tela legada Delphi de forma exaustiva, **sem implementar nada** �
 - **Modo B — só fontes locais**: `/oai-kit-documentar-tela --fontes [caminho1] [caminho2] ...`
 - **Modo C — combinação**: `/oai-kit-documentar-tela {ID_AZURE} --fontes [caminho1] [caminho2] ...`
 
+**Flag opcional `--sem-cypress`** (combinável com qualquer modo acima, ex.: `/oai-kit-documentar-tela {ID_AZURE} --sem-cypress`): pula o esboço de casos de teste na especificação (seção "Casos de teste", passo 3e do especificador) — independente de `/oai-kit-converter-tela` rodar ou não o passo de Cypress depois.
+
 ## Sequência de Execução
 
 ### PASSO 1 — Especificar
@@ -20,6 +22,7 @@ Invoque `oai-kit-conversao-especificador`:
 - Classifica elemento Delphi sem equivalente visual (procedure/timer/chamada externa) e comportamento do legado conscientemente não replicado (Critério de Descarte), quando aplicável.
 - Detecta dependências cross-módulo (AP-CONV-012), campo sensível para LGPD (AP-CONV-016) e campo de referência com lupa/browser — combobox (AP-CONV-017), quando aplicável.
 - Resolve menu e índice de permissão (AP-CONV-013).
+- Esboça casos de teste inferidos do Delphi (golden path, regras Tipo 2 já especificadas, validações Tipo 1) — sinalizados como não-exaustivos; pulado se `--sem-cypress` foi passado.
 - **Resolve o padrão de conversão de frontend** (Grid+Modal | Inline+Grid | Accordion+Índice Numerado) via AP-CONV-015: convenção de texto na task do Azure primeiro, senão inferência a partir dos sinais do legado (múltiplas `TabSheet` → accordion; cadastro simples com/sem grid → default inline-grid), senão pergunta ao dev — registrado na spec com a origem, para `oai-kit-conversao-triagem` reaproveitar sem decidir de novo.
 - Calcula pontuação estrutural + verifica gatilhos de exceção → nível N1-N5 ou N-ESPECIAL (ver `.oai-kit/policies/conversion-policy.md` — arquivo local do projeto, depositado pelo kit; não fica no Minerva).
 - Registra staleness (mtime/tamanho dos fontes lidos).

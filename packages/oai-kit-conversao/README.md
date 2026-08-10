@@ -52,6 +52,8 @@ Dentro do Claude Code (ou Cursor), no repositório onde a extensão foi instalad
 /oai-kit-registrar-gap                                       # registra um GAP ou um Descarte consciente a qualquer momento
 ```
 
+Ambos `/oai-kit-documentar-tela` e `/oai-kit-converter-tela` aceitam a flag opcional `--sem-cypress`, independente entre os dois comandos: no primeiro, pula o esboço de casos de teste na especificação; no segundo, pula por completo o passo de testes E2E (PASSO 4 abaixo).
+
 `/oai-kit-converter-tela` classifica a tela numa escala graduada (`N1`-`N5`, por sinais estruturais como grid/PK composta/master-detail/referências externas, ou `N-ESPECIAL` quando há procedure/integração/gravação em tabela não-relacionada/muitas regras de negócio) antes de implementar, decidindo quanto do fonte legado precisa ser lido e quantos checkpoints a conversão tem. Se uma especificação prévia já existir (via `/oai-kit-documentar-tela`), a leitura do fonte é pulada total ou parcialmente.
 
 ### Sequência de execução
@@ -61,12 +63,13 @@ PASSO 1 — Triagem       → classifica arquétipo/nível, gera plano
 ⚡ CHECKPOINT (proporcional ao nível)
 PASSO 2 — Backend        → implementa NestJS seguindo a receita do arquétipo
 PASSO 3 — Frontend       → implementa React consumindo o contrato já validado
-PASSO 4 — Paridade       → verificação estática + checklist de teste manual
+PASSO 4 — Testes E2E     → constrói/roda/corrige Cypress headless (pulado com --sem-cypress)
+PASSO 5 — Paridade       → verificação estática + checklist de teste manual
 ⚡ CHECKPOINT FINAL — espera você testar, nunca assume sucesso
-PASSO 5 — Aprendizado    → retroalimenta a base de conhecimento central
+PASSO 6 — Aprendizado    → retroalimenta a base de conhecimento central
 ```
 
-Os agentes **nunca sobem/executam o projeto** — no máximo compilam/lint/typecheck. Testar rodando é sempre trabalho do dev, e o commit final só acontece depois que você confirma explicitamente que testou e passou.
+Os agentes **nunca sobem/executam o projeto** (exceção única e restrita: `oai-kit-conversao-e2e` no PASSO 4, só para rodar os testes automatizados — AP-CONV-018) — no máximo compilam/lint/typecheck. Testar rodando é sempre trabalho do dev, e o commit final só acontece depois que você confirma explicitamente que testou e passou.
 
 ## O que retroalimenta a base de conhecimento central
 
@@ -79,7 +82,7 @@ Toda conversão devolve o que aprendeu, para nunca ser redescoberto na próxima 
 
 ## Políticas
 
-`policies/conversion-policy.md` reúne as regras que os agentes desta extensão não podem ignorar (AP-CONV-001 a AP-CONV-017+) — cobrem desde nunca adivinhar nome de tabela/objeto por aproximação até a escolha do padrão de frontend para telas CRUD (Grid+Modal, Inline+Grid ou Accordion+Índice Numerado, conforme AP-CONV-015), a criação da branch já no início da triagem (nunca no gate final — a branch é só commitada ali, AP-CONV-008), dados sensíveis/LGPD (AP-CONV-016) e campo de referência com lupa/browser (combobox, AP-CONV-017). São bloqueadores, não sugestões.
+`policies/conversion-policy.md` reúne as regras que os agentes desta extensão não podem ignorar (AP-CONV-001 a AP-CONV-018+) — cobrem desde nunca adivinhar nome de tabela/objeto por aproximação até a escolha do padrão de frontend para telas CRUD (Grid+Modal, Inline+Grid ou Accordion+Índice Numerado, conforme AP-CONV-015), a criação da branch já no início da triagem (nunca no gate final — a branch é só commitada ali, AP-CONV-008), dados sensíveis/LGPD (AP-CONV-016), campo de referência com lupa/browser (combobox, AP-CONV-017) e a exceção pontual para subir a stack local só no passo de testes E2E (AP-CONV-018). São bloqueadores, não sugestões.
 
 ## Agentes
 
@@ -88,8 +91,9 @@ Toda conversão devolve o que aprendeu, para nunca ser redescoberto na próxima 
 | `oai-kit-conversao-triagem` | `/oai-kit-converter-tela`, `/oai-kit-documentar-tela` | Classifica arquétipo/nível, gera o plano de conversão |
 | `oai-kit-conversao-backend` | PASSO 2 | Implementa o back-end NestJS seguindo a receita do arquétipo |
 | `oai-kit-conversao-frontend` | PASSO 3 | Implementa a feature React consumindo o contrato já validado |
-| `oai-kit-conversao-paridade` | PASSO 4 | Verificação estática + checklist de teste manual proporcional ao nível |
-| `oai-kit-conversao-aprendizado` | PASSO 5 | Retroalimenta a base de conhecimento central |
+| `oai-kit-conversao-e2e` | PASSO 4 | Constrói, roda e corrige testes Cypress headless (pulado com `--sem-cypress`) |
+| `oai-kit-conversao-paridade` | PASSO 5 | Verificação estática + checklist de teste manual proporcional ao nível |
+| `oai-kit-conversao-aprendizado` | PASSO 6 | Retroalimenta a base de conhecimento central |
 
 ## Licença
 

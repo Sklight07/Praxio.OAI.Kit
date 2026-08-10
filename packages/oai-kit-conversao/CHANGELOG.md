@@ -2,6 +2,23 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em ISO-8601.
 
+## [Não lançado]
+
+Origem: pedido do dev para a conversão ganhar uma camada de verificação dinâmica (Cypress, headless) antes do checkpoint de teste manual, capturando e corrigindo parte dos bugs que hoje só apareceriam ali — com a exigência explícita de que os testes sejam construídos contra os **padrões/AP-CONVs já definidos**, nunca só contra o front implementado (senão um bug do front seria "aprendido" como certo pelo teste). Plano completo: `packages/oai-kit-conversao/docs/plano-cypress-e2e.md`.
+
+### Adicionado
+- **Novo agente `oai-kit-conversao-e2e`**, entre `oai-kit-conversao-frontend` e `oai-kit-conversao-paridade` (novo PASSO 4 de `/oai-kit-converter-tela`, que renumera Paridade→5 e Aprendizado→6): configura Cypress no repositório-alvo (uma vez por repo, mesmo na primeira conversão), constrói os testes a partir de 2 fontes (spec + catálogo de padrões — nunca só o front implementado), sobe a stack local, roda `cypress run` headless, e corrige por erro individual com limite de **3 tentativas por erro** — erro esgotado (ou que só se corrigiria contrariando um padrão/AP-CONV) vira GAP e o passo segue normalmente.
+- **AP-CONV-018** (`conversion-policy.md`): exceção pontual e restrita ao AP-CONV-010 — só `oai-kit-conversao-e2e` sobe processo local, e só para rodar Cypress. Sequência de subida resolvida com o dev: `npm run start:backend` do módulo-alvo → `npm run start:backend` de `GlobusWeb.Gateway` (repositório irmão, nunca `npm run start:gateway`) → `npm run start:frontend` do módulo-alvo — configuração de ambiente é sempre responsabilidade do dev. Convenção de dados de teste: prefixo `CYPRESS_TESTE_` em campo descritivo, além da limpeza normal (`afterEach`/`after`) — o banco de desenvolvimento é real e compartilhado.
+- `cheatsheets/cypress-checks-por-padrao.md` (Minerva, novo): catálogo central de verificações Cypress obrigatórias por padrão estrutural (sempre; Grid+Modal; Inline+Grid; Accordion+Índice; Combobox de referência AP-CONV-017; LGPD AP-CONV-016) — é a fonte que impede o teste de "aprender" um bug do front implementado. Referenciado a partir de `padrao-frontend-crud-grid-modal.md`, `padrao-frontend-crud-inline-grid.md`, `accordion-secoes-indice-numerado.md` e `lookup-readonly.md`.
+- Nova seção "Casos de teste (inferidos do Delphi)" em `_template-especificacao.md` (Minerva) e novo passo 3e em `oai-kit-conversao-especificador.md` — esboça cenários de teste reaproveitando o que já foi documentado (regras Tipo 2, golden path), sinalizados explicitamente como não-exaustivos.
+- **Flag `--sem-cypress`**, independente nos dois comandos: em `/oai-kit-documentar-tela` pula o esboço de casos de teste; em `/oai-kit-converter-tela` pula o PASSO 4 inteiro (mesmo que a spec reaproveitada já tenha casos de teste).
+- Métrica nova em `metrics/conversoes.jsonl` (Minerva): `e2eExecutado`, `e2eErrosDetectados`, `e2eErrosCorrigidos` (tentativas por erro), `e2eGapsPorEsgotamento` — para calibrar se o limite de 3 tentativas está certo.
+
+### Alterado
+- `oai-kit-conversao-paridade.md`: passa a confirmar que o PASSO 4 rodou (ou foi pulado) e a revisar os GAPs abertos pelo E2E, sem reduzir o checklist de teste manual existente (redundância intencional).
+- `oai-kit-conversao-aprendizado.md`: persiste a métrica nova e inclui GAPs de erro esgotado do E2E em `gaps-log.md`.
+- `README.md`: diagrama de sequência e tabela de agentes atualizados para os 6 passos.
+
 ## [0.1.14] — 2026-08-07
 
 Origem: análise comparativa de um pacote de documentação real gerado por outra ferramenta de conversão (`migration-control-plane`/Reversa) para uma conversão já concluída (`GlobusWeb.Folha`, tela Cadastro de Horários) — usado para extrair formatos e capturas que o método markdown-based ainda não tinha. Achado relevante: `GlobusWeb.Folha/.oai-kit/` já é uma cópia real do kit (pós-AP-CONV-015) em uso de produção, confirmado pelo dev.

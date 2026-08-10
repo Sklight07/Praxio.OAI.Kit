@@ -279,6 +279,22 @@ O legado tem um padrão VCL recorrente — `TEdit` (código) + lupa/`JvSpeedButt
 
 Se a tabela referenciada pertence a outro módulo, o combobox de referência é só a camada de apresentação sobre o mecanismo já existente do **AP-CONV-012** (dependência já implementada → Federation; não implementada → GAP cross-módulo, `N-ESPECIAL`) — não é um caminho novo e paralelo.
 
+### AP-CONV-018 — Testes E2E automatizados (Cypress): exceção pontual ao AP-CONV-010, escopo e limites
+
+`oai-kit-conversao-e2e`, posicionado entre `oai-kit-conversao-frontend` e `oai-kit-conversao-paridade`, constrói e roda testes Cypress **headless** (`cypress run`, nunca a interface interativa) contra a tela recém-implementada — camada adicional **antes** do checkpoint de teste manual do dev, nunca um substituto dele. Pulado por completo quando `/oai-kit-converter-tela` é chamado com `--sem-cypress`.
+
+**Exceção nomeada e restrita ao AP-CONV-010**: `oai-kit-conversao-e2e` é o **único** agente de toda a extensão autorizado a subir processos localmente, e só para este fim (rodar `cypress run`) — nunca para smoke test manual do próprio agente, nunca por nenhum outro agente. Sobe sempre, nesta ordem: (1) `npm run start:backend` no root do módulo-alvo; (2) `npm run start:backend` no root de `GlobusWeb.Gateway` (repositório irmão — **nunca `npm run start:gateway`**, que sobe também o front do Gateway, desnecessário aqui); (3) `npm run start:frontend` no root do módulo-alvo. Configuração de ambiente (env, conexão Oracle) é sempre responsabilidade do dev, nunca do agente. Ao final (sucesso ou não), os 3 processos são sempre encerrados.
+
+**Duas fontes obrigatórias e complementares para construir os testes, nunca uma só** — isso existe porque um teste construído só observando o front implementado "aprende" qualquer bug que o front tenha (ex.: validaria como certa uma lupa que deveria ter virado `Combobox`, AP-CONV-017):
+1. Seção "Casos de teste (inferidos do Delphi)" da especificação, quando existir (`oai-kit-conversao-especificador`, passo 3e) — ausência não é bloqueante, só reduz a cobertura à fonte 2.
+2. `{knowledgeBasePath}/cheatsheets/cypress-checks-por-padrao.md` — verificações obrigatórias por padrão estrutural (Grid+Modal, Inline+Grid, Accordion+Índice, combobox de referência AP-CONV-017, LGPD AP-CONV-016), sempre aplicadas, lidas a partir da receita do arquétipo — nunca do código já implementado.
+
+**Loop de correção — limite de 3 tentativas por erro individual, nunca por lote**: cada erro tem seu próprio contador, nunca resetado nem compartilhado com outro erro. Toda correção segue os mesmos padrões/policies/arquétipo que `oai-kit-conversao-backend`/`-frontend` seguiriam — uma correção que só funcionaria contrariando um padrão/AP-CONV não é válida, mesmo dentro do limite de tentativas. Erro que esgota as 3 tentativas (ou cuja única correção contrariaria um padrão) vira `GAP` (descrição, evidência, tentativas feitas) e o passo **segue normalmente** — nunca trava à espera de decisão; o dev decide no checkpoint de teste manual, com o GAP já documentado.
+
+**Convenção de dados de teste**: todo registro criado por um teste usa o prefixo `CYPRESS_TESTE_` em qualquer campo de texto livre/descritivo (nome, descrição, observação) — o banco de desenvolvimento é real e compartilhado com outros devs, nunca um banco efêmero. Além do prefixo, todo teste que cria dado tenta desfazer no `afterEach`/`after` — o prefixo é rede de segurança adicional, nunca substitui a limpeza automática.
+
+Bootstrap do Cypress (dependência, `cypress.config.ts`, estrutura de pastas) acontece **dentro do próprio fluxo de conversão**, inclusive na primeira vez em cada repositório — não é um passo de setup separado antes da primeira conversão.
+
 ## Ordem de referência para padrões (economia de tempo)
 
 `{knowledgeBasePath}/padroes-globusweb/patterns/*.md` são documentos de governança, escritos para arquitetos — completos, mas caros de ler por inteiro a cada tela. O arquétipo (`archetypes/<x>.md`), os cheatsheets e o catálogo de componentes (`catalogo-reuso/componentes/`) já resumem o que é necessário para os casos comuns (`N1`-`N5`).
@@ -309,5 +325,6 @@ Antes de aprovar qualquer conversão, verifique:
 - **Critério de "pronto" do checklist manual** (2026-08-07): só conta como concluído um item testado navegando pelo menu real do GlobusWeb (nunca por URL digitada direto), completando o ciclo funcional até persistir no backend — a tela abrir/compilar sem erro não conta como pronto.
 - **Testes unitários do backend** (2026-08-07): `CreateInput`/`UpdateInput` sempre têm spec de validação (`class-validator`, `validate()`); `QueryService` também, se houve override. Ausência é bloqueante, independente do nível ser `N1` (ver `oai-kit-conversao-backend.md`, passo 3b, e `cheatsheets/convencoes-implementacao.md`).
 - Se a tela manipula campo sensível (LGPD), o checklist AP-CONV-016 foi aplicado (autorização, minimização de payload, mascaramento, auditoria quando já existir, bloqueio de exportação).
+- Se `--sem-cypress` não foi usado (AP-CONV-018): `oai-kit-conversao-e2e` rodou; todo GAP que ele tenha aberto por erro esgotado está mencionado no output — nenhum fica silenciosamente esquecido antes do checklist de teste manual.
 
 Qualquer hit de violação = veredicto BLOQUEADO até resolução.

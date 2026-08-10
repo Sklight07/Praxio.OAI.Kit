@@ -88,6 +88,10 @@ Siga a mesma ordem do passo 4d de `oai-kit-conversao-triagem` (é a mesma decis�
 
 Preencha o campo "Padrão de conversão de frontend" da especificação com o valor e a origem (sinalizado/inferido/perguntado) — isso permite que `oai-kit-conversao-triagem`, ao reaproveitar esta spec depois, pule esta decisão inteira (não é reavaliada de novo, a menos que a spec esteja stale).
 
+### 3e. Esboçar casos de teste (pular se `/oai-kit-documentar-tela` foi chamado com `--sem-cypress`)
+
+Reaproveitando o que já foi levantado nos passos 3/3a-3d (regras de negócio, de/para de componente, padrão de frontend) — **não é uma investigação nova**, é registrar como cenário de teste o que já foi documentado: golden path de cada operação CRUD, cada regra Tipo 2 (condição→efeito já especificada vira um cenário "condição X → efeito Y observável"), e validações Tipo 1 relevantes (campo obrigatório, tamanho). Preencha a seção "Casos de teste (inferidos do Delphi)" da especificação (tabela `Cenário | Passos | Resultado esperado | Origem`), marcando a `Origem` de cada linha honestamente (`confirmado no .pas` | `inferido por convenção do arquétipo` | `não coberto pelo Delphi`) — **nunca marcar como confirmado um cenário que foi só deduzido**. Se `--sem-cypress` foi passado, omita esta seção inteira da especificação (não gere a seção vazia).
+
 ### 4. Confirmar schema Oracle (obrigatório, não é opcional)
 
 Para a tabela principal e qualquer tabela relacionada por FK identificada no passo 3, confirme o schema real — **não é gateado por nível**, mas é **sempre condicionado ao cache, tabela por tabela** (não é obrigatório chamar o MCP em toda conversão). O código Delphi sozinho não é evidência confiável do tipo real da coluna (ex: campo lido como `AsString` no Delphi pode ser `NUMBER` no Oracle — o driver tolera a conversão implícita), mas isso só importa pra tabela ainda não confirmada. Siga a sequência de `.oai-kit/policies/conversion-policy.md` (AP-CONV-006), **por tabela**:
@@ -147,3 +151,5 @@ Mesmo padrão de `oai-kit-conversao-aprendizado`: exiba o que será criado/atual
 - Nunca force um elemento Delphi sem equivalente visual (procedure, timer, chamada externa) dentro da taxonomia de regras de negócio (Tipo 2/3) ou o descarte sem registrar — classifique explicitamente (Descartar/Migrar para backend/Migrar como comportamento/Decisão humana).
 - Nunca conte lupa/browser de pesquisa referenciando a própria entidade desta tela como referência externa na pontuação — só tabela diferente conta (AP-CONV-017).
 - Nunca registre o campo exibido de um combobox de referência como se fosse o persistido sem a confirmação explícita do procedimento em AP-CONV-017 (comportamento do legado + schema de ambas as tabelas, ou pergunta ao dev).
+- Nunca marque um caso de teste como "confirmado no `.pas`" quando na verdade foi inferido por convenção do arquétipo — a distinção de origem existe para o `oai-kit-conversao-e2e` calibrar confiança, não é só formalidade.
+- Nunca gere a seção "Casos de teste" quando `/oai-kit-documentar-tela` foi chamado com `--sem-cypress` — omita a seção, não a deixe vazia.

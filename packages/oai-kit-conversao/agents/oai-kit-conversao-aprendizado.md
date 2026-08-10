@@ -57,7 +57,7 @@ Para cada tabela/procedure/view Oracle confirmada nesta conversão, crie ou atua
 
 **Nunca registre** (exemplos reais já removidos de `gaps-log.md` por não passarem o teste, 2026-08-05): inconsistência de dado no card do Azure (índice de menu, SIM/PSE ausente) que a própria conversão já resolveu usando o valor correto; convenção de processo já estabelecida sendo aplicada normalmente (ex.: ID da Task no lugar de SIM/PSE ausente); nome de branch/pasta/commit que já segue regra definida e foi seguida certo. Essas coisas, se valem menção, vão só no output da conversão (`.oai-flow/delivery/{ID}-conversao-patch.md`) — nunca em `gaps-log.md`.
 
-**Registre só** GAP/HUMAN DECISION genuíno que não pôde ser resolvido nesta conversão pontual sem risco a outros módulos ou à arquitetura (decisão de negócio pendente, dependência cross-módulo sem implementação — AP-CONV-012, ambiguidade real não resolvida nem pela base central nem pelo dev) → append em `{knowledgeBasePath}/gaps/gaps-log.md` (nunca sobrescreva entradas anteriores).
+**Registre só** GAP/HUMAN DECISION genuíno que não pôde ser resolvido nesta conversão pontual sem risco a outros módulos ou à arquitetura (decisão de negócio pendente, dependência cross-módulo sem implementação — AP-CONV-012, ambiguidade real não resolvida nem pela base central nem pelo dev) → append em `{knowledgeBasePath}/gaps/gaps-log.md` (nunca sobrescreva entradas anteriores). Inclua também qualquer GAP aberto por `oai-kit-conversao-e2e` (erro que esgotou as 3 tentativas de correção — AP-CONV-018): esse tipo sempre passa o Critério de GAP (é, por definição, algo que não foi resolvido e o dev ainda vai decidir no teste manual).
 
 ### 4b. Decisão revertida por fato novo — nunca reescrever, sempre anexar nota de revisão datada
 
@@ -79,12 +79,14 @@ Pergunte ao dev: *"Quanto tempo levou essa conversão, aproximadamente? (opciona
 
 Append (nunca sobrescreva) uma linha em `{knowledgeBasePath}/metrics/conversoes.jsonl` (schema completo em `metrics/README.md`):
 ```json
-{"ts": "ISO-8601", "tela": "NomeTela", "modulo": "SIGLA", "arquetipo": "crud-simples-pk-usuario", "nivel": "N1", "checkpoints": 1, "resultado": "convertido", "gapsAbertos": 0, "usouEspecificacaoPrevia": true, "duracaoMinutosAprox": 42, "padroesGlobusWebAbertos": [], "bugsConversaoCorrigidos": 0}
+{"ts": "ISO-8601", "tela": "NomeTela", "modulo": "SIGLA", "arquetipo": "crud-simples-pk-usuario", "nivel": "N1", "checkpoints": 1, "resultado": "convertido", "gapsAbertos": 0, "usouEspecificacaoPrevia": true, "duracaoMinutosAprox": 42, "padroesGlobusWebAbertos": [], "bugsConversaoCorrigidos": 0, "e2eExecutado": true, "e2eErrosDetectados": 0, "e2eErrosCorrigidos": [], "e2eGapsPorEsgotamento": 0}
 ```
 
 `bugsConversaoCorrigidos`: conte quantas divergências foram classificadas como "Bug de conversão" (ver `oai-kit-conversao-paridade`, passo 3 — erro introduzido pela própria implementação, corrigido antes de commitar, distinto de GAP vs. Delphi). `0` é o esperado na maioria das conversões — um número recorrente >0 num mesmo tipo de erro entre conversões (ex.: `compliance` do `DataGridSearchServer`) é sinal de que falta reforçar a documentação/receita correspondente.
 
 `padroesGlobusWebAbertos`: liste aqui qualquer arquivo de `padroes-globusweb/patterns/*.md` que o backend/frontend precisou abrir por completo (fallback fora do cheatsheet/arquétipo, ver "Ordem de referência" em `.oai-kit/policies/conversion-policy.md`). Puxe essa informação do output de `oai-kit-conversao-backend`/`-frontend` — se um arquivo se repetir entre conversões, é sinal para enriquecer o cheatsheet correspondente.
+
+`e2eExecutado`/`e2eErrosDetectados`/`e2eErrosCorrigidos`/`e2eGapsPorEsgotamento`: puxe do output de `oai-kit-conversao-e2e` (`.oai-flow/delivery/{ID}-conversao-patch.md`, seção própria). Se `--sem-cypress` foi usado, `e2eExecutado: false` e omita os outros 3 campos (nunca zerar — ver `metrics/README.md`, a diferença entre "não rodou" e "rodou e não achou nada" importa para calibrar o passo).
 
 ### 6. Gate Pré-Commit no Minerva — PARADA OBRIGATÓRIA
 
