@@ -281,7 +281,7 @@ Se a tabela referenciada pertence a outro módulo, o combobox de referência é 
 
 ### AP-CONV-018 — Testes E2E automatizados (Cypress): exceção pontual ao AP-CONV-010, escopo e limites
 
-`oai-kit-conversao-e2e`, posicionado entre `oai-kit-conversao-frontend` e `oai-kit-conversao-paridade`, constrói e roda testes Cypress **headless** (`cypress run`, nunca a interface interativa) contra a tela recém-implementada — camada adicional **antes** do checkpoint de teste manual do dev, nunca um substituto dele. Pulado por completo quando `/oai-kit-converter-tela` é chamado com `--sem-cypress`.
+`oai-kit-conversao-e2e`, posicionado entre `oai-kit-conversao-frontend` e `oai-kit-conversao-paridade`, constrói e roda testes Cypress **headless** (`cypress run`, nunca a interface interativa) contra a tela recém-implementada — camada adicional **antes** do checkpoint de teste manual do dev, nunca um substituto dele. **Por padrão, este passo não é executado** — só roda quando `/oai-kit-converter-tela` é chamado explicitamente com `--com-cypress` (opt-in, não opt-out).
 
 **Exceção nomeada e restrita ao AP-CONV-010**: `oai-kit-conversao-e2e` é o **único** agente de toda a extensão autorizado a subir processos localmente, e só para este fim (rodar `cypress run`) — nunca para smoke test manual do próprio agente, nunca por nenhum outro agente. Sobe sempre, nesta ordem: (1) `npm run start:backend` no root do módulo-alvo; (2) `npm run start:backend` no root de `GlobusWeb.Gateway` (repositório irmão — **nunca `npm run start:gateway`**, que sobe também o front do Gateway, desnecessário aqui); (3) `npm run start:frontend` no root do módulo-alvo. Configuração de ambiente (env, conexão Oracle) é sempre responsabilidade do dev, nunca do agente. Ao final (sucesso ou não), os 3 processos são sempre encerrados.
 
@@ -325,6 +325,6 @@ Antes de aprovar qualquer conversão, verifique:
 - **Critério de "pronto" do checklist manual** (2026-08-07): só conta como concluído um item testado navegando pelo menu real do GlobusWeb (nunca por URL digitada direto), completando o ciclo funcional até persistir no backend — a tela abrir/compilar sem erro não conta como pronto.
 - **Testes unitários do backend** (2026-08-07): `CreateInput`/`UpdateInput` sempre têm spec de validação (`class-validator`, `validate()`); `QueryService` também, se houve override. Ausência é bloqueante, independente do nível ser `N1` (ver `oai-kit-conversao-backend.md`, passo 3b, e `cheatsheets/convencoes-implementacao.md`).
 - Se a tela manipula campo sensível (LGPD), o checklist AP-CONV-016 foi aplicado (autorização, minimização de payload, mascaramento, auditoria quando já existir, bloqueio de exportação).
-- Se `--sem-cypress` não foi usado (AP-CONV-018): `oai-kit-conversao-e2e` rodou; todo GAP que ele tenha aberto por erro esgotado está mencionado no output — nenhum fica silenciosamente esquecido antes do checklist de teste manual.
+- Se `--com-cypress` foi usado (AP-CONV-018): `oai-kit-conversao-e2e` rodou; todo GAP que ele tenha aberto por erro esgotado está mencionado no output — nenhum fica silenciosamente esquecido antes do checklist de teste manual.
 
 Qualquer hit de violação = veredicto BLOQUEADO até resolução.

@@ -92,7 +92,7 @@ Append (nunca sobrescreva) uma linha em `{knowledgeBasePath}/metrics/conversoes.
 
 `padroesGlobusWebAbertos`: liste aqui qualquer arquivo de `padroes-globusweb/patterns/*.md` que o backend/frontend precisou abrir por completo (fallback fora do cheatsheet/arquétipo, ver "Ordem de referência" em `.oai-kit/policies/conversion-policy.md`). Puxe essa informação do output de `oai-kit-conversao-backend`/`-frontend` — se um arquivo se repetir entre conversões, é sinal para enriquecer o cheatsheet correspondente.
 
-`e2eExecutado`/`e2eErrosDetectados`/`e2eErrosCorrigidos`/`e2eGapsPorEsgotamento`: puxe do output de `oai-kit-conversao-e2e` (`.oai-flow/delivery/{ID}-conversao-patch.md`, seção própria). Se `--sem-cypress` foi usado, `e2eExecutado: false` e omita os outros 3 campos (nunca zerar — ver `metrics/README.md`, a diferença entre "não rodou" e "rodou e não achou nada" importa para calibrar o passo).
+`e2eExecutado`/`e2eErrosDetectados`/`e2eErrosCorrigidos`/`e2eGapsPorEsgotamento`: puxe do output de `oai-kit-conversao-e2e` (`.oai-flow/delivery/{ID}-conversao-patch.md`, seção própria). Se `--com-cypress` **não** foi usado (comportamento padrão), `e2eExecutado: false` e omita os outros 3 campos (nunca zerar — ver `metrics/README.md`, a diferença entre "não rodou" e "rodou e não achou nada" importa para calibrar o passo).
 
 ### 6. Gate Pré-Commit no Minerva — PARADA OBRIGATÓRIA
 

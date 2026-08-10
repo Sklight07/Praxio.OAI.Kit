@@ -90,9 +90,9 @@ Preencha o campo "Padrão de conversão de frontend" da especificação com o va
 
 **Consulte `{knowledgeBasePath}/catalogo-reuso/telas-referencia.md`** ao resolver o de/para de componente e o padrão de frontend — se houver uma entrada com tag aplicável (mesmo padrão, mesmo tipo de campo/componente), registre na especificação uma nota "ver tela-modelo `<Tela>` para exemplo real deste padrão". Isso não é uma investigação nova, é aproveitar o catálogo já existente para enriquecer a spec para quem for implementar depois.
 
-### 3e. Esboçar casos de teste (pular se `/oai-kit-documentar-tela` foi chamado com `--sem-cypress`)
+### 3e. Esboçar casos de teste (só se `/oai-kit-documentar-tela` foi chamado com `--com-cypress` — por padrão, pular)
 
-Reaproveitando o que já foi levantado nos passos 3/3a-3d (regras de negócio, de/para de componente, padrão de frontend) — **não é uma investigação nova**, é registrar como cenário de teste o que já foi documentado: golden path de cada operação CRUD, cada regra Tipo 2 (condição→efeito já especificada vira um cenário "condição X → efeito Y observável"), e validações Tipo 1 relevantes (campo obrigatório, tamanho). Preencha a seção "Casos de teste (inferidos do Delphi)" da especificação (tabela `Cenário | Passos | Resultado esperado | Origem`), marcando a `Origem` de cada linha honestamente (`confirmado no .pas` | `inferido por convenção do arquétipo` | `não coberto pelo Delphi`) — **nunca marcar como confirmado um cenário que foi só deduzido**. Se `--sem-cypress` foi passado, omita esta seção inteira da especificação (não gere a seção vazia).
+**Por padrão, este passo é pulado e a seção "Casos de teste" não é gerada.** Só execute se `--com-cypress` foi passado. Nesse caso, reaproveitando o que já foi levantado nos passos 3/3a-3d (regras de negócio, de/para de componente, padrão de frontend) — **não é uma investigação nova**, é registrar como cenário de teste o que já foi documentado: golden path de cada operação CRUD, cada regra Tipo 2 (condição→efeito já especificada vira um cenário "condição X → efeito Y observável"), e validações Tipo 1 relevantes (campo obrigatório, tamanho). Preencha a seção "Casos de teste (inferidos do Delphi)" da especificação (tabela `Cenário | Passos | Resultado esperado | Origem`), marcando a `Origem` de cada linha honestamente (`confirmado no .pas` | `inferido por convenção do arquétipo` | `não coberto pelo Delphi`) — **nunca marcar como confirmado um cenário que foi só deduzido**.
 
 ### 4. Confirmar schema Oracle (obrigatório, não é opcional)
 
@@ -154,4 +154,4 @@ Mesmo padrão de `oai-kit-conversao-aprendizado`: exiba o que será criado/atual
 - Nunca conte lupa/browser de pesquisa referenciando a própria entidade desta tela como referência externa na pontuação — só tabela diferente conta (AP-CONV-017).
 - Nunca registre o campo exibido de um combobox de referência como se fosse o persistido sem a confirmação explícita do procedimento em AP-CONV-017 (comportamento do legado + schema de ambas as tabelas, ou pergunta ao dev).
 - Nunca marque um caso de teste como "confirmado no `.pas`" quando na verdade foi inferido por convenção do arquétipo — a distinção de origem existe para o `oai-kit-conversao-e2e` calibrar confiança, não é só formalidade.
-- Nunca gere a seção "Casos de teste" quando `/oai-kit-documentar-tela` foi chamado com `--sem-cypress` — omita a seção, não a deixe vazia.
+- Nunca gere a seção "Casos de teste" a menos que `/oai-kit-documentar-tela` tenha sido chamado com `--com-cypress` — por padrão, omita a seção inteira, não a deixe vazia.

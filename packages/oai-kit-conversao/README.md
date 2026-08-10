@@ -52,7 +52,7 @@ Dentro do Claude Code (ou Cursor), no repositório onde a extensão foi instalad
 /oai-kit-registrar-gap                                       # registra um GAP ou um Descarte consciente a qualquer momento
 ```
 
-Ambos `/oai-kit-documentar-tela` e `/oai-kit-converter-tela` aceitam a flag opcional `--sem-cypress`, independente entre os dois comandos: no primeiro, pula o esboço de casos de teste na especificação; no segundo, pula por completo o passo de testes E2E (PASSO 4 abaixo).
+Ambos `/oai-kit-documentar-tela` e `/oai-kit-converter-tela` aceitam a flag opcional `--com-cypress`, independente entre os dois comandos — **por padrão, nenhuma parte do Cypress roda**: no primeiro, só com a flag o esboço de casos de teste é gerado na especificação; no segundo, só com a flag o passo de testes E2E (PASSO 4 abaixo) é executado.
 
 `/oai-kit-converter-tela` classifica a tela numa escala graduada (`N1`-`N5`, por sinais estruturais como grid/PK composta/master-detail/referências externas, ou `N-ESPECIAL` quando há procedure/integração/gravação em tabela não-relacionada/muitas regras de negócio) antes de implementar, decidindo quanto do fonte legado precisa ser lido e quantos checkpoints a conversão tem. Se uma especificação prévia já existir (via `/oai-kit-documentar-tela`), a leitura do fonte é pulada total ou parcialmente.
 
@@ -63,7 +63,7 @@ PASSO 1 — Triagem       → classifica arquétipo/nível, gera plano
 ⚡ CHECKPOINT (proporcional ao nível)
 PASSO 2 — Backend        → implementa NestJS seguindo a receita do arquétipo
 PASSO 3 — Frontend       → implementa React consumindo o contrato já validado
-PASSO 4 — Testes E2E     → constrói/roda/corrige Cypress headless (pulado com --sem-cypress)
+PASSO 4 — Testes E2E     → constrói/roda/corrige Cypress headless (só com --com-cypress; pulado por padrão)
 PASSO 5 — Paridade       → verificação estática + checklist de teste manual
 ⚡ CHECKPOINT FINAL — espera você testar, nunca assume sucesso
 PASSO 6 — Aprendizado    → retroalimenta a base de conhecimento central
@@ -92,7 +92,7 @@ Toda conversão devolve o que aprendeu, para nunca ser redescoberto na próxima 
 | `oai-kit-conversao-triagem` | `/oai-kit-converter-tela`, `/oai-kit-documentar-tela` | Classifica arquétipo/nível, gera o plano de conversão |
 | `oai-kit-conversao-backend` | PASSO 2 | Implementa o back-end NestJS seguindo a receita do arquétipo |
 | `oai-kit-conversao-frontend` | PASSO 3 | Implementa a feature React consumindo o contrato já validado |
-| `oai-kit-conversao-e2e` | PASSO 4 | Constrói, roda e corrige testes Cypress headless (pulado com `--sem-cypress`) |
+| `oai-kit-conversao-e2e` | PASSO 4 | Constrói, roda e corrige testes Cypress headless (só com `--com-cypress`; pulado por padrão) |
 | `oai-kit-conversao-paridade` | PASSO 5 | Verificação estática + checklist de teste manual proporcional ao nível |
 | `oai-kit-conversao-aprendizado` | PASSO 6 | Retroalimenta a base de conhecimento central |
 

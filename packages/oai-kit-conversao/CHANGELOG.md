@@ -15,6 +15,11 @@ Origem: o dev observou que os arquétipos só citam telas como evidência pontua
 - `oai-kit-conversao-triagem.md`, passo 4e: unificado com o catálogo — passa a consultar `telas-referencia.md` primeiro (cobre os 3 padrões de frontend, não só Grid+Modal), caindo para `knownRepos` só na ausência de entrada aplicável.
 - `README.md`: novo bullet na lista do que retroalimenta a base de conhecimento central.
 
+**Origem (2026-08-10, segunda rodada)**: pedido do dev para inverter a semântica da flag de Cypress da versão 0.1.15 — o padrão deve ser **não** rodar nenhuma parte do Cypress, só rodando quando explicitamente pedido.
+
+### Alterado (continuação)
+- **Flag `--sem-cypress` (opt-out) substituída por `--com-cypress` (opt-in)**, nos dois comandos: por padrão, `/oai-kit-documentar-tela` não gera mais a seção "Casos de teste" e `/oai-kit-converter-tela` não executa mais o PASSO 4 (Testes E2E) — só passando `--com-cypress` explicitamente cada uma dessas partes é ativada. Atualizado em `commands/oai-kit-documentar-tela.md`, `commands/oai-kit-converter-tela.md`, `oai-kit-conversao-especificador.md`, `oai-kit-conversao-e2e.md`, `oai-kit-conversao-paridade.md`, `oai-kit-conversao-aprendizado.md`, `conversion-policy.md` (AP-CONV-018), `README.md`, e `_template-especificacao.md`/`metrics/README.md` (Minerva).
+
 ## [0.1.15] — 2026-08-10
 
 Origem: pedido do dev para a conversão ganhar uma camada de verificação dinâmica (Cypress, headless) antes do checkpoint de teste manual, capturando e corrigindo parte dos bugs que hoje só apareceriam ali — com a exigência explícita de que os testes sejam construídos contra os **padrões/AP-CONVs já definidos**, nunca só contra o front implementado (senão um bug do front seria "aprendido" como certo pelo teste). Plano completo: `packages/oai-kit-conversao/docs/plano-cypress-e2e.md`.

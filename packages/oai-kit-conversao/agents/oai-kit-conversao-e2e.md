@@ -17,7 +17,7 @@ Você constrói, roda e corrige testes Cypress **headless** (`cypress run` — n
 - Backend e frontend já implementados.
 - Branch já existe e está com checkout feito (`oai-kit-conversao-triagem`, etapa 1b).
 - `.oai-flow/analysis/{ID}-conversao-plano.md` com o padrão de frontend decidido (Grid+Modal | Inline+Grid | Accordion+Índice Numerado — AP-CONV-015).
-- Se `/oai-kit-converter-tela` foi chamado com `--sem-cypress`: **este agente não é acionado** — pule direto para `oai-kit-conversao-paridade` (ver `commands/oai-kit-converter-tela.md`).
+- **Por padrão, este agente não é acionado.** Só é invocado se `/oai-kit-converter-tela` foi chamado com `--com-cypress` — caso contrário, o fluxo segue direto de `oai-kit-conversao-frontend` para `oai-kit-conversao-paridade` (ver `commands/oai-kit-converter-tela.md`).
 
 ## Processo
 
@@ -32,7 +32,7 @@ Se já existir configuração (conversões seguintes no mesmo módulo), reaprove
 
 ### 2. Construir os casos de teste — duas fontes obrigatórias e complementares, nunca uma só
 
-1. **Casos de teste da especificação**, se existir (`especificacoes/<modulo>/<tela>.md` → seção "Casos de teste (inferidos do Delphi)", gerada por `oai-kit-conversao-especificador`, passo 3e) — cobre o golden path e as regras Tipo 2 específicas desta tela. **Ausência desta seção não é bloqueante** (spec documentada com `--sem-cypress`, ou spec anterior a esta iniciativa, ou conversão sem especificação prévia) — reduz a cobertura ao que a fonte 2 já garante, nunca impede o passo de rodar.
+1. **Casos de teste da especificação**, se existir (`especificacoes/<modulo>/<tela>.md` → seção "Casos de teste (inferidos do Delphi)", gerada por `oai-kit-conversao-especificador`, passo 3e) — cobre o golden path e as regras Tipo 2 específicas desta tela. **Ausência desta seção não é bloqueante** (spec documentada sem `--com-cypress`, ou spec anterior a esta iniciativa, ou conversão sem especificação prévia) — reduz a cobertura ao que a fonte 2 já garante, nunca impede o passo de rodar.
 2. **Checklist de verificações obrigatórias por padrão estrutural** (`{knowledgeBasePath}/cheatsheets/cypress-checks-por-padrao.md`) — aplicado **sempre**, lido a partir da receita do arquétipo/AP-CONV, nunca do código já escrito. Consulte a seção "Sempre, independente do padrão" e a seção específica do padrão decidido no plano (Grid+Modal | Inline+Grid | Accordion+Índice Numerado), mais "Combobox de referência (AP-CONV-017)" e "LGPD (AP-CONV-016)" quando a spec/plano sinalizar esses campos.
 
 Escreva as specs em `cypress/e2e/<tela-slug>.cy.ts`.
@@ -85,4 +85,4 @@ Registre em `.oai-flow/delivery/{ID}-conversao-patch.md` (seção própria): spe
 - Nunca crie dado de teste sem o prefixo `CYPRESS_TESTE_` em algum campo descritivo, quando o registro tiver um.
 - Nunca deixe processo/servidor pendurado ao final do passo, mesmo em caso de falha/interrupção no meio.
 - Nunca commite — a branch já existe (criada por `oai-kit-conversao-triagem`, etapa 1b); commit só acontece no gate final de `oai-kit-conversao-paridade`.
-- Nunca rode se `/oai-kit-converter-tela` foi chamado com `--sem-cypress` — o passo inteiro é pulado, não executado "mesmo assim por garantia".
+- Nunca rode a menos que `/oai-kit-converter-tela` tenha sido chamado com `--com-cypress` — por padrão, o passo inteiro é pulado, nunca executado "mesmo assim por garantia".

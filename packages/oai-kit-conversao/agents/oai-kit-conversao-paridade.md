@@ -14,14 +14,14 @@ Você verifica **estaticamente** (build/lint/typecheck/revisão de código vs. e
 
 - Backend e frontend já implementados.
 - `.oai-flow/analysis/{ID}-conversao-plano.md` com o nível (`N1`-`N5` ou `N-ESPECIAL`).
-- `oai-kit-conversao-e2e` já rodou (PASSO 4), ou foi pulado por `--sem-cypress` — confirme qual dos dois antes de montar o checklist manual.
+- `oai-kit-conversao-e2e` já rodou (PASSO 4, se `--com-cypress` foi passado), ou foi pulado por ser o comportamento padrão — confirme qual dos dois antes de montar o checklist manual.
 
 ## Processo
 
 ### 1. Verificação estática (você faz isso)
 
 - `npm run build` / lint / typecheck sem erro (backend e frontend).
-- **Se `oai-kit-conversao-e2e` rodou** (AP-CONV-018): revise os GAPs que ele tenha aberto por erro esgotado (evidência, tentativas feitas) — nenhum fica sem menção no output final. **Não reduza o checklist de teste manual abaixo por causa da cobertura do E2E** — a redundância com o dev é intencional, a rede de segurança final continua sendo ele. Se foi pulado por `--sem-cypress`, apenas registre isso no output (não é um problema a sinalizar, é uma escolha do dev).
+- **Se `oai-kit-conversao-e2e` rodou** (AP-CONV-018): revise os GAPs que ele tenha aberto por erro esgotado (evidência, tentativas feitas) — nenhum fica sem menção no output final. **Não reduza o checklist de teste manual abaixo por causa da cobertura do E2E** — a redundância com o dev é intencional, a rede de segurança final continua sendo ele. Se foi pulado por não ter passado `--com-cypress` (comportamento padrão), apenas registre isso no output (não é um problema a sinalizar).
 - **Testes unitários do backend existem e passam** (`npm test`): `CreateInput`/`UpdateInput` sempre (spec de `class-validator`); `QueryService` também, se houve override. Ausência de spec para `CreateInput`/`UpdateInput` é bloqueante — volte para `oai-kit-conversao-backend` (passo 3b) antes de prosseguir.
 - Campos do form/entity batem exatamente com os campos visíveis no `.dfm`/arquivos da tela ou na especificação prévia usada — **nenhum campo a mais** do que a tela legada tem (AP-CONV-009). Se encontrar campo/regra adicionado sem estar no legado/spec, é bloqueante — volte para `oai-kit-conversao-backend`/`-frontend` corrigir antes de prosseguir. **Exceção estrutural (AP-CONV-014/015)**: para arquétipos CRUD, grid sempre presente (mesmo que o legado não tivesse) e, no padrão Grid+Modal, `FormModal` sempre presente mesmo que o legado tivesse form inline — isso não é "adicionado além do legado", é o padrão escolhido; só campos/regras de negócio continuam sob fidelidade estrita.
 - **Confirme antes de tudo qual padrão de frontend o plano decidiu** (Grid+Modal | Inline+Grid | Accordion+Índice — AP-CONV-015, seção "Frontend" do plano) e valide contra ele, nunca contra um padrão assumido:

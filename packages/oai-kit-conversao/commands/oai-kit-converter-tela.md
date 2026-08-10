@@ -10,7 +10,7 @@ Converte uma tela do sistema legado Delphi (Globus) para o GlobusWeb. Checkpoint
 
 O Modo B/C aceita **quantos arquivos forem necessários** — não é limitado a um `.pas`+`.dfm`. Telas no estilo Clean Architecture moderno do legado têm View/Service/Repository/UseCase em arquivos separados; passe todos.
 
-**Flag opcional `--sem-cypress`** (combinável com qualquer modo acima, ex.: `/oai-kit-converter-tela {ID_AZURE} --sem-cypress`): pula por completo o PASSO 4 (Testes E2E) — `oai-kit-conversao-e2e` não é acionado, mesmo que a especificação reaproveitada já tenha a seção "Casos de teste". Independente da flag usada (ou não) em `/oai-kit-documentar-tela` para esta mesma tela.
+**Flag opcional `--com-cypress`** (combinável com qualquer modo acima, ex.: `/oai-kit-converter-tela {ID_AZURE} --com-cypress`): **por padrão, o PASSO 4 (Testes E2E) não é executado** — só passando esta flag `oai-kit-conversao-e2e` é acionado, mesmo que a especificação reaproveitada já tenha a seção "Casos de teste". Independente da flag usada (ou não) em `/oai-kit-documentar-tela` para esta mesma tela.
 
 ## Sequência de Execução
 
@@ -46,9 +46,9 @@ Invoque `oai-kit-conversao-frontend`:
 - Implementa a feature React consumindo o contrato já validado no PASSO 2.
 - Mesmo passe do backend quando `N1`-`N5`; gate próprio entre backend e frontend quando `N-ESPECIAL` (contract-review).
 
-### PASSO 4 — Testes E2E (Cypress) — pulado se `--sem-cypress`
+### PASSO 4 — Testes E2E (Cypress) — só executado se `--com-cypress`
 
-Invoque `oai-kit-conversao-e2e` (a menos que `--sem-cypress` tenha sido passado — nesse caso, siga direto para o PASSO 5):
+**Por padrão, este passo é pulado.** Invoque `oai-kit-conversao-e2e` **só se `--com-cypress` tiver sido passado** — caso contrário, siga direto para o PASSO 5:
 - Configura Cypress no repositório-alvo se ainda não tiver (uma vez por repositório, mesmo na primeira conversão).
 - Constrói os testes a partir de duas fontes: "Casos de teste" da especificação (se existir) + `cheatsheets/cypress-checks-por-padrao.md` (sempre) — nunca só a partir do front implementado.
 - Sobe a stack local (backend do módulo → backend do `GlobusWeb.Gateway` → frontend do módulo) e roda `cypress run` headless.
@@ -59,8 +59,8 @@ Invoque `oai-kit-conversao-e2e` (a menos que `--sem-cypress` tenha sido passado 
 ### PASSO 5 — Paridade
 
 Invoque `oai-kit-conversao-paridade`:
-- Verificação **estática** apenas (build/lint/typecheck/revisão de código vs. spec) — **nunca sobe o projeto** (AP-CONV-010; a única exceção é `oai-kit-conversao-e2e` no PASSO 4, quando não pulado).
-- Confirma que o PASSO 4 rodou (ou foi pulado por `--sem-cypress`) e revisa os GAPs que ele tenha aberto, se houver.
+- Verificação **estática** apenas (build/lint/typecheck/revisão de código vs. spec) — **nunca sobe o projeto** (AP-CONV-010; a única exceção é `oai-kit-conversao-e2e` no PASSO 4, quando executado).
+- Confirma se o PASSO 4 rodou (`--com-cypress` foi passado) ou foi pulado (comportamento padrão) e revisa os GAPs que ele tenha aberto, se houver.
 - Prepara o checklist de teste manual proporcional ao nível (mínimo `N1`-`N3`, intermediário `N4`-`N5`, completo — `parity-checklist.md` — `N-ESPECIAL`) para **você** rodar na aplicação — **sem redução por causa da cobertura do PASSO 4**, a redundância com o checklist manual é intencional.
 - Classifica divergências que você reportar ao testar: aceitas vs. GAP.
 
