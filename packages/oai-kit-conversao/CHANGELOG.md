@@ -2,7 +2,7 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em ISO-8601.
 
-## [Não lançado]
+## [0.1.15] — 2026-08-10
 
 Origem: pedido do dev para a conversão ganhar uma camada de verificação dinâmica (Cypress, headless) antes do checkpoint de teste manual, capturando e corrigindo parte dos bugs que hoje só apareceriam ali — com a exigência explícita de que os testes sejam construídos contra os **padrões/AP-CONVs já definidos**, nunca só contra o front implementado (senão um bug do front seria "aprendido" como certo pelo teste). Plano completo: `packages/oai-kit-conversao/docs/plano-cypress-e2e.md`.
 
