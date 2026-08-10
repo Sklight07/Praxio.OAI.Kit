@@ -20,6 +20,11 @@ Origem: o dev observou que os arquétipos só citam telas como evidência pontua
 ### Alterado (continuação)
 - **Flag `--sem-cypress` (opt-out) substituída por `--com-cypress` (opt-in)**, nos dois comandos: por padrão, `/oai-kit-documentar-tela` não gera mais a seção "Casos de teste" e `/oai-kit-converter-tela` não executa mais o PASSO 4 (Testes E2E) — só passando `--com-cypress` explicitamente cada uma dessas partes é ativada. Atualizado em `commands/oai-kit-documentar-tela.md`, `commands/oai-kit-converter-tela.md`, `oai-kit-conversao-especificador.md`, `oai-kit-conversao-e2e.md`, `oai-kit-conversao-paridade.md`, `oai-kit-conversao-aprendizado.md`, `conversion-policy.md` (AP-CONV-018), `README.md`, e `_template-especificacao.md`/`metrics/README.md` (Minerva).
 
+**Origem (2026-08-10, terceira rodada)**: dev pediu proibição de `@mui/*` no frontend, exceto ícones — regra que já existia (`oai-kit-conversao-frontend.md`, armadilha #14 do Minerva, confirmada pelo dev em 2026-08-06). Gap real encontrado: o checklist de verificação estática do `oai-kit-conversao-paridade` (o que efetivamente bloqueia a conversão) só grepava por `@mui/icons-material`, não pela proibição geral — um `import de @mui/material` passaria sem ser detectado.
+
+### Alterado (continuação 2)
+- `oai-kit-conversao-paridade.md` e `conversion-policy.md` (lista "Verificações do oai-kit-conversao-paridade"): checklist ampliado de "nenhum import de `@mui/icons-material`" para "nenhum import de qualquer `@mui/*`" (`@mui/material`, `@mui/lab`, etc., não só ícones).
+
 ## [0.1.15] — 2026-08-10
 
 Origem: pedido do dev para a conversão ganhar uma camada de verificação dinâmica (Cypress, headless) antes do checkpoint de teste manual, capturando e corrigindo parte dos bugs que hoje só apareceriam ali — com a exigência explícita de que os testes sejam construídos contra os **padrões/AP-CONVs já definidos**, nunca só contra o front implementado (senão um bug do front seria "aprendido" como certo pelo teste). Plano completo: `packages/oai-kit-conversao/docs/plano-cypress-e2e.md`.
