@@ -2,7 +2,7 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em ISO-8601.
 
-## [Não lançado]
+## [0.1.17] — 2026-08-12
 
 Origem: dev pediu para investigar qual comando de build de frontend os agentes de conversão usam. Achado: `oai-kit-conversao-frontend`/`-paridade`/`conversion-policy.md` (AP-CONV-010) instruíam `npm run build` genérico — mas esse script **não existe** na raiz de um módulo GlobusWeb (confirmado em `GlobusWeb.Folha`); só existe dentro de `front-end/`/`back-end/package.json`. Rodar `npm run build` a partir da raiz do módulo (onde os agentes já operam, mesma convenção de `start:backend`/`start:frontend` do `oai-kit-conversao-e2e`) resultaria em `Missing script: build`.
 
