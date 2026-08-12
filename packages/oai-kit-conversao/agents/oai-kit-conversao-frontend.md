@@ -62,8 +62,8 @@ Abra **apenas** o arquétipo indicado (`{knowledgeBasePath}/archetypes/<arquetip
 
 ### 4. Verificação — só estática, nunca subir o projeto (AP-CONV-010)
 
-- `npm run build` / lint / typecheck sem erro.
-- `npm run codegen` executado se o schema mudou.
+- `npm run buildiis:frontend` a partir da raiz do módulo (`GlobusWeb.<Modulo>`) — **nunca `npm run build`/`build:frontend` puros**: o script `build` do front-end usa `tsc --noEmit` (só typecheck, não emite), enquanto `build:iis` usa `tsc -b` (build real via project references) — é `build:iis` que o pipeline do Azure roda de fato. Usar `build:frontend`/`tsc --noEmit` deixa passar erro que só aparece no build do Azure (implementação parece ok localmente e falha no CI). Alternativa equivalente: `cd front-end && npm run build:iis`. Lint/typecheck sem erro.
+- `npm run codegen` (dentro de `front-end/`) executado se o schema mudou.
 - `npm install`/`npm ci` **só** se `package.json` mudou.
 - **Nunca rode o projeto para testar o fluxo CRUD manualmente** — isso é sempre trabalho do dev, feito depois via `oai-kit-conversao-paridade` (que prepara um checklist, não substitui o teste real).
 

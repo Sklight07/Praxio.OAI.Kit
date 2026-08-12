@@ -2,6 +2,18 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em ISO-8601.
 
+## [Não lançado]
+
+Origem: dev pediu para investigar qual comando de build de frontend os agentes de conversão usam. Achado: `oai-kit-conversao-frontend`/`-paridade`/`conversion-policy.md` (AP-CONV-010) instruíam `npm run build` genérico — mas esse script **não existe** na raiz de um módulo GlobusWeb (confirmado em `GlobusWeb.Folha`); só existe dentro de `front-end/`/`back-end/package.json`. Rodar `npm run build` a partir da raiz do módulo (onde os agentes já operam, mesma convenção de `start:backend`/`start:frontend` do `oai-kit-conversao-e2e`) resultaria em `Missing script: build`.
+
+### Corrigido
+- `oai-kit-conversao-frontend.md`, `oai-kit-conversao-paridade.md` e `conversion-policy.md` (AP-CONV-010): comando de build explicitado como `npm run build:backend`/`npm run build:frontend` a partir da raiz do módulo — nunca `npm run build` puro.
+
+**Origem (segunda rodada)**: dev identificou que o comando `build:frontend` usa `tsc --noEmit` (só typecheck) enquanto o pipeline do Azure builda com `build:iis`/`tsc -b` (build real via project references) — telas que passavam na verificação do agente estavam falhando só no CI do Azure.
+
+### Corrigido (continuação)
+- `oai-kit-conversao-frontend.md`, `oai-kit-conversao-paridade.md` e `conversion-policy.md`: comando do frontend trocado de `npm run build:frontend` para `npm run buildiis:frontend` — mesmo `tsc -b` que o Azure roda, evita passar erro que só apareceria no CI. Backend mantido em `build:backend` (já usa `nest build`, sem a mesma divergência).
+
 ## [0.1.16] — 2026-08-10
 
 Origem: o dev observou que os arquétipos só citam telas como evidência pontual de uma regra específica ("Confirmado em") — não existia um documento único respondendo "qual tela eu abro pra ver, de ponta a ponta, como fazer uma conversão bem feita?". Apontou `CadastroParametrosAlimentacao.tsx` (FLP/Folha) como hoje o melhor exemplo desse tipo, e observou que nem todo padrão tem um exemplar assim ainda (ex.: accordion no próprio Folha). Plano completo: `packages/oai-kit-conversao/docs/plano-telas-referencia.md`.

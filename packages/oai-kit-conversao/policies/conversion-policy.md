@@ -167,7 +167,7 @@ Qualquer sugestão de adicionar algo que o legado não tinha (melhoria de UX, pa
 ### AP-CONV-010 — Agentes nunca executam os projetos
 
 Nenhum agente de conversão sobe/executa o back-end ou o front-end do GlobusWeb — nem para smoke test, nem para "confirmar que o schema reflete o módulo", nem para validar fluxo de UI. O máximo permitido:
-- `npm run build` / compilação / lint / typecheck (verificação estática).
+- `npm run build:backend`/`npm run buildiis:frontend` a partir da raiz do módulo (**nunca `npm run build` puro** — não existe nesse nível; **nunca `build:frontend`/`tsc --noEmit`** — usa `build:iis`/`tsc -b`, que é o que o pipeline do Azure roda de fato, para não deixar passar erro que só o CI pegaria) / compilação / lint / typecheck (verificação estática).
 - `npm install`/`npm ci` **só** se `package.json` mudou (nova dependência).
 
 Testar a aplicação rodando (subir o servidor, clicar na tela, validar GraphQL Playground) é **sempre** responsabilidade do desenvolvedor, depois que os agentes terminam. `oai-kit-conversao-paridade` prepara um checklist de teste manual para o dev executar — não assume que passou.
