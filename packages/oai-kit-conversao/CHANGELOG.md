@@ -2,7 +2,7 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em ISO-8601.
 
-## [Não lançado]
+## [0.1.18] — 2026-08-14
 
 **Origem (terceira rodada)**: dev pediu investigação de crescimento no Minerva ("índices, coisas que cresceram muito que podem afetar os agentes"). Achado: `minerva-index.json` estava em 62KB (comentário nos agentes ainda dizia "~40KB, seguro pra Read completo") — `especificacoes` (28 telas, 22.7KB) e `componentesUikit` (92 componentes, 17.6KB) já eram ~65% do arquivo e cresciam sem limite junto com o nº de telas convertidas; extrapolando pra meta de 600+ telas do Folha, só `especificacoes` passaria de 400KB. Mesmo formato de problema que já motivou a extração de `tabelasConhecidas.json` em 2026-08-05 (que, aliás, já tinha uma nota não implementada prevendo exatamente este gatilho).
 
