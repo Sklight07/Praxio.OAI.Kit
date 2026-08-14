@@ -44,7 +44,7 @@ Para cada tabela/procedure/view Oracle confirmada nesta conversão, crie ou atua
 
 **Antes de decidir onde persistir qualquer achado abaixo, pergunte-se**: *"este padrão é específico desta tela/arquétipo, ou é uma convenção transversal de UI (wrapper de form, overlay de loading, PK read-only, layout de par de campos, etc.) que deveria valer para todos os arquétipos CRUD?"* Se for transversal, **não baste corrigir só o arquétipo de origem do achado** — proponha também: (a) a mesma correção nos arquétipos irmãos (`archetypes/*.md` que compartilham o mesmo tipo de UI), (b) uma Restrição Absoluta nova em `oai-kit-conversao-frontend.md` se o padrão for sobre estrutura/componente base, e (c) um item novo no checklist estático de `oai-kit-conversao-paridade.md` se for verificável por grep. Origem desta regra: episódio real (2026-08-06/07) onde uma correção de 9 padrões de layout foi aplicada só nos 2 arquétipos tocados pela conversão que a originou — os outros 4-5 arquétipos continuaram ensinando/permitindo o padrão errado, e `oai-kit-conversao-paridade.md` não ganhou nenhum item novo de checklist, deixando a próxima conversão nesses arquétipos destinada a repetir o mesmo erro.
 
-- Armadilha nova descoberta (não estava em `cheatsheets/armadilhas-comuns.md`) → proponha adição.
+- **Armadilha nova descoberta (não estava em `cheatsheets/armadilhas-comuns.md`) → proponha adição, e responda explicitamente, para cada uma, antes do Gate Pré-Commit (decisão mecânica, não opcional)**: *"isso é detectável por regra estática/grep?"* — **se sim**, é **obrigatório** também adicionar o item correspondente em `cheatsheets/paridade-checklist-transversal.md` (se aplicável a qualquer padrão/nível) ou na receita do arquétipo específico onde a regra é ensinada (se só se aplica a um padrão) — nunca deixar a armadilha só documentada no cheatsheet sem virar checagem ativa em algum lugar que `oai-kit-conversao-paridade` de fato lê. **Se não for grep-detectável** (ex.: mudança de comportamento dependente de versão de dependência externa, como a #53 do `Form`/UIKit), registre explicitamente essa justificativa — "não enforced porque X" é uma decisão válida, "esqueci de propagar" não é. Origem desta regra: auditoria real (2026-08-14) encontrou 11 de 12 armadilhas novas da semana catalogadas só no cheatsheet, nenhuma virada em checklist — o "avalie se é transversal" abaixo já existia e não bastou sozinho, porque ficava a critério de lembrança do agente numa sessão isolada.
 - Regra de negócio ou comportamento de UI não óbvio → proponha adição em `modulos/<modulo>.md`.
 - Hook/service reutilizável criado nesta conversão → proponha adição em `catalogo-reuso/hooks-e-utils.md`.
 - Componente de app compartilhado **não vindo do UIKit** (ex.: usado no arquétipo `accordion-secoes-indice-numerado` — `CustomAccordionGroup`/`AccordionSectionsNavRail` ou equivalente novo) criado/portado nesta conversão sem entrada ainda → proponha adição em `catalogo-reuso/hooks-e-utils.md`, seção "Componentes compartilhados de app (não-UIKit)".
@@ -109,7 +109,7 @@ ATUALIZAÇÕES PROPOSTAS EM GlobusEvo.Minerva
 • tabelasConhecidas.json — [entrada(s) nova(s)/atualizada(s), incl. implementacaoBackend se aplicável — arquivo separado do índice]
 • descobertas-oracle/<objeto>.md — [novo/atualizado]
 • archetypes/<...>.md — [se houver arquétipo novo]
-• cheatsheets/armadilhas-comuns.md — [se houver armadilha nova]
+• cheatsheets/armadilhas-comuns.md — [se houver armadilha nova] — decisão de enforcement: [grep-detectável → item novo em cheatsheets/paridade-checklist-transversal.md ou no arquétipo X / não grep-detectável → motivo]
 • cheatsheets/convencoes-implementacao.md — [se houver convenção de backend nova]
 • catalogo-reuso/hooks-e-utils.md — [hook/service novo, se houver]
 • catalogo-reuso/telas-referencia.md — [entrada nova/promovida, se a tela for candidata; lacuna removida/atualizada, se aplicável]
@@ -131,6 +131,7 @@ Confirme ao dev o resumo final: tela convertida, nível, checkpoints usados, o q
 
 ## Restrições Absolutas
 
+- Nunca registre uma armadilha nova em `cheatsheets/armadilhas-comuns.md` sem antes decidir e registrar se ela é grep-detectável (vira item de checklist/arquétipo) ou não (justificativa explícita) — nunca deixar essa decisão implícita ou pra depois.
 - Nunca pule o `git pull` inicial no Minerva.
 - Nunca deixe `minerva-index.json` num estado JSON inválido.
 - Nunca sobrescreva `gaps-log.md` ou `conversoes.jsonl` — são append-only.
