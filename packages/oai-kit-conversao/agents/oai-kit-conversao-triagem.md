@@ -48,7 +48,7 @@ Com o identificador da tela resolvido no passo 1 (sigla do módulo + SIM/PSE, ou
 
 ### 2. Verificar se já existe especificação prévia — antes de tentar ler o fonte
 
-Consulte `{knowledgeBasePath}/minerva-index.json` → `especificacoes`, buscando pelo identificador provisório da tela (nome exato ou correspondência inequívoca — nunca fuzzy match; se ambíguo, confirme com o dev qual entrada corresponde).
+Consulte `{knowledgeBasePath}/especificacoes-index.json` (arquivo separado desde 2026-08-14, extraído de `minerva-index.json` pelo mesmo motivo de `tabelasConhecidas.json` — cresce sem limite com o número de telas convertidas) — **sempre via `Grep`** pelo identificador exato da tela (padrão `"<modulo>/<tela-slug>":`), **nunca `Read` do arquivo inteiro** (nome exato ou correspondência inequívoca — nunca fuzzy match; se ambíguo, confirme com o dev qual entrada corresponde).
 
 **Se encontrar uma entrada:**
 
@@ -75,7 +75,7 @@ Leia **todos** os arquivos do conjunto antes de classificar — a regra de negó
 1. Leia `{knowledgeBasePath}/minerva-index.json` — é pequeno e deve ser lido antes de qualquer markdown completo (se ainda não leu no passo 2).
 2. Use o índice para achar o arquétipo candidato (`arquetipos`) e abra **só** o arquivo específico apontado.
 3. Verifique `tabelasConhecidas.json` (grep pelo nome da tabela, nunca `Read` do arquivo inteiro — ver AP-CONV-006) / `descobertas-oracle/` — reaproveite descrições já feitas, não redescubra.
-4. Consulte `catalogo-reuso/hooks-e-utils.md` para reaproveitar hooks/services já prontos, e `catalogo-reuso/componentes/` (índice: `componentesUikit`) para componentes UIKit já mapeados.
+4. Consulte `catalogo-reuso/hooks-e-utils.md` para reaproveitar hooks/services já prontos, e `catalogo-reuso/componentes/` (índice: `componentesUikit-index.json`, arquivo separado desde 2026-08-14 — grep pelo nome do componente, nunca `Read` do arquivo inteiro) para componentes UIKit já mapeados.
 
 **Calcule o nível pela Escala de Classificação de `.oai-kit/policies/conversion-policy.md`:**
 

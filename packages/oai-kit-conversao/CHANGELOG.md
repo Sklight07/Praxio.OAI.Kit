@@ -4,6 +4,14 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em ISO
 
 ## [Não lançado]
 
+**Origem (terceira rodada)**: dev pediu investigação de crescimento no Minerva ("índices, coisas que cresceram muito que podem afetar os agentes"). Achado: `minerva-index.json` estava em 62KB (comentário nos agentes ainda dizia "~40KB, seguro pra Read completo") — `especificacoes` (28 telas, 22.7KB) e `componentesUikit` (92 componentes, 17.6KB) já eram ~65% do arquivo e cresciam sem limite junto com o nº de telas convertidas; extrapolando pra meta de 600+ telas do Folha, só `especificacoes` passaria de 400KB. Mesmo formato de problema que já motivou a extração de `tabelasConhecidas.json` em 2026-08-05 (que, aliás, já tinha uma nota não implementada prevendo exatamente este gatilho).
+
+### Adicionado (continuação 2)
+- **`especificacoes-index.json` e `componentesUikit-index.json`** (Minerva, novos arquivos): extraídos de `minerva-index.json`, mesmo princípio de `tabelasConhecidas.json` — consultados sempre por `Grep` pelo identificador exato (tela ou componente), nunca `Read` do arquivo inteiro. `minerva-index.json` caiu de ~62KB para ~8KB — as seções que sobraram (`dicionarioModulos`, `menuGlobusWeb`, `gapsAbertos`, `arquetipos`, `padroesFrontend`) são limitadas pelo nº de módulos/arquétipos, não pelo nº de telas, então não devem repetir o problema.
+- Todos os consumidores atualizados: `oai-kit-conversao-triagem.md`, `-especificador.md`, `-frontend.md`, `-aprendizado.md`, `conversion-policy.md` (AP-CONV-006 e AP-CONV-011), `commands/oai-kit-converter-tela.md`/`-documentar-tela.md`, e os docs correspondentes no Minerva (`README.md`, `catalogo-reuso/README.md`, `catalogo-reuso/hooks-e-utils.md`).
+
+**Decisão explícita, não implementada nesta rodada**: `cheatsheets/armadilhas-comuns.md` (91KB, 60 armadilhas, lido por inteiro em toda conversão) também está crescendo rápido (+12 armadilhas/~15KB na última semana), mas sem uma chave de busca natural como tabelas/telas/componentes têm — dividir arrisca quebrar o propósito de "lembrete geral". Decisão do dev: monitorar por enquanto, não mexer ainda.
+
 Origem: auditoria pedida pelo dev cruzando commits/aprendizados/GAPs/armadilhas/arquétipos de uma semana real de uso (2026-08-07 a 2026-08-14, 9 telas convertidas, módulo FLP) via 4 agentes paralelos, buscando otimizações e correções de diretriz. Achado central, confirmado por 3 fontes independentes: bugs reais descobertos em teste manual eram catalogados como armadilha/GAP, às vezes propagados pro arquétipo, e paravam aí — nunca viravam item de checklist que `oai-kit-conversao-paridade` de fato verifica. O pior caso (armadilha #52, `placeholderData: keepPreviousData`) escapou de 14 telas antes de ser pego numa varredura manual dedicada. Plano completo: `packages/oai-kit-conversao/docs/plano-auditoria-semana-08-07-a-08-14.md`.
 
 ### Adicionado
