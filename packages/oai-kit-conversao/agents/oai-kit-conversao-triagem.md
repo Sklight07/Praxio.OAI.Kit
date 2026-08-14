@@ -52,10 +52,11 @@ Consulte `{knowledgeBasePath}/minerva-index.json` → `especificacoes`, buscando
 
 **Se encontrar uma entrada:**
 
-1. **Verifique staleness**: confira `mtime`/`tamanho` dos arquivos registrados na entrada contra o estado atual deles em `legacyRepoPath` (basta `stat`, não precisa ler o conteúdo). Se divergir de algum arquivo → avise o dev: *"A especificação existente parece desatualizada (arquivo X mudou desde [data]). Confio mesmo assim, ou você quer rodar `/oai-kit-documentar-tela` de novo antes? (confiar/regenerar)"*
-2. **Se o nível registrado é `N1`-`N3`**: use **só** a especificação — não localize nem leia nenhum arquivo `.pas`/`.dfm` do legado. Pule direto para o passo 5 (Output) usando o conteúdo da spec.
-3. **Se o nível registrado é `N4`-`N5`**: use a especificação como base, mas leia **só** os trechos de arquivo que a spec marcou como "pontos de atenção" — não o conjunto inteiro.
-4. **Se o nível registrado é `N-ESPECIAL`**: a spec vira só contexto/orientação — siga para o passo 3 normalmente (leitura completa do fonte).
+1. **Verifique o campo `status` primeiro, antes de qualquer outra coisa**: se `status === "convertida"`, pare e pergunte ao dev: *"Esta tela aparece como já convertida no Minerva (status: convertida). Deseja reprocessar mesmo assim? (sim/não)"* — nunca prossiga silenciosamente. Não é bloqueio automático (pode ser revisão/fix legítimo sobre uma tela já entregue), mas exige confirmação explícita antes de gastar uma sessão inteira reprocessando algo que já foi mesclado em `develop` (origem: GAP-005, retrabalho real em Cadastro de Pontos e Penalidades, 2026-08-12). Se o dev confirmar que quer reprosseguir, continue normalmente pelos passos abaixo.
+2. **Verifique staleness**: confira `mtime`/`tamanho` dos arquivos registrados na entrada contra o estado atual deles em `legacyRepoPath` (basta `stat`, não precisa ler o conteúdo). Se divergir de algum arquivo → avise o dev: *"A especificação existente parece desatualizada (arquivo X mudou desde [data]). Confio mesmo assim, ou você quer rodar `/oai-kit-documentar-tela` de novo antes? (confiar/regenerar)"*
+3. **Se o nível registrado é `N1`-`N3`**: use **só** a especificação — não localize nem leia nenhum arquivo `.pas`/`.dfm` do legado. Pule direto para o passo 5 (Output) usando o conteúdo da spec.
+4. **Se o nível registrado é `N4`-`N5`**: use a especificação como base, mas leia **só** os trechos de arquivo que a spec marcou como "pontos de atenção" — não o conjunto inteiro.
+5. **Se o nível registrado é `N-ESPECIAL`**: a spec vira só contexto/orientação — siga para o passo 3 normalmente (leitura completa do fonte).
 
 **Se não encontrar entrada** → siga para o passo 3 (fluxo completo, sem mudança em relação ao comportamento sem pré-documentação).
 
@@ -199,6 +200,7 @@ Referência estrutural cross-repo (se front-end esqueleto sem precedente local �
 - Nunca pule a confirmação de schema Oracle (passo 5) achando que só telas `N-ESPECIAL` precisam — precisam todas as telas com tabela real, independente do nível. Investigação profunda de procedure (passo 6) sim é só `N-ESPECIAL`.
 - Nunca deixe uma descoberta de schema Oracle presa só no plano da tela — sempre persista em `descobertas-oracle/`.
 - Nunca reaproveite uma especificação sem checar staleness primeiro.
+- Nunca reprocesse uma tela com `status: "convertida"` sem confirmação explícita do dev — pergunte antes, mesmo que a especificação pareça atualizada (GAP-005).
 - Nunca trate um nível como N1-N5 na dúvida sobre gatilho de exceção — o padrão seguro é `N-ESPECIAL`.
 - Nunca adivinhe nome de tabela/procedure ou identificador de especificação por aproximação — nome exato/correspondência inequívoca ou `GAP`.
 - Nunca escreva código de produção — isso é responsabilidade de `oai-kit-conversao-backend`/`-frontend`.

@@ -21,6 +21,7 @@ Você fecha o ciclo de toda conversão, simples ou complexa. **Não é um passo 
 ### 1. Atualizar `minerva-index.json`
 
 Abra `{knowledgeBasePath}/minerva-index.json` (~40KB, seguro para `Read` completo). Atualize:
+- **`especificacoes[tela].status`: sempre `"convertida"` ao final desta conversão** (mesmo se a entrada não existir ainda — cria com esse status). Nunca deixe essa escrita implícita/manual: é o que permite `oai-kit-conversao-triagem` (passo 2) detectar e confirmar antes de reprocessar uma tela já entregue (GAP-005) — sem essa escrita consistente, a proteção da triagem não tem dado pra funcionar.
 - `gapsAbertos`: adicione qualquer GAP novo registrado pela `oai-kit-conversao-paridade` ou pela triagem (depois de passar pelo Critério de GAP — ver seção própria em `conversion-policy.md`).
 - `arquetipos`: se a triagem marcou a tela como candidata a novo arquétipo (não encaixou em nenhum existente), e você concluir que o padrão é genuinamente reutilizável (não específico desta tela), proponha um arquétipo novo em `archetypes/_template-arquetipo.md` preenchido.
 - `modulos`: garanta que o módulo da tela aponta para seu arquivo em `modulos/<modulo>.md`.
@@ -87,6 +88,8 @@ Append (nunca sobrescreva) uma linha em `{knowledgeBasePath}/metrics/conversoes.
 ```json
 {"ts": "ISO-8601", "tela": "NomeTela", "modulo": "SIGLA", "arquetipo": "crud-simples-pk-usuario", "nivel": "N1", "checkpoints": 1, "resultado": "convertido", "gapsAbertos": 0, "usouEspecificacaoPrevia": true, "duracaoMinutosAprox": 42, "padroesGlobusWebAbertos": [], "bugsConversaoCorrigidos": 0, "e2eExecutado": true, "e2eErrosDetectados": 0, "e2eErrosCorrigidos": [], "e2eGapsPorEsgotamento": 0}
 ```
+
+**`resultado` — regra explícita, nunca decidir de memória (achado de auditoria, 2026-08-14: 44% das linhas `"convertido"` de uma semana real tinham `gapsAbertos > 0`, deveriam ser `"convertido_com_gaps"`)**: derive sempre da contagem real desta conversão — `gapsAbertos > 0` → sempre `"convertido_com_gaps"`, nunca `"convertido"`; sem GAP nenhum → `"convertido"`; se paridade não conseguiu aprovar → `"bloqueado"`. Valor `"retrabalhoPosPadraoAtualizado"` é válido só quando a conversão é uma atualização de tela já convertida por causa de um padrão/arquétipo mudado depois (não um resultado normal de primeira conversão) — ver `metrics/README.md`.
 
 `bugsConversaoCorrigidos`: conte quantas divergências foram classificadas como "Bug de conversão" (ver `oai-kit-conversao-paridade`, passo 3 — erro introduzido pela própria implementação, corrigido antes de commitar, distinto de GAP vs. Delphi). `0` é o esperado na maioria das conversões — um número recorrente >0 num mesmo tipo de erro entre conversões (ex.: `compliance` do `DataGridSearchServer`) é sinal de que falta reforçar a documentação/receita correspondente.
 
