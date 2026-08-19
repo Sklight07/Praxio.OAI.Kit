@@ -301,6 +301,31 @@ Se a tabela referenciada pertence a outro módulo, o combobox de referência é 
 
 Bootstrap do Cypress (dependência, `cypress.config.ts`, estrutura de pastas) acontece **dentro do próprio fluxo de conversão**, inclusive na primeira vez em cada repositório — não é um passo de setup separado antes da primeira conversão.
 
+### AP-CONV-019 — Tabela principal cross-módulo redireciona a conversão inteira; nunca confundir com dependência (AP-CONV-012)
+
+O `AP-CONV-012` cobre uma tela que **pertence** ao módulo do ticket, mas **referencia** dado de outro módulo (consumido via Federation). Este AP-CONV cobre um caso diferente e mais raro: a tela **inteira** — sua tabela principal, a entidade que ela cadastra/gerencia — pertence a outro módulo, mesmo tendo sido solicitada/ticketada dentro de outro (ex.: dev abre a conversão como uma tela de Folha, mas a tabela principal é de Recursos Humanos). **Nomenclatura de tela/menu nunca resolve isso sozinha** — só a resolução da tabela principal via `dicionarioModulos` (mesmo mecanismo do AP-CONV-012), e sempre confirmada com o dev antes de agir, nunca decidida silenciosamente pelo agente.
+
+**Detecção** (`oai-kit-conversao-triagem`, passo 4b-2, ou `oai-kit-conversao-especificador`, passo 3b-2 — o que rodar primeiro): depois de resolver dependências cross-módulo (AP-CONV-012, que varre tabelas **referenciadas**), resolva também o prefixo da tabela **principal** da tela pelo mesmo mecanismo — `dicionarioModulos.prefixosTabela` → sigla implementadora → `dicionarioModulos.siglas`. Compare contra a sigla do módulo em que a conversão está sendo feita (o módulo do ticket/repositório atual).
+
+- **Bate** → nenhuma novidade, segue o fluxo normal.
+- **Prefixo ausente do dicionário** → mesma regra do AP-CONV-012: pergunte ao dev qual sigla é dona, persista a resposta em `dicionarioModulos.prefixosTabela`, nunca invente.
+- **Diverge** → **pare** e pergunte ao dev, mostrando a evidência (tabela, prefixo, sigla resolvida, repositório): *"A tabela principal desta tela (`<TABELA>`) parece pertencer ao módulo `<SIGLA>` (`<repositório>`), não a `<módulo do ticket>`. Confirma que devemos implementar em `<repositório>` e `<módulo do ticket>` só chamar a tela via `EmbeddedScreenModal`? Ou há um motivo legítimo para ela viver aqui mesmo?"* — o dev pode confirmar o reposicionamento, negar (motivo de negócio real para a tabela estar ali — ex.: cópia intencional de dado), ou pedir para registrar como pendência e seguir por ora sem decidir.
+
+**Se o dev confirmar o reposicionamento**, a conversão inteira (não uma entidade isolada, diferente do fluxo multi-repo do AP-CONV-012) muda de repositório-alvo:
+
+1. **Gate de Plano** antes de tocar no repositório correto — mostrar exatamente o que será feito lá (branch, arquétipo, escopo) e pedir aprovação explícita.
+2. Localizar o repositório do módulo dono (`knownRepos` → convenção de caminho-irmão, sempre confirmando com o dev), sincronizar `develop` lá (`git fetch`/`checkout develop`/`git pull`) — mesma exigência do passo 1b do triagem, agora aplicada ao repositório de destino.
+3. Criar a branch lá seguindo o padrão Praxio, com a **mesma SIM/PSE** do ticket original — é a mesma feature atravessando repositório.
+4. Rodar a triagem/classificação, backend e frontend completos **no repositório correto** — a tela nasce lá, não no módulo do ticket.
+5. **Se o módulo do ticket também precisa acessar a tela** (ex.: um item de menu na Folha que abre um cadastro que vive em Recursos Humanos): usar `EmbeddedScreenModal` (`catalogo-reuso/componentes/EmbeddedScreenModal.md`) no módulo do ticket, apontando para a rota criada no módulo correto — nunca reimplementar a tela duas vezes.
+6. **Output final consolidado**, mesmo formato do AP-CONV-012: repositórios tocados, branch usada em cada um, arquivos alterados por repositório.
+
+**Diferença explícita entre os dois AP-CONVs, para nunca confundir:**
+- `AP-CONV-012`: a tela é implementada **no módulo do ticket**; só um **dado** vem de outro módulo (Federation).
+- `AP-CONV-019`: a tela **inteira** é implementada **no módulo dono da tabela principal**; o módulo do ticket, se precisar, só **chama** a tela pronta (`EmbeddedScreenModal`) — nunca implementa nada da tela em si.
+
+**Registro para reaproveitamento futuro**: se a tela foi reposicionada, o campo `modulo` da entrada em `especificacoes-index.json`/na spec reflete o módulo **real** (onde foi implementada), nunca o módulo do ticket original — evita que uma triagem futura, ao reaproveitar esta spec, assuma o módulo errado.
+
 ## Ordem de referência para padrões (economia de tempo)
 
 `{knowledgeBasePath}/padroes-globusweb/patterns/*.md` são documentos de governança, escritos para arquitetos — completos, mas caros de ler por inteiro a cada tela. O arquétipo (`archetypes/<x>.md`), os cheatsheets e o catálogo de componentes (`catalogo-reuso/componentes/`) já resumem o que é necessário para os casos comuns (`N1`-`N5`).
@@ -318,6 +343,7 @@ Antes de aprovar qualquer conversão, verifique:
 - Nenhuma tentativa de subir/rodar o projeto aparece no histórico de ações do backend/frontend (AP-CONV-010) — só build/lint/typecheck/install.
 - Uso de componentes `@praxio/globusweb-uikit` consultou primeiro `catalogo-reuso/componentes/` (AP-CONV-011); se algum componente usado não estava catalogado, uma proposta de nova entrada foi gerada para `oai-kit-conversao-aprendizado`.
 - Nenhuma entidade/domínio de tabela de outro módulo foi implementada localmente (AP-CONV-012) — dependências cross-módulo já implementadas são consumidas via Federation; GAPs cross-módulo genuínos passaram pelo fluxo multi-repo completo (gate, branch no outro repositório, output consolidado).
+- Se a tabela **principal** da tela pertence a outro módulo (AP-CONV-019): a tela foi implementada no repositório correto, não no módulo do ticket; se o módulo do ticket também a expõe, é via `EmbeddedScreenModal`, nunca reimplementação — nunca os dois lados com lógica própria da mesma tela.
 - O `indice` de menu usado em `menu.constants.tsx` bate exatamente com o documentado na spec/task Azure (AP-CONV-013 — nunca inventado); a hierarquia de menu criada corresponde à seção "Menu e navegação" da spec, sem níveis pulados ou criados a mais.
 - O padrão de frontend escolhido (Grid+Modal | Inline+Grid | Accordion+Índice) está registrado no plano com sua origem (sinalizado na task | inferido | perguntado ao dev — AP-CONV-015); a inferência do passo 2 do AP-CONV-015, quando usada, seguiu a regra documentada (default `inline-grid` para cadastro simples/pai-filho, `accordion-indice` só para múltiplas TabSheet) — não foi uma escolha arbitrária do agente.
 - **Se o padrão é Grid+Modal** (AP-CONV-014): tela principal tem busca+grid+"Novo"; criar/editar usa `FormModal` (nunca form inline, nunca `Dialog` cru); excluir usa `FormModal` de confirmação (nunca `Dialog` cru, nunca `window.confirm`); cabeçalho em 2 linhas distintas (título+Novo; busca+Pesquisar), nunca 1 linha com wrap (armadilha #20); grid principal com `containerHeight` computado dinamicamente (nunca o default `100vh`, armadilha #24) e **nunca `fitColumns`** sem razão documentada (armadilha #25); `compliance` do `DataGridSearchServer` nunca ligado sem necessidade real (armadilha #19).

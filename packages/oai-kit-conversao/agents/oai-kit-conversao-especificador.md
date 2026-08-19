@@ -66,6 +66,16 @@ Para cada tabela referenciada que **não** é a tabela principal da tela (lookup
    - Sem entrada nenhuma ainda → localize o repositório do módulo dono (lookup em `knownRepos` → sugerir a convenção de caminho-irmão observada, ex. `<pai-do-repo-atual>\GlobusWeb.<Modulo>` → **sempre confirme com o dev antes de usar, nunca assuma silenciosamente**), sincronize a branch `develop` (`git fetch`/`checkout develop`/`git pull`), e procure lá (grep de entidade/módulo pelo nome da tabela) se já existe implementação. Persista o resultado (existe ou GAP) em `implementacaoBackend` da entrada da tabela em `tabelasConhecidas.json` (abrir o arquivo para editar é esperado nesta escrita pontual) e, se relevante, uma nota em `modulos/<sigla-implementadora>.md`.
 3. Preencha a seção "Dependências cross-módulo" da spec com o resultado. Se nenhuma tabela referenciada for cross-módulo, omita a seção.
 
+### 3b-2. Verificar se a tabela *principal* pertence a outro módulo (AP-CONV-019) — nunca confundir com 3b
+
+**3b** varre tabelas **referenciadas**. Aqui é diferente: resolva também o prefixo da tabela **principal** desta tela pelo mesmo mecanismo (`dicionarioModulos.prefixosTabela` → sigla implementadora). Compare contra a sigla do módulo desta tela (a do ticket/repositório atual).
+
+1. Bate → nada a fazer, omita a seção "Módulo real da tela" da spec.
+2. Prefixo ausente do dicionário → pergunte ao dev qual sigla é dona, persista a resposta (nunca invente).
+3. Diverge → **pare** e pergunte ao dev, mostrando a evidência (tabela, prefixo, sigla resolvida): a tela deve ser documentada/implementada no módulo dono, com o módulo do ticket chamando via `EmbeddedScreenModal`? Ou há um motivo legítimo para ficar aqui mesmo? Preencha a seção "Módulo real da tela" da spec com a resposta — **mesmo se o dev decidir manter aqui**, registre o porquê, para uma triagem futura que reaproveite esta spec não reabrir a mesma pergunta.
+
+A execução do reposicionamento (multi-repo, branch, `EmbeddedScreenModal`) é decisão de `oai-kit-conversao-triagem`/`-backend`, não deste agente — aqui só se documenta a decisão. Ver `AP-CONV-019` em `.oai-kit/policies/conversion-policy.md` para o fluxo completo.
+
 ### 3c. Resolver menu e índice de permissão (obrigatório — AP-CONV-013)
 
 1. Determine `indicemenu` e/ou `nome` a partir da task do Azure (o módulo já é conhecido pelo contexto da conversão — ex.: tela de Folha → busca sempre em `menus/legado/FLP.json`). **Nunca derive de nome de arquivo/tela ou de caption** — captions podem se repetir; `indicemenu`/`nome` nunca.
