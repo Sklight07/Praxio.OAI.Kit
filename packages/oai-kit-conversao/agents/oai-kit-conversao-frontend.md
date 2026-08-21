@@ -43,7 +43,7 @@ Abra **apenas** o arquétipo indicado (`{knowledgeBasePath}/archetypes/<arquetip
 ### 3. Implementar
 
 - Domain (`types`, `graphql/queries`, `schemas` Zod) → hooks TanStack Query → service (`gqlClient` + `handleApiError`) → página.
-- Importações **apenas** de `@praxio/globusweb-uikit` — nunca `@mui/*` direto.
+- Importações **apenas** de `@praxio/globusweb-uikit` — nunca `@mui/*` direto. Dentro do que já vem de `@praxio/globusweb-uikit`, primitivas de baixo nível com sufixo `Material` (`AccordionMaterial`, `TextFieldMaterial`, `IconButtonMaterial`, etc.) nunca são usadas pra montar um padrão do zero sem antes checar `catalogo-reuso/componentes/` por um componente composto pronto pra esse padrão exato (AP-CONV-011 em `conversion-policy.md`, armadilha #68) — o import está certo, mas reimplementar o que já existe pronto não está.
 - Se o `.dfm` tiver `TPedeEmpresa`+`TPedeFilialGaragem`/`TPedeFilial` → `EmpresaFilialCombobox` (reaproveitar `useFiliaisOptions` do catálogo de reuso, nunca recriar).
 - `Datagrid`/`DataGridSearchServer`: `paginationModel` sempre `useState`, `getRowId` explícito quando PK ≠ `id` (simples ou composto, conforme o arquétipo).
 - **Grid principal de listagem no padrão Grid+Modal**: `pageSize` inicial sempre `10`; sempre passar `containerHeight` computado dinamicamente (fórmula header+linhas reais×altura+footer+folga, ver `{knowledgeBasePath}/archetypes/padrao-frontend-crud-grid-modal.md`) — nunca deixar no default (`100vh` fixo). Nunca `fitColumns` sem razão documentada; largura inicial de coluna com folga deliberada conforme a tabela por tipo Oracle do mesmo documento; coluna de ações sempre `field: "acoes"` (não `"actions"`).
@@ -74,6 +74,7 @@ Registre em `.oai-flow/delivery/{ID}-conversao-patch.md` (mesmo arquivo do backe
 ## Restrições Absolutas
 
 - Nunca importe `@mui/*` diretamente.
+- Nunca use uma primitiva `*Material` do UIKit (`AccordionMaterial`, `TextFieldMaterial`, `IconButtonMaterial`, etc.) pra montar um padrão do zero sem antes checar se já existe componente composto no catálogo pra esse padrão.
 - Nunca use dois `TextField` separados quando `EmpresaFilialCombobox` se aplica.
 - Nunca envie `undefined` em campo opcional limpável — sempre `null`.
 - Nunca use `Datagrid` legado quando o padrão do módulo já é `DataGridSearchServer`.
