@@ -27,11 +27,11 @@ Abra `{knowledgeBasePath}/minerva-index.json` (~8KB desde a extração de 2026-0
 - `dicionarioModulos.prefixosTabela`: se a triagem/especificador confirmou com o dev a sigla implementadora de um prefixo novo (AP-CONV-012), persista aqui — nunca mais perguntar de novo para aquele prefixo.
 - `padroesFrontend`: normalmente estático (hoje só `grid-modal`/`inline-grid`) — só toque se uma conversão descobrir uma variante genuinamente nova de padrão de frontend (mesmo critério "reutilizável, não particularidade de uma tela" usado para arquétipos).
 
-### 1b. Atualizar `tabelasConhecidas.json` (arquivo separado desde 2026-08-05 — nunca faz parte de `minerva-index.json`)
+### 1b. Atualizar `tabelasConhecidas/<SIGLA>.json` (diretório separado desde 2026-08-05, um arquivo por módulo desde 2026-08-19 — nunca faz parte de `minerva-index.json`)
 
-**Nunca `Read` este arquivo por inteiro** para checar se uma tabela já está lá (1500+ entradas, ~286KB) — grep pelo nome exato primeiro. Abrir para editar (esta etapa) é esperado, é escrita pontual, não a consulta frequente:
-- Se uma tabela/procedure/view Oracle foi descrita nesta conversão (via MCP ou lida do `.pas`/descrição de tabela) e ainda não está lá, adicione a entrada apontando para `descobertas-oracle/<objeto>.md`.
-- `implementacaoBackend` da tabela: se houve investigação de dependência cross-módulo (entidade já existia em outro módulo, ou foi criada agora via fluxo multi-repo do backend), registre/atualize aqui.
+**Nunca `Read` um arquivo por inteiro** para checar se uma tabela já está lá (~2700 entradas no total, divididas por `moduloDono` — grep pelo nome exato no diretório inteiro primeiro. Abrir **o arquivo do módulo dono** (nunca outro) para editar (esta etapa) é esperado, é escrita pontual, não a consulta frequente:
+- Se uma tabela/procedure/view Oracle foi descrita nesta conversão (via MCP ou lida do `.pas`/descrição de tabela) e ainda não está lá, adicione a entrada em `tabelasConhecidas/<SIGLA-DA-TABELA>.json` apontando para `descobertas-oracle/<objeto>.md` — crie o arquivo do módulo se ainda não existir (é assim que um módulo novo passa a ter entradas).
+- `implementacaoBackend` da tabela: se houve investigação de dependência cross-módulo (entidade já existia em outro módulo, ou foi criada agora via fluxo multi-repo do backend), registre/atualize no arquivo do módulo dono da tabela.
 
 ### 1c. Atualizar `especificacoes-index.json` e `componentesUikit-index.json` (arquivos separados desde 2026-08-14 — nunca fazem parte de `minerva-index.json`)
 
@@ -113,7 +113,7 @@ ATUALIZAÇÕES PROPOSTAS EM GlobusEvo.Minerva
 • minerva-index.json — [o que mudou: gapsAbertos/arquetipos/modulos/dicionarioModulos/padroesFrontend]
 • especificacoes-index.json — [status: "convertida" para esta tela; arquivo separado do índice]
 • componentesUikit-index.json — [componente novo catalogado ou armadilha nova, se houver; arquivo separado do índice]
-• tabelasConhecidas.json — [entrada(s) nova(s)/atualizada(s), incl. implementacaoBackend se aplicável — arquivo separado do índice]
+• tabelasConhecidas/<SIGLA>.json — [entrada(s) nova(s)/atualizada(s), incl. implementacaoBackend se aplicável — diretório separado do índice, um arquivo por módulo]
 • descobertas-oracle/<objeto>.md — [novo/atualizado]
 • archetypes/<...>.md — [se houver arquétipo novo]
 • cheatsheets/armadilhas-comuns.md — [se houver armadilha nova] — decisão de enforcement: [grep-detectável → item novo em cheatsheets/paridade-checklist-transversal.md ou no arquétipo X / não grep-detectável → motivo]
@@ -130,7 +130,7 @@ ATUALIZAÇÕES PROPOSTAS EM GlobusEvo.Minerva
 ═══════════════════════════════════════════
 ```
 
-Pergunte: *"Posso commitar e subir (push) essas atualizações no GlobusEvo.Minerva? (sim/não)"* Se sim, commite localmente e **sempre tente o push em seguida** — não é uma pergunta separada opcional; o pull obrigatório do início (ver Pré-condições) só protege o *próximo* dev se este *dev* também sincronizar de volta. Se o push for rejeitado por non-fast-forward, tente `git pull --rebase` + push **uma vez** automaticamente. Se ainda assim conflitar (mais provável em `minerva-index.json`/`especificacoes-index.json`/`componentesUikit-index.json`/`tabelasConhecidas.json`, os únicos arquivos não append-only tocados aqui), pare e mostre o conflito ao dev — nunca decida sozinho como resolver.
+Pergunte: *"Posso commitar e subir (push) essas atualizações no GlobusEvo.Minerva? (sim/não)"* Se sim, commite localmente e **sempre tente o push em seguida** — não é uma pergunta separada opcional; o pull obrigatório do início (ver Pré-condições) só protege o *próximo* dev se este *dev* também sincronizar de volta. Se o push for rejeitado por non-fast-forward, tente `git pull --rebase` + push **uma vez** automaticamente. Se ainda assim conflitar (mais provável em `minerva-index.json`/`especificacoes-index.json`/`componentesUikit-index.json`/`tabelasConhecidas/<SIGLA>.json`, os únicos não append-only tocados aqui — `tabelasConhecidas` sendo um arquivo por módulo desde 2026-08-19 reduz bastante a chance, mas não elimina se dois devs editarem o mesmo módulo ao mesmo tempo), pare e mostre o conflito ao dev — nunca decida sozinho como resolver.
 
 ### 7. Output
 

@@ -74,7 +74,7 @@ Leia **todos** os arquivos do conjunto antes de classificar — a regra de negó
 
 1. Leia `{knowledgeBasePath}/minerva-index.json` — é pequeno e deve ser lido antes de qualquer markdown completo (se ainda não leu no passo 2).
 2. Use o índice para achar o arquétipo candidato (`arquetipos`) e abra **só** o arquivo específico apontado.
-3. Verifique `tabelasConhecidas.json` (grep pelo nome da tabela, nunca `Read` do arquivo inteiro — ver AP-CONV-006) / `descobertas-oracle/` — reaproveite descrições já feitas, não redescubra.
+3. Verifique `tabelasConhecidas/` (diretório, um arquivo por módulo desde 2026-08-19 — grep pelo nome da tabela no diretório inteiro, nunca `Read` de arquivo inteiro — ver AP-CONV-006) / `descobertas-oracle/` — reaproveite descrições já feitas, não redescubra.
 4. Consulte `catalogo-reuso/hooks-e-utils.md` para reaproveitar hooks/services já prontos, e `catalogo-reuso/componentes/` (índice: `componentesUikit-index.json`, arquivo separado desde 2026-08-14 — grep pelo nome do componente, nunca `Read` do arquivo inteiro) para componentes UIKit já mapeados.
 
 **Calcule o nível pela Escala de Classificação de `.oai-kit/policies/conversion-policy.md`:**
@@ -87,7 +87,7 @@ Pontuação estrutural (só se nenhum gatilho de exceção estiver presente): gr
 
 ### 4b. Detectar dependências cross-módulo (AP-CONV-012) — só quando não veio de especificação prévia já resolvida
 
-Se a especificação prévia (passo 2) já preencheu "Dependências cross-módulo", reaproveite — não repita. Senão, para cada tabela referenciada que não é a principal: resolva o prefixo via `minerva-index.json` → `dicionarioModulos.prefixosTabela` → sigla implementadora → `dicionarioModulos.siglas`, compare contra a sigla do módulo da tela (atenção ao caso `ESO_`→`FLP`: prefixo bruto não é a sigla implementadora). Divergem → cross-módulo real. Prefixo desconhecido → pergunte ao dev, persista. Se cross-módulo: checar `implementacaoBackend` da tabela (grep pelo nome exato em `tabelasConhecidas.json`, nunca `Read` do arquivo inteiro) — `existe: true` conta como referência externa normal (acima); ausente ou `existe: false` sem ainda ter explorado o outro repositório → localizar o repo (`knownRepos` → convenção de caminho-irmão, sempre confirmando com o dev), sincronizar `develop`, verificar se já existe implementação antes de concluir GAP. GAP cross-módulo confirmado → gatilho de exceção, `N-ESPECIAL`.
+Se a especificação prévia (passo 2) já preencheu "Dependências cross-módulo", reaproveite — não repita. Senão, para cada tabela referenciada que não é a principal: resolva o prefixo via `minerva-index.json` → `dicionarioModulos.prefixosTabela` → sigla implementadora → `dicionarioModulos.siglas`, compare contra a sigla do módulo da tela (atenção ao caso `ESO_`→`FLP`: prefixo bruto não é a sigla implementadora). Divergem → cross-módulo real. Prefixo desconhecido → pergunte ao dev, persista. Se cross-módulo: checar `implementacaoBackend` da tabela (grep pelo nome exato no diretório `tabelasConhecidas/`, nunca `Read` de arquivo inteiro) — `existe: true` conta como referência externa normal (acima); ausente ou `existe: false` sem ainda ter explorado o outro repositório → localizar o repo (`knownRepos` → convenção de caminho-irmão, sempre confirmando com o dev), sincronizar `develop`, verificar se já existe implementação antes de concluir GAP. GAP cross-módulo confirmado → gatilho de exceção, `N-ESPECIAL`.
 
 ### 4b-2. Verificar se a tabela *principal* pertence a outro módulo (AP-CONV-019) — nunca confundir com 4b
 
