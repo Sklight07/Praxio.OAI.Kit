@@ -2,6 +2,17 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em ISO-8601.
 
+## [0.1.20] — 2026-08-20
+
+Três achados independentes desde a 0.1.19, todos com correspondente no Minerva (`GlobusEvo.Minerva`, commits `d38df97`/`4e4f7c5`/`950637f` neste pacote, `8166597` + branch `chore/tabelas-conhecidas-por-modulo` no Minerva).
+
+### Adicionado
+- **`AP-CONV-019`** (`conversion-policy.md`): até agora só a tabela **referenciada** por uma tela era checada contra o módulo dono (`AP-CONV-012`) — a tabela **principal** nunca era, então uma tela poderia nascer no módulo errado sem nenhum agente perceber que sua entidade pertence a outro módulo. Detecta a divergência, pergunta ao dev, e se confirmado migra a conversão inteira (não só uma entidade) para o repositório correto, com `EmbeddedScreenModal` (0.1.19) cuidando da chamada cross-módulo quando necessário. Passos novos espelhados: `oai-kit-conversao-triagem` (4b-2), `oai-kit-conversao-especificador` (3b-2); `4e` do triagem também passou a exigir sync de `develop` antes de usar outro repo como referência estrutural.
+- **Bloqueio de primitivas `*Material` do UIKit sem componente composto** (`AP-CONV-011` estendido): investigação de um commit de aprendizado real (accordion, FLP #618284) mostrou que nenhum `@mui/material` foi importado diretamente — a violação real foi usar `AccordionMaterial`/`AccordionSummaryMaterial`/`AccordionDetailsMaterial` (primitivas de baixo nível do próprio `@praxio/globusweb-uikit`) para montar o accordion do zero, quando `AccordionGroup` já resolve pronto. Antes de usar qualquer primitiva `*Material` para montar um padrão, checar `catalogo-reuso/componentes/` por um composto pronto. Restrição espelhada em `oai-kit-conversao-frontend.md`.
+
+### Corrigido
+- **`tabelasConhecidas.json` → `tabelasConhecidas/<SIGLA>.json`**: o arquivo único chegou a 2681 entradas (~501KB, mais que o dobro do gatilho que motivou a extração original de 2026-08-05) após imports em massa de BGM/CTR/CGS por múltiplos devs em paralelo — já inserindo via "append de texto puro" por instinto, sinal de que o arquivo compartilhado já era ponto de conflito de merge na prática. Dividido por `moduloDono` (nunca por parsing do nome da tabela — há exceções sem `_` no prefixo, ex. `CTBPARAM`/`CTB`), 9 arquivos, 2681/2681 entradas migradas sem perda. Consulta por `Grep` continua idêntica na prática (aponta pro diretório quando o módulo é desconhecido, ou direto pro arquivo quando já resolvido). Consumidores atualizados: `oai-kit-conversao-triagem`/`-especificador`/`-aprendizado`, `AP-CONV-006`/`AP-CONV-012`, `knowledge/conversao/README.md`.
+
 ## [0.1.19] — 2026-08-18
 
 Origem: dev pediu sync do repositório `GlobusWeb.UIKit` (branch `develop`) para verificar se a versão avançou — chegou a `0.5.591` (última verificada no Minerva: `0.5.583`). Achado principal: novo componente **`EmbeddedScreenModal`** (a partir de `0.5.584`) — mecanismo de primeira classe para uma tela de um módulo GlobusWeb abrir, embutida via `<iframe>` + SSO (`postMessage`), uma tela que pertence a outro módulo.
