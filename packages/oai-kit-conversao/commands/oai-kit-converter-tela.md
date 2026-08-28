@@ -40,6 +40,13 @@ Invoque `oai-kit-conversao-backend`:
 - `N1`-`N5`: implementa seguindo a receita do arquétipo (confirmando pontualmente os pontos de atenção se `N4`-`N5`).
 - `N-ESPECIAL`: processo completo de 5 fases de `delivery-sequencing.md`, aciona `oai-kit-architecture-agent` (perfil developer) se envolver UIKit/padrão arquitetural novo.
 
+### PASSO 2.5 — Guardião de Padrões (obrigatório, todos os níveis)
+
+Invoque `oai-kit-conversao-guardiao` passando `.oai-flow/delivery/{ID}-conversao-patch.md`:
+- Checklist rígida e mecânica de padrão de backend (SQL manual, REST desnecessário, transação/repository/integração manual, subscriber duplicando `@UseProximoCodigo`/`@UseSequence`, resolver manual injustificado) — independente de nível, `N1`-`N-ESPECIAL`.
+- Qualquer FAIL sem justificativa documentada no patch **bloqueia** o PASSO 3 — volta para `oai-kit-conversao-backend` corrigir e reconferir só os itens que falharam.
+- Não substitui nem antecipa `oai-kit-conversao-paridade` (PASSO 5) — verifica padrão de implementação, não fidelidade ao legado.
+
 ### PASSO 3 — Frontend
 
 Invoque `oai-kit-conversao-frontend`:

@@ -83,8 +83,25 @@ function runAdapter(cwd, profiles) {
   // Master instructions → .claude/oai-kit.md
   const masterSrc  = path.join(oaiKitDir, 'oai-kit.md');
   const masterDest = path.join(claudeDir, 'oai-kit.md');
+  let masterContent = '';
   if (fs.existsSync(masterSrc)) {
-    fs.copyFileSync(masterSrc, masterDest);
+    masterContent = fs.readFileSync(masterSrc, 'utf8');
+  }
+
+  // Overview de cada perfil não-developer (ex: conversao) → anexado ao master,
+  // nunca só sobrescrito por ele. Sem isso, o arquivo ambiental carregado em
+  // toda sessão fica cego à existência de perfis extras já instalados.
+  for (const profile of profiles) {
+    if (profile === 'developer') continue;
+    const profileOverviewSrc = path.join(oaiKitDir, `oai-kit-${profile}.md`);
+    if (fs.existsSync(profileOverviewSrc)) {
+      const overview = fs.readFileSync(profileOverviewSrc, 'utf8');
+      masterContent += `\n\n---\n\n${overview}`;
+    }
+  }
+
+  if (masterContent) {
+    fs.writeFileSync(masterDest, masterContent);
   }
 
   return profiles;

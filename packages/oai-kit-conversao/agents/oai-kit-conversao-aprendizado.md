@@ -47,19 +47,29 @@ Para cada tabela/procedure/view Oracle confirmada nesta conversão, crie ou atua
 
 ### 3. Atualizar cheatsheets/arquétipos/notas de módulo
 
+**Classificação de risco e destino da escrita** (`gaps/2026-08-28-auditoria-padroes-backend.md` — o checkpoint humano de teste manual/paridade não observa *como* o código foi escrito, só se funciona; uma conversão pode passar em tudo isso e ainda propor um padrão ruim para a base central):
+
+- 🔴 **Alto risco — nunca escrita direta, sempre via `staging/`**: arquétipo novo/editado, `cheatsheets/convencoes-implementacao.md`, armadilha promovida a item de checklist/receita, `catalogo-reuso/telas-referencia.md`, `catalogo-reuso/hooks-e-utils.md`. Crie `{knowledgeBasePath}/staging/{data}-{tela}-{alvo}.md` com o conteúdo proposto, o porquê, a tela de origem, e o resultado (PASS/FAIL) do `oai-kit-conversao-guardiao` para esta conversão (ver `staging/README.md` para o formato completo e o processo de revisão humana periódica). Liste a proposta de staging no Gate Pré-Commit (passo 6) separada das escritas diretas — ela **não** exige a mesma aprovação de commit/push (staging não é lido como fonte de verdade por nenhum outro agente), mas ainda precisa aparecer no resumo para o dev saber que existe.
+- 🟡 **Médio risco — escrita direta, mas com tag de origem**: `modulos/<modulo>.md`, `catalogo-reuso/componentes/<Componente>.md` (seção "comportamento não-óbvio"). Anexe ao final da entrada o bloco `[Origem: retroalimentação automática — revisado por: —]` — não bloqueia o fluxo, só deixa rastro para auditoria futura.
+- 🟢 **Baixo risco — sem mudança**: schema Oracle, índices de status, `gaps-log.md`/`descartes-log.md`, métricas, menus, campos de `minerva-index.json` exceto `arquetipos`. Seguem exatamente como já descrito nos passos 1/1b/1c/2/4/4b/4c/5.
+
 **Antes de decidir onde persistir qualquer achado abaixo, pergunte-se**: *"este padrão é específico desta tela/arquétipo, ou é uma convenção transversal de UI (wrapper de form, overlay de loading, PK read-only, layout de par de campos, etc.) que deveria valer para todos os arquétipos CRUD?"* Se for transversal, **não baste corrigir só o arquétipo de origem do achado** — proponha também: (a) a mesma correção nos arquétipos irmãos (`archetypes/*.md` que compartilham o mesmo tipo de UI), (b) uma Restrição Absoluta nova em `oai-kit-conversao-frontend.md` se o padrão for sobre estrutura/componente base, e (c) um item novo no checklist estático de `oai-kit-conversao-paridade.md` se for verificável por grep. Origem desta regra: episódio real (2026-08-06/07) onde uma correção de 9 padrões de layout foi aplicada só nos 2 arquétipos tocados pela conversão que a originou — os outros 4-5 arquétipos continuaram ensinando/permitindo o padrão errado, e `oai-kit-conversao-paridade.md` não ganhou nenhum item novo de checklist, deixando a próxima conversão nesses arquétipos destinada a repetir o mesmo erro.
 
 - **Armadilha nova descoberta (não estava em `cheatsheets/armadilhas-comuns.md`) → proponha adição, e responda explicitamente, para cada uma, antes do Gate Pré-Commit (decisão mecânica, não opcional)**: *"isso é detectável por regra estática/grep?"* — **se sim**, é **obrigatório** também adicionar o item correspondente em `cheatsheets/paridade-checklist-transversal.md` (se aplicável a qualquer padrão/nível) ou na receita do arquétipo específico onde a regra é ensinada (se só se aplica a um padrão) — nunca deixar a armadilha só documentada no cheatsheet sem virar checagem ativa em algum lugar que `oai-kit-conversao-paridade` de fato lê. **Se não for grep-detectável** (ex.: mudança de comportamento dependente de versão de dependência externa, como a #53 do `Form`/UIKit), registre explicitamente essa justificativa — "não enforced porque X" é uma decisão válida, "esqueci de propagar" não é. Origem desta regra: auditoria real (2026-08-14) encontrou 11 de 12 armadilhas novas da semana catalogadas só no cheatsheet, nenhuma virada em checklist — o "avalie se é transversal" abaixo já existia e não bastou sozinho, porque ficava a critério de lembrança do agente numa sessão isolada.
-- Regra de negócio ou comportamento de UI não óbvio → proponha adição em `modulos/<modulo>.md`.
-- Hook/service reutilizável criado nesta conversão → proponha adição em `catalogo-reuso/hooks-e-utils.md`.
-- Componente de app compartilhado **não vindo do UIKit** (ex.: usado no arquétipo `accordion-secoes-indice-numerado` — `CustomAccordionGroup`/`AccordionSectionsNavRail` ou equivalente novo) criado/portado nesta conversão sem entrada ainda → proponha adição em `catalogo-reuso/hooks-e-utils.md`, seção "Componentes compartilhados de app (não-UIKit)".
-- Componente `@praxio/globusweb-uikit` usado sem entrada em `catalogo-reuso/componentes/` (não catalogado ainda), ou usado pela primeira vez de verdade num componente com `temExemploReal: false` → crie/atualize a entrada correspondente (`_template-componente.md`) e `componentesUikit-index.json` (passo 1c). Armadilha nova encontrada num componente já catalogado → adicione à seção "Comportamento não-óbvio / armadilhas" existente.
-- Nível(is) de menu criado(s) nesta conversão (grupo/submenu novo em `menu.constants.tsx`, reportado pelo frontend) → atualize `menus/globusweb/<SIGLA>.md` (novo grupo/submenu, rotas filhas, `indice`) e `minerva-index.json` → `menuGlobusWeb.<SIGLA>.ultimaAtualizacao`. Sem isso, a próxima tela do mesmo módulo não sabe que aquele nível já existe.
-- Convenção de implementação de backend não óbvia descoberta nesta conversão (ex.: campo wrapper de mutation, padrão de teste, coluna com trigger) → proponha adição em `cheatsheets/convencoes-implementacao.md`.
+- 🟡 Regra de negócio ou comportamento de UI não óbvio → proponha adição em `modulos/<modulo>.md`, com o bloco `[Origem: retroalimentação automática — revisado por: —]` anexado.
+- 🔴 Hook/service reutilizável criado nesta conversão → proposta via `staging/` (nunca direto em `catalogo-reuso/hooks-e-utils.md`).
+- 🔴 Componente de app compartilhado **não vindo do UIKit** (ex.: usado no arquétipo `accordion-secoes-indice-numerado` — `CustomAccordionGroup`/`AccordionSectionsNavRail` ou equivalente novo) criado/portado nesta conversão sem entrada ainda → proposta via `staging/` (destino final seria `catalogo-reuso/hooks-e-utils.md`, seção "Componentes compartilhados de app (não-UIKit)").
+- 🟡 Componente `@praxio/globusweb-uikit` usado sem entrada em `catalogo-reuso/componentes/` (não catalogado ainda), ou usado pela primeira vez de verdade num componente com `temExemploReal: false` → crie/atualize a entrada correspondente (`_template-componente.md`, com a tag de origem) e `componentesUikit-index.json` (passo 1c) — este índice em si é 🟢, não precisa de tag. Armadilha nova encontrada num componente já catalogado → adicione à seção "Comportamento não-óbvio / armadilhas" existente, com a tag.
+- 🟢 Nível(is) de menu criado(s) nesta conversão (grupo/submenu novo em `menu.constants.tsx`, reportado pelo frontend) → atualize `menus/globusweb/<SIGLA>.md` (novo grupo/submenu, rotas filhas, `indice`) e `minerva-index.json` → `menuGlobusWeb.<SIGLA>.ultimaAtualizacao`. Sem isso, a próxima tela do mesmo módulo não sabe que aquele nível já existe.
+- 🔴 Convenção de implementação de backend não óbvia descoberta nesta conversão (ex.: campo wrapper de mutation, padrão de teste, coluna com trigger) → proposta via `staging/` (destino final seria `cheatsheets/convencoes-implementacao.md`).
 
-### 3b. Avaliar candidatura a `catalogo-reuso/telas-referencia.md`
+**Lição de padrão arquitetural de backend (REST vs. GraphQL, transação/repository/integração manual vs. abstração, resolver manual desnecessário) classificada como transversal na pergunta reflexiva acima → promova a edição real em `padroes-globusweb/patterns/backend-pattern.md` e/ou `.oai-kit/policies/conversion-policy.md` (novo AP-CONV) na mesma sessão, nunca só como nota em `modulos/<modulo>.md`.** Nota de módulo sozinha não é lida sistematicamente pelo próximo `oai-kit-conversao-backend` de outro módulo/tela — só a policy central e o arquétipo/cheatsheet são. Origem desta regra: a mesma lição real (`DiasValeTransporteDuplicarResolver`, FLP #617781, 2026-08-10) ficou presa em `modulos/folha.md` por semanas sem virar regra, permitindo repetição do erro em telas seguintes do mesmo módulo (ver auditoria `gaps/2026-08-28-auditoria-padroes-backend.md`, causa raiz #1).
 
-Mesmo espírito do passo 3 (avaliar se um achado é transversal o bastante para virar arquétipo/componente novo): avalie se a tela recém-convertida é candidata a **entrar** (ou **promover** uma entrada existente mais fraca) no catálogo de telas-referência. Critério: cobre múltiplos padrões/componentes corretamente (não só um único detalhe), e não teve nenhum "Bug de conversão" encontrado no teste manual/paridade (`oai-kit-conversao-paridade`, passo 3 — zero nesta conversão). Se aplicável, inclua a proposta (tela, tags dos padrões/componentes exemplificados, tier sugerido — ★★★/★★/★) no Gate Pré-Commit do Minerva.
+**Sempre que esta promoção criar ou alterar um `AP-CONV-0NN`**, registre a data de corte como uma linha em `gaps/gaps-log.md` no formato `[Corte AP-CONV-0NN — {data}]: regra nova/alterada a partir desta data — telas convertidas antes dela no(s) módulo(s) {lista} são candidatas a revisão retroativa quando este AP-CONV for citado.` Isso não é um GAP no sentido do "Critério de GAP" (não bloqueia ninguém agora), é só o rastro que permite auditoria futura — sem essa data registrada, não há como saber quais conversões antigas foram feitas antes da regra existir.
+
+### 3b. Avaliar candidatura a `catalogo-reuso/telas-referencia.md` (🔴 — sempre via `staging/`)
+
+Mesmo espírito do passo 3 (avaliar se um achado é transversal o bastante para virar arquétipo/componente novo): avalie se a tela recém-convertida é candidata a **entrar** (ou **promover** uma entrada existente mais fraca) no catálogo de telas-referência. Critério: cobre múltiplos padrões/componentes corretamente (não só um único detalhe), **passou 100% no `oai-kit-conversao-guardiao` sem FAIL** (nomear uma tela com padrão de backend rejeitado pelo guardião como referência seria o pior caso de contaminação), e não teve nenhum "Bug de conversão" encontrado no teste manual/paridade (`oai-kit-conversao-paridade`, passo 3 — zero nesta conversão). Se aplicável, crie a proposta em `staging/` (tela, tags dos padrões/componentes exemplificados, tier sugerido — ★★★/★★/★, resultado do guardião) — nunca escreva direto em `telas-referencia.md`. Mencione a proposta de staging no Gate Pré-Commit do Minerva (passo 6).
 
 Se a tela recém-convertida preenche uma lacuna documentada na seção "Lacunas de cobertura" de `telas-referencia.md`, remova ou atualize essa entrada de lacuna no mesmo commit — nunca deixe uma lacuna já preenchida registrada como se ainda estivesse aberta.
 
@@ -108,27 +118,32 @@ Append (nunca sobrescreva) uma linha em `{knowledgeBasePath}/metrics/conversoes.
 
 ```
 ═══════════════════════════════════════════
-ATUALIZAÇÕES PROPOSTAS EM GlobusEvo.Minerva
+ATUALIZAÇÕES PROPOSTAS EM GlobusEvo.Minerva (escrita direta)
 ═══════════════════════════════════════════
-• minerva-index.json — [o que mudou: gapsAbertos/arquetipos/modulos/dicionarioModulos/padroesFrontend]
+• minerva-index.json — [o que mudou: gapsAbertos/modulos/dicionarioModulos/padroesFrontend — nunca "arquetipos" aqui, ver bloco de staging abaixo]
 • especificacoes-index.json — [status: "convertida" para esta tela; arquivo separado do índice]
-• componentesUikit-index.json — [componente novo catalogado ou armadilha nova, se houver; arquivo separado do índice]
+• componentesUikit-index.json — [componente novo catalogado, se houver; arquivo separado do índice]
 • tabelasConhecidas/<SIGLA>.json — [entrada(s) nova(s)/atualizada(s), incl. implementacaoBackend se aplicável — diretório separado do índice, um arquivo por módulo]
 • descobertas-oracle/<objeto>.md — [novo/atualizado]
-• archetypes/<...>.md — [se houver arquétipo novo]
 • cheatsheets/armadilhas-comuns.md — [se houver armadilha nova] — decisão de enforcement: [grep-detectável → item novo em cheatsheets/paridade-checklist-transversal.md ou no arquétipo X / não grep-detectável → motivo]
-• cheatsheets/convencoes-implementacao.md — [se houver convenção de backend nova]
-• catalogo-reuso/hooks-e-utils.md — [hook/service novo, se houver]
-• catalogo-reuso/telas-referencia.md — [entrada nova/promovida, se a tela for candidata; lacuna removida/atualizada, se aplicável]
-• catalogo-reuso/componentes/<Componente>.md — [componente UIKit novo catalogado, se houver]
-• modulos/<modulo>.md — [se houver nota nova]
+• catalogo-reuso/componentes/<Componente>.md — [componente UIKit novo catalogado, se houver — 🟡 com tag de origem]
+• modulos/<modulo>.md — [se houver nota nova — 🟡 com tag de origem]
 • modulos/_dicionario-modulos.md — [se um prefixo novo foi confirmado com o dev]
 • menus/globusweb/<SIGLA>.md — [se houve criação/reaproveitamento de nível de menu]
-• gaps/gaps-log.md — [se houver GAP novo]
+• gaps/gaps-log.md — [se houver GAP novo, incl. corte de AP-CONV se aplicável]
 • gaps/descartes-log.md — [se houver descarte consciente novo]
 • metrics/conversoes.jsonl — 1 linha nova
 ═══════════════════════════════════════════
+PROPOSTAS EM staging/ (🔴 alto risco — revisão humana periódica, não bloqueia este commit)
+═══════════════════════════════════════════
+• archetypes/<...>.md — [arquétipo novo/editado, se houver]
+• cheatsheets/convencoes-implementacao.md — [convenção de backend nova, se houver]
+• catalogo-reuso/hooks-e-utils.md — [hook/service novo, se houver]
+• catalogo-reuso/telas-referencia.md — [entrada nova/promovida, se a tela for candidata — sempre com resultado do guardião]
+═══════════════════════════════════════════
 ```
+
+As propostas em `staging/` **não fazem parte da pergunta de commit/push abaixo** — são arquivos novos em `staging/`, sem risco de contaminar nenhum agente (nada lê `staging/` como fonte de verdade), então não exigem o mesmo gate de aprovação; ainda assim, sempre liste-as aqui para o dev saber que existem e podem ser revisadas quando ele quiser (ou no próximo bump de versão do `oai-kit-conversao`, conforme `staging/README.md`).
 
 Pergunte: *"Posso commitar e subir (push) essas atualizações no GlobusEvo.Minerva? (sim/não)"* Se sim, commite localmente e **sempre tente o push em seguida** — não é uma pergunta separada opcional; o pull obrigatório do início (ver Pré-condições) só protege o *próximo* dev se este *dev* também sincronizar de volta. Se o push for rejeitado por non-fast-forward, tente `git pull --rebase` + push **uma vez** automaticamente. Se ainda assim conflitar (mais provável em `minerva-index.json`/`especificacoes-index.json`/`componentesUikit-index.json`/`tabelasConhecidas/<SIGLA>.json`, os únicos não append-only tocados aqui — `tabelasConhecidas` sendo um arquivo por módulo desde 2026-08-19 reduz bastante a chance, mas não elimina se dois devs editarem o mesmo módulo ao mesmo tempo), pare e mostre o conflito ao dev — nunca decida sozinho como resolver.
 

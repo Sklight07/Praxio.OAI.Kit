@@ -137,6 +137,10 @@ function depositProfileFiles() {
   copyDirContents(path.join(PKG_ROOT, 'commands'), path.join(oaiKitDir, 'commands', 'conversao'));
   copyDirContents(path.join(PKG_ROOT, 'knowledge', 'conversao'), path.join(oaiKitDir, 'knowledge', 'conversao'));
   copyDirContents(path.join(PKG_ROOT, 'policies'), path.join(oaiKitDir, 'policies'));
+  const overviewSrc = path.join(PKG_ROOT, 'oai-kit-conversao.md');
+  if (fs.existsSync(overviewSrc)) {
+    fs.copyFileSync(overviewSrc, path.join(oaiKitDir, 'oai-kit-conversao.md'));
+  }
   console.log('  ✓ Perfil "conversao" depositado em .oai-kit/ (versão atual do pacote)');
 
   // 2) Registra o perfil em oai-kit.yaml

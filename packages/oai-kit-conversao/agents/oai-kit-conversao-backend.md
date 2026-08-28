@@ -24,9 +24,9 @@ Abra **apenas** o arquétipo indicado no plano (`{knowledgeBasePath}/archetypes/
 
 ### 2. Compressão do processo por nível
 
-- **`N1`-`N3`**: implemente back-end e (na sequência, mesmo agente/turno) **acione o agente `oai-kit-conversao-frontend`** num único passe — o contrato já é conhecido e provado pelo arquétipo, não é necessário o handoff formal de 5 fases. "Passe único" significa não parar entre os dois para um gate humano, **não** significa que você implementa a feature de frontend você mesmo (ver Restrições Absolutas).
+- **`N1`-`N3`**: implemente back-end, acione `oai-kit-conversao-guardiao` (PASSO 2.5 — obrigatório, incondicional) e só então **acione o agente `oai-kit-conversao-frontend`** num único passe — o contrato já é conhecido e provado pelo arquétipo, não é necessário o handoff formal de 5 fases. "Passe único" significa não parar entre os dois para um gate humano além do guardião, **não** significa que você implementa a feature de frontend você mesmo (ver Restrições Absolutas), nem que o guardião é dispensado por a tela ser "simples".
 - **`N4`-`N5`**: mesmo passe único de `N1`-`N3`, mas antes de implementar cada "ponto de atenção" sinalizado pela triagem, confirme-o contra o fonte real (leitura pontual, não o arquivo inteiro de novo).
-- **`N-ESPECIAL`**: siga o processo completo de `{knowledgeBasePath}/padroes-globusweb/patterns/delivery-sequencing.md` (backend → contract-review → spec-sync → frontend → paridade), com gate entre backend e frontend.
+- **`N-ESPECIAL`**: siga o processo completo de `{knowledgeBasePath}/padroes-globusweb/patterns/delivery-sequencing.md` (backend → contract-review → spec-sync → frontend → paridade), com gate entre backend e frontend — `oai-kit-conversao-guardiao` roda entre o backend e o contract-review, mesma posição relativa dos demais níveis.
 
 ### 3. Implementar
 
@@ -47,7 +47,7 @@ Todo `CreateInput`/`UpdateInput` com decorators de validação (`@IsInt`, `@Min`
 
 ### 4. Gate (só quando `N-ESPECIAL`)
 
-Se o nível é `N-ESPECIAL` e a tela envolve UIKit ou um padrão arquitetural novo, acione `oai-kit-architecture-agent` (perfil developer, reuso — não duplicar sua lógica) antes de prosseguir para o frontend.
+Se o nível é `N-ESPECIAL` e a tela envolve UIKit ou um padrão arquitetural novo, acione `oai-kit-architecture-agent` (perfil developer, reuso — não duplicar sua lógica) antes de prosseguir para o frontend. **Ao acionar, passe explicitamente no prompt**: as restrições AP-CONV-002/012/020/021 (nunca contrato GraphQL inventado, nunca domínio de tabela de outro módulo local, transação/repository/integração via abstração default, ação de negócio customizada vira resolver nunca REST) e o padrão decorator-driven (`NestjsQueryGraphQLModule.forFeature`) como contexto adicional obrigatório — `oai-kit-architecture-agent` é um agente genérico do perfil developer que só enxerga por padrão `.speckit/architecture-overview.md` do projeto-alvo, que pode legitimamente descrever REST como aceitável para "funcionalidades complexas" num contexto não-conversão; sem esse contexto explícito, o veredito de arquitetura pode recomendar REST por desconhecimento das regras de conversão (origem: auditoria `gaps/2026-08-28-auditoria-padroes-backend.md`, achado sobre o Folha).
 
 ### 4b. Fluxo multi-repo — só quando o plano sinaliza GAP cross-módulo (AP-CONV-012)
 
@@ -74,6 +74,8 @@ Registre em `.oai-flow/delivery/{ID}-conversao-patch.md`: arquivos criados/edita
 
 ## Restrições Absolutas
 
+- **Hierarquia absoluta de implementação de contrato/operação (nunca pular etapa por hábito ou conveniência)**: resolver automático (`NestjsQueryGraphQLModule.forFeature`, decorators na DTO/Entity — **inclui coleção filha 1:N/N:M via `@OneToMany`/`@ManyToOne` + cascade `orphanedRowAction:'delete'`, não só entity flat**, ver AP-CONV-022) > hooks de `nestjs-query` (`BeforeCreateOneHook`/etc., regra pré-insert/update/delete que não exige mudar o resolver) > `@Resolver()/@Mutation()` customizado (motivo de negócio documentado — nunca "PK composta" isolada, ver AP-CONV armadilha #92) > `@Controller` REST (só exceção documentada — binário/webhook/integração externa já publicada, AP-CONV-021). Da mesma forma, transação/repository/integração usam `@Transactional`/`AbstractRepository`/`BaseRepository`/`BaseService`/`IRequestsService` por padrão — manual só com justificativa documentada (AP-CONV-020), e repository/service customizado para coleção filha exige uma das exceções do AP-CONV-022 (colunas de negócio próprias, ausência de dono único, itens de API externa). `@Transactional()` nunca decora um método cujo início é validação de guarda que deveria falhar antes de qualquer acesso a banco — extrair a parte transacional para um método privado (armadilha #93).
+- **Nunca avance para o frontend sem `oai-kit-conversao-guardiao` ter dado PASS** (PASSO 2.5 de `/oai-kit-converter-tela`, incondicional em todos os níveis) — qualquer FAIL sem justificativa já documentada no patch é bloqueante; corrija e reenvie antes de acionar `oai-kit-conversao-frontend`, mesmo no passe único de `N1`-`N3`.
 - Nunca implemente frontend antes do backend, exceto no caso explicitamente permitido de compressão em tela `N1`-`N5` (mesmo passe, backend primeiro dentro dele).
 - Nunca marque a implementação como concluída sem o teste de `CreateInput`/`UpdateInput` (e de `QueryService`, se houver override) — ver passo 3b. Não é opcional para telas "simples".
 - Nunca use `OmitType` puro sem `PartialType` no `UpdateInput`.

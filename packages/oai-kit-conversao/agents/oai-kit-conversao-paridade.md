@@ -14,6 +14,7 @@ Você verifica **estaticamente** (build/lint/typecheck/revisão de código vs. e
 
 - Backend e frontend já implementados.
 - `.oai-flow/analysis/{ID}-conversao-plano.md` com o nível (`N1`-`N5` ou `N-ESPECIAL`).
+- `oai-kit-conversao-guardiao` (PASSO 2.5) já rodou com todos os itens PASS (ou FAIL com justificativa aceita explicitamente pelo dev) — confirme isso em `.oai-flow/delivery/{ID}-conversao-patch.md` antes de prosseguir. Se houver FAIL sem justificativa registrada, **pare** e devolva para `oai-kit-conversao-backend`/`oai-kit-conversao-guardiao` resolver antes de continuar a verificação estática — não é papel da paridade reavaliar padrão de backend, só confirmar que o gate anterior não ficou pendente.
 - `oai-kit-conversao-e2e` já rodou (PASSO 4, se `--com-cypress` foi passado), ou foi pulado por ser o comportamento padrão — confirme qual dos dois antes de montar o checklist manual.
 
 ## Processo

@@ -330,6 +330,33 @@ O `AP-CONV-012` cobre uma tela que **pertence** ao módulo do ticket, mas **refe
 
 **Registro para reaproveitamento futuro**: se a tela foi reposicionada, o campo `modulo` da entrada em `especificacoes-index.json`/na spec reflete o módulo **real** (onde foi implementada), nunca o módulo do ticket original — evita que uma triagem futura, ao reaproveitar esta spec, assuma o módulo errado.
 
+### AP-CONV-020 — Abstrações de transação/repositório/integração são default, não opcionais
+
+Origem: auditoria de padrões de backend (`gaps/2026-08-28-auditoria-padroes-backend.md`, Minerva, 2026-08-28) — encontrou um módulo (Folha) com as mesmas libs `@praxio/shared-kernel`/`@praxio/globusweb-requests` instaladas que um módulo de referência (Manutencao), mas reimplementando manualmente tudo que essas libs já resolvem: 0 uso de `@Transactional` (vs. dezenas em Manutencao), `AbstractRepository`/`BaseRepository`/`BaseService` usados em 1 de ~62 arquivos (vs. dezenas), 0 uso de `IRequestsService` (vs. uso real para chamada federada entre módulos), e 13 blocos de `dataSource.transaction()`/`queryRunner` manual.
+
+**Regra**: para os três recursos abaixo, a abstração é o **default**; a implementação manual exige justificativa de negócio documentada no patch (mesma escada de exceção usada para REST no AP-CONV-021) — nunca "porque é mais simples" ou "não sabia que existia":
+- **Transação multi-statement** → `@Transactional({ propagation: "REQUIRED" | "REQUIRES_NEW" })` de `@praxio/shared-kernel`. Manual (`dataSource.transaction()`/`queryRunner.startTransaction()`) só quando o `EntityManager` do `@Transactional` genuinamente não propaga para um `QueryRunner` interno necessário (caso real documentado: `abertura-os-programacao-noturna.service.ts`, Manutencao) — documentar o motivo técnico específico, não "não funcionou".
+- **Repository/service customizado** → `extends AbstractRepository`/`BaseRepository`/`BaseService` de `@praxio/shared-kernel`. DI manual do zero (interface + `@Injectable()` + token, sem estender a base) só quando a operação monta SQL dinâmico que não cabe no padrão declarativo (caso real: `relacionamento-generico.repository.ts`, Acidentes — entidade genérica/polimórfica).
+- **Chamada a outro módulo/API** → `IRequestsService` (`@praxio/globusweb-requests`, `getGraphQLClient()`/`getRestClient()`). Client HTTP manual nunca é aceitável para comunicação entre serviços GlobusWeb — só para integração externa genuinamente fora do ecossistema, já coberta pela exceção REST do AP-CONV-021.
+
+### AP-CONV-021 — Ação de negócio customizada vira resolver GraphQL, nunca Controller REST
+
+Origem: mesma auditoria — lição real já descoberta durante a conversão do próprio Folha (`DiasValeTransporteDuplicarResolver`, #617781, 2026-08-10) mas que ficou presa em nota de módulo sem virar regra central, permitindo repetição do mesmo erro em telas seguintes.
+
+**Regra**: um módulo que já expõe GraphQL (CRUD via `NestjsQueryGraphQLModule.forFeature` ou resolver customizado) implementa toda ação de negócio nova como `@Resolver()`/`@Mutation()` — **nunca** como `@Controller` REST. REST só é aceitável para: upload/download binário, webhook, arquivo/stream, ou integração externa já publicada que exige REST (documentar qual integração e por quê). "Já existe um padrão parecido feito em REST antes" não é justificativa — só a lista de exceções acima.
+
+**Ver também `AP-CONV-020`** para a mesma lógica de "abstração é default" aplicada a transação/repository/integração, e a armadilha #92 de `cheatsheets/armadilhas-comuns.md` (Minerva) para o critério objetivo de quando PK composta genuinamente justifica resolver manual (raramente, e nunca sozinha).
+
+### AP-CONV-022 — Coleção filha 1:N/N:M com dono único usa relação declarada + cascade, nunca repository/service customizado
+
+Origem: mesma auditoria, addendum de 2026-08-28 — `unidade-entrega-vt` (Folha) foi implementado como Padrão B (repository/service/resolver custom para gerenciar `FLP_UNIDADEENTREGAVT_DESTINO`) porque o arquétipo `archetypes/selecao-aleatoria-nm.md` (Minerva) prescrevia isso incondicionalmente para "PK composta de 3+ colunas" — justificativa falsa, corrigida na mesma data.
+
+**Regra**: quando a tabela filha de uma relação 1:N/N:M é uma **junção pura** (só colunas FK, sem coluna de negócio própria) com um **único FK-pai** natural e os itens elegíveis vêm do próprio banco Oracle do módulo (não de API externa), a implementação é `@OneToMany`/`@ManyToOne` declarados na entity + `{ cascade: true, onDelete: 'CASCADE', orphanedRowAction: 'delete' }` + array espelhando a relação no `Create`/`UpdateInput` — **nunca** repository/service/resolver customizado para o replace-total. `NestjsQueryGraphQLModule.forFeature` já dispara o cascade sozinho (`createOne`/`updateOne` terminam em `repo.save()`, não `.update()`).
+
+**Quando Padrão B (`archetypes/selecao-aleatoria-nm.md`) continua justificado**: tabela de associação com colunas de negócio próprias (data, flag, valor), ausência de dono único (associação entre duas entidades "irmãs"), ou itens vindos de API externa (CTR) exigindo filtro defensivo em runtime. PK composta da tabela filha **não é**, sozinha, motivo para nenhum dos dois lados (mesmo critério do AP-CONV-020/armadilha #92) — a decisão depende da forma da relação, não do número de colunas da PK.
+
+Ver receita completa e árvore de decisão em `archetypes/relacao-1n-nm-cascade.md` (Minerva).
+
 ## Ordem de referência para padrões (economia de tempo)
 
 `{knowledgeBasePath}/padroes-globusweb/patterns/*.md` são documentos de governança, escritos para arquitetos — completos, mas caros de ler por inteiro a cada tela. O arquétipo (`archetypes/<x>.md`), os cheatsheets e o catálogo de componentes (`catalogo-reuso/componentes/`) já resumem o que é necessário para os casos comuns (`N1`-`N5`).
@@ -362,5 +389,9 @@ Antes de aprovar qualquer conversão, verifique:
 - Se a tela manipula campo sensível (LGPD), o checklist AP-CONV-016 foi aplicado (autorização, minimização de payload, mascaramento, auditoria quando já existir, bloqueio de exportação).
 - Se `--com-cypress` foi usado (AP-CONV-018): `oai-kit-conversao-e2e` rodou; todo GAP que ele tenha aberto por erro esgotado está mencionado no output — nenhum fica silenciosamente esquecido antes do checklist de teste manual.
 - **Exceção de PK não-digitável no Inline+Grid** (2026-08-14): ausência de `onBlur` no campo-chave não é bug quando a PK é composta de campos não-digitáveis de cabeça — nesse caso só `onRowDoubleClick` é válido (ver arquétipo).
+- **AP-CONV-020**: nenhuma transação multi-statement manual (`dataSource.transaction()`/`queryRunner`), nenhum repository/service customizado sem `extends AbstractRepository`/`BaseRepository`/`BaseService`, nenhuma chamada a outro módulo/API sem `IRequestsService` — em qualquer um dos três, sem justificativa documentada no patch equivalente às exceções reais já catalogadas.
+- **AP-CONV-021**: nenhuma ação de negócio customizada implementada via `@Controller` REST quando o módulo já expõe GraphQL — salvo exceção documentada (binário/webhook/integração externa já publicada).
+- **AP-CONV-022**: nenhuma coleção filha 1:N/N:M (junção pura, dono único, itens do próprio banco) implementada via repository/service/resolver customizado — deveria ser `@OneToMany`/`@ManyToOne` + cascade (`orphanedRowAction: 'delete'`), salvo exceção documentada (colunas de negócio próprias na tabela filha, ausência de dono único, itens de API externa).
+- Já coberto por `oai-kit-conversao-guardiao` (PASSO 2.5, antes deste checkpoint): se o output desse agente aparece no patch com algum item FAIL não resolvido, a paridade não aprova até o dev confirmar explicitamente a exceção.
 
 Qualquer hit de violação = veredicto BLOQUEADO até resolução.
