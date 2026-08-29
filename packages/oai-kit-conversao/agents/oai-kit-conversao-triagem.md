@@ -187,7 +187,8 @@ Gere `.oai-flow/analysis/{ID}-conversao-plano.md`:
 - [tabela/procedure] — [CONFIRMED via cache | CONFIRMED via Oracle MCP | INFERRED]
 
 ## Backend
-Padrão sugerido: A | A+QueryService | B — [justificativa]
+Padrão sugerido: A | A+Hooks | A+QueryService | B — [justificativa]
+(Antes de sugerir A+QueryService: a customização é mutação pura de campo ou guarda de leitura antes de excluir? Se sim, é A+Hooks — ver armadilha #94, Minerva. QueryService só quando há captura de exceção pós-escrita ou atomicidade entre escrita extra e operação principal.)
 
 ## Frontend
 Padrão UX decidido: Grid+Modal | Inline+Grid | Accordion+Índice Numerado | Lookup | Ciclo de vida (grid-procedure fora do caso "cadastro") — [justificativa]
