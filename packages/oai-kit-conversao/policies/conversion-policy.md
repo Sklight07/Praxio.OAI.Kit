@@ -339,16 +339,27 @@ O `AP-CONV-012` cobre uma tela que **pertence** ao módulo do ticket, mas **refe
 
 Origem: auditoria de padrões de backend (`gaps/2026-08-28-auditoria-padroes-backend.md`, Minerva, 2026-08-28) — encontrou um módulo (Folha) com as mesmas libs `@praxio/shared-kernel`/`@praxio/globusweb-requests` instaladas que um módulo de referência (Manutencao), mas reimplementando manualmente tudo que essas libs já resolvem: 0 uso de `@Transactional` (vs. dezenas em Manutencao), `AbstractRepository`/`BaseRepository`/`BaseService` usados em 1 de ~62 arquivos (vs. dezenas), 0 uso de `IRequestsService` (vs. uso real para chamada federada entre módulos), e 13 blocos de `dataSource.transaction()`/`queryRunner` manual.
 
-**Regra**: para os três recursos abaixo, a abstração é o **default**; a implementação manual exige justificativa de negócio documentada no patch (mesma escada de exceção usada para REST no AP-CONV-021) — nunca "porque é mais simples" ou "não sabia que existia":
+**Regra**: para os três recursos abaixo, a abstração é o **default**; a implementação manual exige justificativa de negócio documentada no patch (mesmo espírito de "abstração é default, manual exige justificativa" do AP-CONV-021) — nunca "porque é mais simples" ou "não sabia que existia":
 - **Transação multi-statement** → `@Transactional({ propagation: "REQUIRED" | "REQUIRES_NEW" })` de `@praxio/shared-kernel`. Manual (`dataSource.transaction()`/`queryRunner.startTransaction()`) só quando o `EntityManager` do `@Transactional` genuinamente não propaga para um `QueryRunner` interno necessário (caso real documentado: `abertura-os-programacao-noturna.service.ts`, Manutencao) — documentar o motivo técnico específico, não "não funcionou".
-- **Repository/service customizado** → `extends AbstractRepository`/`BaseRepository`/`BaseService` de `@praxio/shared-kernel`. DI manual do zero (interface + `@Injectable()` + token, sem estender a base) só quando a operação monta SQL dinâmico que não cabe no padrão declarativo (caso real: `relacionamento-generico.repository.ts`, Acidentes — entidade genérica/polimórfica).
-- **Chamada a outro módulo/API** → `IRequestsService` (`@praxio/globusweb-requests`, `getGraphQLClient()`/`getRestClient()`). Client HTTP manual nunca é aceitável para comunicação entre serviços GlobusWeb — só para integração externa genuinamente fora do ecossistema, já coberta pela exceção REST do AP-CONV-021.
+- **Repository/service customizado** → `extends AbstractRepository`/`BaseRepository`/`BaseService` de `@praxio/shared-kernel` (ver AP-CONV-025 para o critério de qual dos dois). DI manual do zero (interface + `@Injectable()` + token, sem estender a base) só quando a operação monta SQL dinâmico que não cabe no padrão declarativo (caso real: `relacionamento-generico.repository.ts`, Acidentes — entidade genérica/polimórfica).
+- **Chamada a outro módulo/API** → `IRequestsService` (`@praxio/globusweb-requests`, `getGraphQLClient()`/`getRestClient()`). Client HTTP manual nunca é aceitável para comunicação entre serviços GlobusWeb — só para integração externa genuinamente fora do ecossistema.
 
-### AP-CONV-021 — Ação de negócio customizada vira resolver GraphQL, nunca Controller REST
+### AP-CONV-021 — Resolver GraphQL customizado é último recurso absoluto, nunca criado sem aprovação explícita do dev
 
-Origem: mesma auditoria — lição real já descoberta durante a conversão do próprio Folha (`DiasValeTransporteDuplicarResolver`, #617781, 2026-08-10) mas que ficou presa em nota de módulo sem virar regra central, permitindo repetição do mesmo erro em telas seguintes.
+Origem: auditoria original (`DiasValeTransporteDuplicarResolver`, #617781, 2026-08-10) — lição real que ficou presa em nota de módulo sem virar regra central, permitindo repetição do erro em telas seguintes. **Reescrita por completo em 2026-08-31** (pedido explícito do dev, após a eliminação real de `AgrupamentoAreaEmpresaFilialResolver`) — a versão anterior desta política ainda tratava "ação simples" como destino padrão para resolver customizado; isso foi revogado. Não existe mais nenhuma categoria de ação (simples ou complexa, leitura ou escrita) que justifique criar um resolver customizado novo sem aprovação explícita do dev.
 
-**Regra**: um módulo que já expõe GraphQL (CRUD via `NestjsQueryGraphQLModule.forFeature` ou resolver customizado) implementa toda ação de negócio nova como `@Resolver()`/`@Mutation()` — **nunca** como `@Controller` REST. REST só é aceitável para: upload/download binário, webhook, arquivo/stream, ou integração externa já publicada que exige REST (documentar qual integração e por quê). "Já existe um padrão parecido feito em REST antes" não é justificativa — só a lista de exceções acima.
+**Regra, sem exceção implícita**: nenhum agente de conversão cria um `@Resolver()` customizado novo (qualquer `@Query()`/`@Mutation()` fora do CRUD automático de `NestjsQueryGraphQLModule.forFeature`) — nem para ação simples, nem para leitura, nem para replicação/cálculo. Resolvers já existentes no código (do próprio módulo ou de módulos de referência como Acidentes/Manutencao) **nunca são justificativa** para criar um novo — são precedente pendente de retrofit, não modelo a seguir. Antes de cogitar resolver, sempre nesta ordem:
+
+1. **CRUD automático resolve?** (leitura/escrita declarativa simples, inclusive `read.many` com filtro para "listar X de Y") → sem código nenhum, é o `forFeature` puro.
+2. **É uma regra pré-insert/update/delete que não muda o formato do resolver?** (validação, normalização, geração de código) → `Before*Hook`.
+3. **Precisa de chamada a sistema externo, ou é uma operação atômica multi-step que não cabe em CRUD por linha** (replace-total, cálculo complexo, etc.) → **REST Controller + Service + Repository**, reaproveitando o Service que já existiria de qualquer forma.
+4. **Nenhuma das três é viável** → só então um resolver customizado é cogitável, e só com o dev aprovando **explicitamente essa escolha, documentada no patch** — o agente apresenta a causa ao dev e pergunta antes de implementar, nunca decide sozinho.
+
+**Precedente real e maduro para REST+Service (passo 3)**: `GlobusWeb.Manutencao/back-end/src/controllers/frota-indisponivel.controller.ts` + `service/frota-indisponivel.service.ts` (valida estado antes de alterar/finalizar, dentro de `@Transactional()`) e `ordem-servico.controller.ts` (`/excluir-os`, `/cancelar-os`). Precedente real de eliminação completa de um resolver já em produção: `AgrupamentoAreaEmpresaFilialResolver` (Folha, 2026-08-31) — 2 queries + 1 mutation, nenhuma sobrou como resolver (leitura por filtro virou CRUD automático puro; chamada a CTR e replace-total viraram REST, mesmo Service reaproveitado).
+
+**Nota sobre REST do frontend para o próprio backend**: quando o passo 3 se aplica, o path base é `ConnectionApi.getServiceName('SIGLA')` (`@praxio/globusweb-ui-config`), nunca `getGlobalApiUrl()` sozinho — ver `convencoes-implementacao.md` (Minerva) para o padrão completo, incluindo `@UsePipes(new ValidationPipe({transform:true}))` obrigatório no controller salvo confirmação de `ValidationPipe` global no módulo-alvo (`GlobusWeb.Folha` não tem).
+
+**Instância conhecida, ainda não retrofitada**: `licenca-sindical.resolver.ts` (Folha) implementa "funcionário desligado"/"sobreposição com férias" como GraphQL Query — funciona, mas a regra fica presa no resolver, não reutilizável; candidato a retrofit futuro (passo 3), sem prazo definido.
 
 **Ver também `AP-CONV-020`** para a mesma lógica de "abstração é default" aplicada a transação/repository/integração, e a armadilha #92 de `cheatsheets/armadilhas-comuns.md` (Minerva) para o critério objetivo de quando PK composta genuinamente justifica resolver manual (raramente, e nunca sozinha).
 
@@ -371,6 +382,42 @@ Ver receita completa e árvore de decisão em `archetypes/relacao-1n-nm-cascade.
 Origem: `sindicato.entity.ts` (Folha, 2026-08-29) — `DATAINCLUSAOSIND` declarado como `@CreateDateColumn()` gravava `NULL` no INSERT em vez da data atual. Confirmado lendo o source do TypeORM (`InsertQueryBuilder.js`): para um INSERT de uma linha só, o TypeORM não calcula a data em JavaScript — emite `VALUES (..., DEFAULT, ...)` e depende de a coluna real ter `DEFAULT SYSDATE` (ou equivalente) já definido no banco. Essa cláusula só existiria se a tabela tivesse sido criada por `synchronize` — que este ecossistema nunca roda contra o schema Oracle legado (AP-CONV-004). Build/lint/typecheck/testes unitários (que mockam o repository) não detectam a falha — só teste manual contra o Oracle real revela.
 
 **Regra, sem exceção**: `@CreateDateColumn()`/`@UpdateDateColumn()` nunca é usado em nenhuma entity desta conversão. Para "data de inclusão"/"data de alteração" automática, o valor é setado explicitamente com `new Date()` dentro de um `BeforeCreateOneHook` (nunca tocado no update) ou `BeforeUpdateOneHook` — mesmo que o campo nem conste no `Create*Input`/`Update*Input` do GraphQL, mutar `instance.input`/`instance.update` direto no hook chega intacto em `repo.create()`/`repo.save()`. Quando o create/update já é SQL raw customizado (não Padrão A puro), o equivalente é `SYSDATE` literal na própria query — nunca o decorator TypeORM. Nenhum uso de `@CreateDateColumn`/`@UpdateDateColumn` existe em GlobusWeb.Acidentes/Manutencao (módulos maduros de referência). Checklist do `oai-kit-conversao-guardiao`, item 15; armadilha #97 (Minerva) tem o detalhamento completo da causa raiz.
+
+### AP-CONV-024 — Nomenclatura de `@ObjectType`, propriedades e sincronização com nomes de operação no `.module.ts`
+
+Origem: revisão de convenção pedida pelo dev (2026-08-31) relendo o código já convertido do Folha.
+
+**Regra**: `@ObjectType('Nome')` nunca leva o prefixo do módulo (`Flp`, `Man`, `Ctr`, etc.) — varredura real confirmou que 84 de 87 `@ObjectType` do Folha já seguem isso, só 3 têm o prefixo (`FlpCadBrindes`, `FlpCbo`, `FlpInfoBrindes`), então é exceção a corrigir, não o padrão vigente. Abreviação no nome do tipo ou de qualquer propriedade só é expandida por extenso quando o significado é **conhecido com certeza** (ex.: CBO = Cadastro Brasileiro de Ocupações, GPS = Guia da Previdência Social, VT = Vale Transporte, DSR = Descanso Semanal Remunerado, FGTS = Fundo de Garantia do Tempo de Serviço) — nunca adivinhar/inferir/assumir; se incerto, mantenha abreviado. Propriedades de entity/DTO/Input nunca repetem o nome da própria entity/DTO (`SindicatoEntity.descricao`, não `.descricaoSindicato`).
+
+**Regra adicional (não esquecer)**: renomear o `@ObjectType` nunca renomeia sozinho os nomes de operação GraphQL do `.module.ts` (`read`/`create`/`update`/`delete`, dentro de `NestjsQueryGraphQLModule.forFeature`) — são strings hard-coded independentes. Todo rename de `@ObjectType`/propriedade exige revisar e sincronizar o `.module.ts` correspondente na mesma mudança. Achado real de meio-corrigido: `flp-cbo.module.ts` já tem os nomes de operação certos (`cbo`/`cbos`/`createCbo`) mas o `@ObjectType('FlpCbo')` ficou com o prefixo antigo.
+
+Ver detalhamento completo com exemplos em `cheatsheets/convencoes-implementacao.md` (Minerva). Checklist do `oai-kit-conversao-guardiao`, itens 16-17.
+
+### AP-CONV-025 — `BaseRepository<Entity>` para uma entity própria sem SQL cru; `AbstractRepository` para SQL cru/múltiplas tabelas, independente do módulo dono
+
+Origem: revisão de convenção pedida pelo dev (2026-08-31) sobre os repositories criados na extração de SQL desta sessão (todos `AbstractRepository`).
+
+**Regra**: repository que mapeia uma única entity TypeORM própria, sem SQL cru nem JOIN multi-tabela, estende `BaseRepository<Entity>` (`@praxio/shared-kernel`, injeta `Repository<Entity>` via `@InjectRepository` no construtor). `AbstractRepository` fica reservado para SQL cru, JOIN entre múltiplas tabelas, ou ausência de uma entity única mapeando o que o repository faz. **O critério não é "tabela do próprio módulo vs. de outro módulo"** — confirmado em `GlobusWeb.Manutencao/back-end/src/repository/material.repository.ts`: mapeia tabelas do PRÓPRIO módulo e ainda assim usa `AbstractRepository`, porque o acesso é SQL cru com JOIN multi-tabela sem entity única. Contraste: `cadastro-defeito.repository.ts`/`ordem-servico.repository.ts` (mesmo módulo) usam `BaseRepository<Entity>` por mapear uma entity só, CRUD-like.
+
+**Não confundir com leitura cross-módulo via webservice** (quando Federation declarativa não está configurada) — isso não é responsabilidade de nenhum repository, é uma query GraphQL manual (`graphql/queries/*.query.ts`) consumida direto por um `*.service.ts` via `IRequestsService.getGraphQLClient()` (padrão real em `GlobusWeb.Manutencao`, ex. `estoque.service.ts`).
+
+Ver detalhamento completo, com contraste de código real, em armadilha #98 (`cheatsheets/armadilhas-comuns.md`, Minerva). Checklist do `oai-kit-conversao-guardiao`, item 18.
+
+### AP-CONV-026 — `{nullable: false}` no DTO/Input substitui validação manual de campo obrigatório, nunca coexiste com ela
+
+Origem: revisão de convenção pedida pelo dev (2026-08-31).
+
+**Regra**: quando a coluna Oracle é `nullable: false` (ou ausente) na entity e o campo é sempre obrigatório na tela, declare `{nullable: false}` no campo do DTO/Input GraphQL — o próprio schema rejeita a mutation com valor ausente antes de qualquer código de aplicação rodar. Não adicione, por cima, uma validação manual (`class-validator`, `if (!campo) throw`) checando exatamente a mesma obrigatoriedade — duas camadas fazendo a mesma checagem por padrão, não por necessidade. Validação manual continua necessária quando a regra vai além de "não pode ser vazio" (formato, intervalo, obrigatoriedade condicional a outro campo) — isso não é redundante, é regra de negócio real.
+
+Checklist do `oai-kit-conversao-guardiao`, item 21.
+
+### AP-CONV-027 — Testes ficam em `tests/<rotina>/`, nunca ao lado do fonte
+
+Origem: revisão de convenção pedida pelo dev (2026-08-31). Confirmado como padrão real já existente nos dois módulos maduros de referência (`GlobusWeb.Acidentes/back-end/src/tests/`, `GlobusWeb.Manutencao/back-end/src/tests/`) — o Folha nunca adotou, 98 specs colocados ao lado do fonte.
+
+**Regra**: `tests/` é diretório próprio, irmão de `entities`/`service`/`repository`/etc — nunca `*.spec.ts` ao lado do arquivo que testa. Uma subpasta por tela/rotina (kebab-case do nome da rotina), contendo todos os specs daquela rotina juntos independente da camada (`*.controller.spec.ts`, `*.service.spec.ts`, `*.repository.spec.ts` no mesmo diretório — não uma subpasta por camada). Specs/utilitários de teste genéricos (mock factories reutilizadas por várias rotinas) vão em `tests/common/`. Imports dos specs usam caminho relativo até o fonte, não o alias `@/` — mesma convenção observada nos módulos maduros.
+
+Ver estrutura completa em `backend-pattern.md` (Minerva, seção "Estrutura e nomenclatura"). Checklist do `oai-kit-conversao-guardiao`, item 19.
 
 ## Ordem de referência para padrões (economia de tempo)
 
@@ -405,9 +452,13 @@ Antes de aprovar qualquer conversão, verifique:
 - Se `--com-cypress` foi usado (AP-CONV-018): `oai-kit-conversao-e2e` rodou; todo GAP que ele tenha aberto por erro esgotado está mencionado no output — nenhum fica silenciosamente esquecido antes do checklist de teste manual.
 - **Exceção de PK não-digitável no Inline+Grid** (2026-08-14): ausência de `onBlur` no campo-chave não é bug quando a PK é composta de campos não-digitáveis de cabeça — nesse caso só `onRowDoubleClick` é válido (ver arquétipo).
 - **AP-CONV-020**: nenhuma transação multi-statement manual (`dataSource.transaction()`/`queryRunner`), nenhum repository/service customizado sem `extends AbstractRepository`/`BaseRepository`/`BaseService`, nenhuma chamada a outro módulo/API sem `IRequestsService` — em qualquer um dos três, sem justificativa documentada no patch equivalente às exceções reais já catalogadas.
-- **AP-CONV-021**: nenhuma ação de negócio customizada implementada via `@Controller` REST quando o módulo já expõe GraphQL — salvo exceção documentada (binário/webhook/integração externa já publicada).
+- **AP-CONV-021**: nenhum `@Resolver()` customizado novo (fora do CRUD automático) sem aprovação explícita do dev documentada no patch — nem para ação simples, nem para leitura. CRUD automático > `Before*Hook` > REST Controller+Service+Repository > resolver (último recurso). Resolvers já existentes no repo (próprio módulo ou referência) nunca são justificativa para criar um novo.
 - **AP-CONV-022**: nenhuma coleção filha 1:N/N:M (junção pura, dono único, itens do próprio banco) implementada via repository/service/resolver customizado — deveria ser `@OneToMany`/`@ManyToOne` + cascade (`orphanedRowAction: 'delete'`), salvo exceção documentada (colunas de negócio próprias na tabela filha, ausência de dono único, itens de API externa).
 - **AP-CONV-023**: nenhuma entity usa `@CreateDateColumn()`/`@UpdateDateColumn()` — data de inclusão/alteração automática é setada com `new Date()` em `BeforeCreateOneHook`/`BeforeUpdateOneHook` (ou `SYSDATE` literal, se o create/update já é SQL raw customizado), sem exceção.
+- **AP-CONV-024**: nenhum `@ObjectType`/propriedade com prefixo de módulo ou abreviação inventada/adivinhada (só expandida quando o significado é certo); nomes de operação do `.module.ts` sincronizados com todo rename de `@ObjectType`/propriedade.
+- **AP-CONV-025**: repository de entity própria sem SQL cru usa `BaseRepository<Entity>`; `AbstractRepository` só para SQL cru/múltiplas tabelas/sem entity única, independente de a tabela ser do próprio módulo ou não.
+- **AP-CONV-026**: nenhuma validação manual de campo obrigatório puro quando o DTO/Input já poderia declarar `{nullable: false}` (coluna Oracle já não aceita NULL).
+- **AP-CONV-027**: nenhum `*.spec.ts` colocado ao lado do fonte — todos em `tests/<rotina>/`, genéricos em `tests/common/`.
 - Já coberto por `oai-kit-conversao-guardiao` (PASSO 2.5, antes deste checkpoint): se o output desse agente aparece no patch com algum item FAIL não resolvido, a paridade não aprova até o dev confirmar explicitamente a exceção.
 
 Qualquer hit de violação = veredicto BLOQUEADO até resolução.
