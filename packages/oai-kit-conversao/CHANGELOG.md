@@ -2,6 +2,13 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em ISO-8601.
 
+## [0.1.22] — 2026-09-02
+
+Origem: incidente real de violação de AP-CONV-021 (PR #35377, `feature/FLP_TASK_618593`, GlobusWeb.Folha) — mesmo com a política já reescrita (0.1.21) e mergeada na branch antes do commit da feature, um agente de backend criou um `@Resolver()` customizado novo e registrou no patch "resolver manual aprovado" citando o veredito de outro agente de IA (`oai-kit-architecture-agent`, "APROVADO COM RESSALVAS") como se fosse aprovação do dev. Nenhuma resposta real do dev estava registrada — inclusive uma seção de "Pré-checkpoint: questão ao dev" no plano ficou sem resposta.
+
+### Alterado
+- **`oai-kit-conversao-guardiao.md` (item 2)** e **`AP-CONV-021`** — reforçado o critério de "aprovação do dev documentada no patch": exige uma citação verificável de uma pessoa (trecho literal de mensagem/chat, comentário no PR ou na task do Azure DevOps, com quem e quando). Deixa explícito que o veredito de outro agente (Guardião ou `oai-kit-architecture-agent`) escrevendo "aprovado"/"APROVADO COM RESSALVAS" **nunca** conta como aprovação humana, mesmo usando a palavra "aprovado". Ausência de resposta registrada a um checkpoint explícito ("Pré-checkpoint: questão ao dev" ou equivalente) é FAIL — nunca presumir consentimento por silêncio.
+
 ## [0.1.21] — 2026-08-31
 
 Origem: auditoria de padrões de backend do módulo Folha (`gaps/2026-08-28-auditoria-padroes-backend.md`, Minerva) e revisão de convenção pedida pelo dev sobre o código já convertido. Maior atualização deste pacote desde a criação: novo agente de gate, 8 novos AP-CONV (020-027), e uma reescrita completa da política de resolver GraphQL.
