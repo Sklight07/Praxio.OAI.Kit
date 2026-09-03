@@ -2,6 +2,19 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em ISO-8601.
 
+## [0.1.23] — 2026-09-03
+
+Origem: bug real reportado pelo dev em produção (`GlobusWeb.Folha`, `CadastroIndisponiveis`) — gravação de hora com -3h de deslocamento, seguida de gravação de data com -1 dia de deslocamento na mesma tela. Levantamento sistemático pedido pelo dev encontrou o mesmo padrão de data em mais 6 entities/telas do mesmo módulo, todas corrigidas na mesma sessão.
+
+### Adicionado
+- **`AP-CONV-028`** (`conversion-policy.md`) — toda coluna Oracle DATE-only (sem hora) com `transformer: LocalDateTransformer` na entity usa `GraphQLDate` (`@praxio/nestjs-query-graphql`, scalar `"LocalDate"`) no DTO/ID/Input GraphQL, nunca `Date`/`DateTime` genérico. `Date` genérico resolve para o scalar `DateTime`, cujo `parseValue` interpreta `"YYYY-MM-DD"` como meia-noite UTC; combinado com os getters LOCAIS de `LocalDateTransformer`, grava o dia anterior em fuso negativo (Brasília, UTC-3) — em campo PK e não-PK, e em `@FilterableField` usado em filtro (não só em escrita). Frontend correspondente: toda mutation usa `valor.slice(0, 10)` nos três pontos (create, update — `id` e `update` — e delete), de forma consistente.
+- **`oai-kit-conversao-guardiao.md` (item 22)** — nova checagem mecânica: coluna DATE-only com `LocalDateTransformer` cujo DTO/ID/Input ainda usa `Date`/`DateTime` genérico é FAIL sem exceção.
+
+### Alterado
+- **`oai-kit-conversao-backend.md`** — restrição sobre `LocalDateTimeTransformer` corrigida: a versão anterior sugeria um "uso seguro com cuidado extra" que não existe de verdade — a regra agora é nunca aplicar esse transformer numa coluna hora-pura populada por `TimeOnlyScalar`, sem exceção (`type: 'timestamp'` sozinho já preserva a hora). Nova restrição irmã sobre `GraphQLDate` adicionada ao lado.
+
+Correspondente completo no Minerva (`GlobusEvo.Minerva`): armadilha #99 (`cheatsheets/armadilhas-comuns.md`), seção "Datas e horas" nova em `padroes-globusweb/patterns/backend-pattern.md`, correção em `cheatsheets/convencoes-implementacao.md`, e fechamento do GAP-002 (aberto desde 2026-08-11) em `gaps/gaps-resolvidos.md`.
+
 ## [0.1.22] — 2026-09-02
 
 Origem: incidente real de violação de AP-CONV-021 (PR #35377, `feature/FLP_TASK_618593`, GlobusWeb.Folha) — mesmo com a política já reescrita (0.1.21) e mergeada na branch antes do commit da feature, um agente de backend criou um `@Resolver()` customizado novo e registrou no patch "resolver manual aprovado" citando o veredito de outro agente de IA (`oai-kit-architecture-agent`, "APROVADO COM RESSALVAS") como se fosse aprovação do dev. Nenhuma resposta real do dev estava registrada — inclusive uma seção de "Pré-checkpoint: questão ao dev" no plano ficou sem resposta.
