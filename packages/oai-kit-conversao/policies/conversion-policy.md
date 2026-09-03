@@ -421,6 +421,20 @@ Origem: revisão de convenção pedida pelo dev (2026-08-31). Confirmado como pa
 
 Ver estrutura completa em `backend-pattern.md` (Minerva, seção "Estrutura e nomenclatura"). Checklist do `oai-kit-conversao-guardiao`, item 19.
 
+### AP-CONV-028 — Coluna DATE-only com `LocalDateTransformer` usa `GraphQLDate` no GraphQL, nunca `Date`/`DateTime` genérico
+
+Origem: bug real reportado pelo dev em produção (GlobusWeb.Folha, `CadastroIndisponiveis`, 2026-09-03) — gravação de data com **-1 dia** de deslocamento. Levantamento sistemático subsequente (pedido do dev) encontrou o mesmo padrão em mais 6 entities/telas do mesmo módulo (`Brigadista`, `CadastroPontos`, `FlpInfoBrindes`, `LicencaSindical` — incluindo bug de **filtro**, não só escrita —, `RecessoEstagiario`, `PagamentosBeneficiarios`), todas corrigidas na mesma sessão.
+
+**Regra**: toda coluna Oracle DATE-only (sem hora) declarada com `transformer: LocalDateTransformer` na entity (obrigatório quando o campo é PK — ver AP-CONV vigente sobre `andWhereIdOracle`/armadilha #36) deve usar `GraphQLDate` (`@praxio/nestjs-query-graphql`, scalar `"LocalDate"`) no DTO de retorno, no ID composto e no Create/Update Input — nunca `@Field(() => Date)`/`@FilterableField(() => Date)` genérico. `Date` genérico resolve para o scalar `DateTime`, cujo `parseValue` (`new Date("YYYY-MM-DD")`) interpreta a string como meia-noite UTC; combinado com os getters LOCAIS de `LocalDateTransformer`, isso grava o dia anterior em fuso negativo (Brasília, UTC-3). `GraphQLDate` usa construtor local (`new Date(y, m-1, d)`), simétrico com o transformer — sem essa ambiguidade.
+
+O bug afeta tanto **escrita** (create/update gravam a data errada) quanto **filtro** (`@FilterableField` com o mesmo scalar errado compara contra o dia errado, mesmo recebendo `"YYYY-MM-DD"` já normalizado) — e ocorre com ou sem o campo ser PK: em coluna não-PK a corrupção é silenciosa, sem nenhum erro visível na tela (confirmado em `PagamentosBeneficiarios.dataPagto`/`periodoApuracao` e nos 4 campos imutáveis pós-INSERT de `RecessoEstagiario`).
+
+**Frontend**: toda mutation que usa esse campo (create, update — `id` e `update` — e delete) envia sempre `valor.slice(0, 10)` (formato `"YYYY-MM-DD"`, único aceito por `GraphQLDate`) — aplicar nos três pontos de forma consistente; a inconsistência entre eles (slice só no create, por exemplo) já causou "Unable to find Entity" em produção. Não usar o workaround alternativo de nunca cortar a data e reenviar o ISO completo — funcionava por coincidência de parsing contra o scalar `DateTime` antigo e deixa de funcionar (passa a lançar erro) com `GraphQLDate`.
+
+**Como auditar uma tela existente**: grep `LocalDateTransformer` nas entities do módulo; para cada campo encontrado, confirmar em `schema.gql` gerado que o tipo é `LocalDate`, nunca `DateTime`.
+
+Ver detalhamento completo, com mecanismo e exemplos de código, em armadilha #99 (`cheatsheets/armadilhas-comuns.md`, Minerva) e `padroes-globusweb/patterns/backend-pattern.md`, seção "Datas e horas". Checklist do `oai-kit-conversao-guardiao`, item 22.
+
 ## Ordem de referência para padrões (economia de tempo)
 
 `{knowledgeBasePath}/padroes-globusweb/patterns/*.md` são documentos de governança, escritos para arquitetos — completos, mas caros de ler por inteiro a cada tela. O arquétipo (`archetypes/<x>.md`), os cheatsheets e o catálogo de componentes (`catalogo-reuso/componentes/`) já resumem o que é necessário para os casos comuns (`N1`-`N5`).
@@ -461,6 +475,7 @@ Antes de aprovar qualquer conversão, verifique:
 - **AP-CONV-025**: repository de entity própria sem SQL cru usa `BaseRepository<Entity>`; `AbstractRepository` só para SQL cru/múltiplas tabelas/sem entity única, independente de a tabela ser do próprio módulo ou não.
 - **AP-CONV-026**: nenhuma validação manual de campo obrigatório puro quando o DTO/Input já poderia declarar `{nullable: false}` (coluna Oracle já não aceita NULL).
 - **AP-CONV-027**: nenhum `*.spec.ts` colocado ao lado do fonte — todos em `tests/<rotina>/`, genéricos em `tests/common/`.
+- **AP-CONV-028**: toda coluna DATE-only com `LocalDateTransformer` na entity usa `GraphQLDate` no DTO/ID/Input GraphQL — nunca `Date`/`DateTime` genérico; confirmar em `schema.gql` gerado (`LocalDate`, não `DateTime`).
 - Já coberto por `oai-kit-conversao-guardiao` (PASSO 2.5, antes deste checkpoint): se o output desse agente aparece no patch com algum item FAIL não resolvido, a paridade não aprova até o dev confirmar explicitamente a exceção.
 
 Qualquer hit de violação = veredicto BLOQUEADO até resolução.
