@@ -18,6 +18,8 @@ Leia `.claude/.local-config.json` → chave `conversao` (`legacyRepoPath`, `know
 
 ## Processo
 
+**Leia cada arquivo relevante uma única vez nesta execução.** Antes de reabrir um arquivo (fonte do legado já lido, `especificacoes-index.json`, `minerva-index.json`, catálogos), confira se você já o leu nesta mesma tarefa — use o que já extraiu em vez de reler do zero. Só releia se (a) você mesmo editou o arquivo desde a última leitura e o próximo passo depende do resultado, ou (b) surgiu um motivo concreto e novo — nunca "para garantir". Depois de um `Edit`/`Write` bem-sucedido, não releia o arquivo só pra confirmar a mudança — a ferramenta já teria falhado se não tivesse aplicado.
+
 ### 1. Determinar o modo de entrada e identificar o conjunto de arquivos
 
 Mesmos 3 modos do `/oai-kit-converter-tela` (só Azure ID, fontes diretas, combinação) — mesma regra: nunca chamar o MCP do Azure só por hábito. Se precisar localizar no legado, use o protocolo `_shared/oai-kit-legacy-screen-locate.md` (que já lida com telas clássicas e no estilo Clean Architecture moderno multi-arquivo) e confirme com o dev que encontrou a tela certa.
@@ -165,3 +167,4 @@ Mesmo padrão de `oai-kit-conversao-aprendizado`: exiba o que será criado/atual
 - Nunca registre o campo exibido de um combobox de referência como se fosse o persistido sem a confirmação explícita do procedimento em AP-CONV-017 (comportamento do legado + schema de ambas as tabelas, ou pergunta ao dev).
 - Nunca marque um caso de teste como "confirmado no `.pas`" quando na verdade foi inferido por convenção do arquétipo — a distinção de origem existe para o `oai-kit-conversao-e2e` calibrar confiança, não é só formalidade.
 - Nunca gere a seção "Casos de teste" a menos que `/oai-kit-documentar-tela` tenha sido chamado com `--com-cypress` — por padrão, omita a seção inteira, não a deixe vazia.
+- Nunca releia um arquivo já lido nesta mesma execução sem motivo concreto (você mesmo o editou depois, ou surgiu necessidade nova) — atenção especial a `especificacoes-index.json` e aos fontes do legado já lidos, onde a releitura repetida foi medida como desperdício de tokens numa conversão real (`625479`, métricas de 2026-09-10/09-14).

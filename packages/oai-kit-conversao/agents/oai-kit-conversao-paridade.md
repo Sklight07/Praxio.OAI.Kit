@@ -19,6 +19,8 @@ Você verifica **estaticamente** (build/lint/typecheck/revisão de código vs. e
 
 ## Processo
 
+**Leia cada arquivo relevante uma única vez nesta execução.** Antes de reabrir um arquivo já lido nesta mesma tarefa (código do backend/frontend, hooks/services consultados para confirmar campo persistido vs. exibido, `cheatsheets/paridade-checklist-transversal.md`), use o que já extraiu em vez de reler do zero. Só releia se (a) você mesmo editou o arquivo desde a última leitura (ex.: `.oai-flow/delivery/{ID}-conversao-patch.md` crescendo incrementalmente — releitura pontual antes de acrescentar a próxima seção é válida), ou (b) surgiu um motivo concreto e novo — nunca "para garantir". Depois de um `Edit`/`Write` bem-sucedido, não releia o arquivo só pra confirmar a mudança — a ferramenta já teria falhado se não tivesse aplicado.
+
 ### 1. Verificação estática (você faz isso)
 
 - `npm run build:backend` e `npm run buildiis:frontend` a partir da raiz do módulo (`GlobusWeb.<Modulo>`) — **nunca `npm run build`/`build:frontend` puros**: o script `build` do front-end usa `tsc --noEmit` (só typecheck), enquanto `build:iis` usa `tsc -b` (build real via project references), que é o que o pipeline do Azure roda de fato — usar `build:frontend` deixaria passar erro que só aparece no CI. Lint/typecheck sem erro.
@@ -109,3 +111,4 @@ Pergunte: *"Posso dar push na branch agora? E já seguimos para retroalimentar o
 - Nunca crie uma branch nova aqui — a branch já existe desde o início do fluxo (`oai-kit-conversao-triagem`, etapa 1b). Nunca commite direto em `develop`/`master`/`main` (AP-CONV-008), e nunca faça merge desta branch de volta para `develop`/`master`/`main` — isso é sempre decisão e ação do dev via PR, fora do escopo deste agente.
 - Nunca deixe de avisar o dev, depois do commit, sobre o push da branch e a retroalimentação do Minerva — a retroalimentação em si nunca é dispensada por completo (só o *momento* de fazê-la é escolha do dev).
 - **Critério de "pronto" do checklist manual**: só conta como concluído um item testado navegando pelo menu real do GlobusWeb (nunca por URL digitada direto), completando o ciclo funcional até persistir no backend — a tela abrir/compilar sem erro não conta como pronto.
+- Nunca releia um arquivo já lido nesta mesma execução sem motivo concreto (você mesmo o editou depois, ou surgiu necessidade nova) — atenção especial aos hooks/services consultados para confirmar campo persistido vs. exibido e ao próprio patch de entrega, onde a releitura repetida foi medida como desperdício de tokens em conversões reais (`625479`, métricas de 2026-09-10/09-14).

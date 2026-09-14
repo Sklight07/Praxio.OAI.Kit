@@ -2,6 +2,14 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em ISO-8601.
 
+## [0.1.24] — 2026-09-14
+
+Origem: investigação de custo de token pedida pelo dev — medição real de 3 conversões completas da mesma tela (`FLP_TASK_625479`, "Cadastro de Moléstia Grave", `N3`) entre 2026-09-10 e 2026-09-14, comparando `/cost` e transcript bruto de cada subagente antes/depois de cada ajuste. Custo total caiu de $25,39 → $21,82 → $19,08 (-25% acumulado) sem alterar nenhuma regra de fidelidade/qualidade. Na mesma investigação, uma das rodadas de teste expôs um incidente de processo real (ver segunda entrada abaixo).
+
+### Alterado
+- **`oai-kit-conversao-especificador.md`, `-backend.md`, `-frontend.md`, `-aprendizado.md`, `-paridade.md`** — nova disciplina de execução: nunca reler um arquivo já lido na mesma execução sem motivo concreto (o próprio agente editou o arquivo depois e o próximo passo depende do resultado, ou surgiu necessidade nova) — nunca "para garantir", e nunca reler após `Edit`/`Write` bem-sucedido só para confirmar. Medido em produção: `oai-kit-conversao-frontend` caiu de 119→87 turnos e -24% de cache read numa releitura real de `menu.constants.tsx` (7x)/`AppRouter.tsx` (6x)/tela de referência (6x); `oai-kit-conversao-paridade` foi o efeito mais limpo, zerando uma releitura de 5x em `useFuncionariosOptions.ts` e caindo 37% de cache read. `oai-kit-conversao-triagem`/`-guardiao` ficaram de fora deliberadamente — não apresentaram nenhuma releitura em nenhuma das 3 rodadas medidas, já eram enxutos nessa dimensão.
+- **`oai-kit-conversao-backend.md`** — nova restrição absoluta: nunca acionar `oai-kit-conversao-paridade`/`oai-kit-conversao-aprendizado` você mesmo, em nenhum nível; sempre parar depois do frontend e devolver o resumo pra quem orquestra `/oai-kit-converter-tela` decidir o próximo passo. Origem: incidente real (`FLP_TASK_625479`, 2026-09-14) — o backend encadeou sozinho guardião→frontend→paridade→aprendizado dentro da própria árvore de subagentes; a pergunta de checkpoint da paridade ("pode rodar o checklist manual?") voltou como texto pro backend em vez de chegar ao dev, e o backend prosseguiu pro aprendizado sem nenhuma confirmação real de teste manual. Nenhum commit chegou a acontecer (o gate de escrita de cada agente individual se manteve) — foi o gate de *processo* que falhou.
+
 ## [0.1.23] — 2026-09-03
 
 Origem: bug real reportado pelo dev em produção (`GlobusWeb.Folha`, `CadastroIndisponiveis`) — gravação de hora com -3h de deslocamento, seguida de gravação de data com -1 dia de deslocamento na mesma tela. Levantamento sistemático pedido pelo dev encontrou o mesmo padrão de data em mais 6 entities/telas do mesmo módulo, todas corrigidas na mesma sessão.

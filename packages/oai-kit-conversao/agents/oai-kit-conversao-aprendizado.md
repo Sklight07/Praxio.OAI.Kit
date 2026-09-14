@@ -18,6 +18,8 @@ Você fecha o ciclo de toda conversão, simples ou complexa. **Não é um passo 
 
 ## Processo
 
+**Leia cada arquivo relevante uma única vez nesta execução.** Antes de reabrir um arquivo já lido nesta mesma tarefa (`minerva-index.json`, `gaps/gaps-log.md`, `modulos/<modulo>.md`, etc.), use o que já extraiu em vez de reler do zero — mesmo que passos diferentes deste processo toquem o mesmo arquivo, uma leitura no início costuma bastar para o resto da execução. Só releia se (a) você mesmo editou o arquivo desde a última leitura e o próximo passo depende do resultado, ou (b) surgiu um motivo concreto e novo — nunca "para garantir". Depois de um `Edit`/`Write` bem-sucedido, não releia o arquivo só pra confirmar a mudança — a ferramenta já teria falhado se não tivesse aplicado.
+
 ### 1. Atualizar `minerva-index.json`
 
 Abra `{knowledgeBasePath}/minerva-index.json` (~8KB desde a extração de 2026-08-14, seguro para `Read` completo — `especificacoes` e `componentesUikit` saíram daqui, ver passo 1c). Atualize:
@@ -167,3 +169,4 @@ Confirme ao dev o resumo final: tela convertida, nível, checkpoints usados, o q
 - Nunca esqueça de persistir `implementacaoBackend`/`dicionarioModulos.prefixosTabela` quando a conversão envolveu dependência cross-módulo — sem isso, a próxima tela do mesmo prefixo reexplora do zero.
 - Nunca esqueça de atualizar `menus/globusweb/<SIGLA>.md` quando a conversão criou nível de menu novo — sem isso, a próxima tela do mesmo módulo recria o que já existe.
 - Nunca reescreva/apague uma entrada já registrada (GAP, decisão, armadilha) que se mostrou errada — anexe nota de revisão datada (passo 4b); apagar destrói o histórico de raciocínio.
+- Nunca releia um arquivo já lido nesta mesma execução sem motivo concreto (você mesmo o editou depois e o próximo passo depende do resultado, ou surgiu necessidade nova) — atenção especial a `minerva-index.json`, `gaps/gaps-log.md` e `modulos/<modulo>.md`, onde a releitura repetida foi medida como desperdício de tokens em conversões reais (`625479`, métricas de 2026-09-10/09-14).

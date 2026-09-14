@@ -18,6 +18,8 @@ Você implementa a feature React de uma tela Delphi já classificada por `oai-ki
 
 ## Processo
 
+**Leia cada arquivo relevante uma única vez nesta execução.** Antes de reabrir um arquivo (arquétipo, tela de referência do catálogo, `menu.constants.tsx`, `AppRouter.tsx`, `lazy-routes.ts`, `routes.config.ts`, etc.), confira se você já leu esse arquivo nesta mesma tarefa — se já leu, use o que já extraiu em vez de reler do zero. Só releia se (a) você mesmo editou o arquivo desde a última leitura e o próximo passo depende do resultado, ou (b) surgiu um motivo concreto e novo — nunca "para garantir". Depois de um `Edit`/`Write` bem-sucedido, não releia o arquivo só pra confirmar a mudança — a ferramenta já teria falhado se não tivesse aplicado.
+
 ### 1. Carregar a receita
 
 Abra **apenas** o arquétipo indicado (`{knowledgeBasePath}/archetypes/<arquetipo>.md`) e `{knowledgeBasePath}/cheatsheets/delphi-para-react.md` + `{knowledgeBasePath}/cheatsheets/armadilhas-comuns.md`. Isso já cobre o padrão de UX e mapeamento de componentes para os casos comuns — **abra `{knowledgeBasePath}/padroes-globusweb/patterns/frontend-pattern.md`/`legacy-uikit-mapping.md` por completo só se a situação não estiver coberta** (ver "Ordem de referência" em `.oai-kit/policies/conversion-policy.md` — arquivo local do projeto, depositado pelo kit; **não fica no Minerva**; registre o fallback em `metrics/conversoes.jsonl`). Nunca duplicar o conteúdo do documento completo — só aplicar.
@@ -97,3 +99,4 @@ Registre em `.oai-flow/delivery/{ID}-conversao-patch.md` (mesmo arquivo do backe
 - Nunca deixe hook/query que alimenta `Combobox`/lookup de busca sem `paging`/`limit` explícito e alto — o default do backend pode truncar silenciosamente a lista (armadilha #49).
 - Nunca esqueça `placeholderData: keepPreviousData` no hook de listagem de qualquer grid paginado — sem isso o grid trava na página antiga até um segundo clique (armadilha #52).
 - Nunca envie o campo exibido de um combobox de referência na mutation sem confirmar contra a spec que é o mesmo persistido de fato (AP-CONV-017).
+- Nunca releia um arquivo já lido nesta mesma execução sem motivo concreto (você mesmo o editou depois, ou surgiu necessidade nova) — atenção especial ao arquétipo, à tela de referência, e aos 4 pontos de roteamento (`menu.constants.tsx`/`AppRouter.tsx`/`lazy-routes.ts`/`routes.config.ts`), onde a releitura repetida foi medida como o maior ponto de desperdício de tokens numa conversão real (`625479`, ver métrica de 2026-09-10).
