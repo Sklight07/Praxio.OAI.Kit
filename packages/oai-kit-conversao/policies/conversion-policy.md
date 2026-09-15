@@ -271,6 +271,8 @@ Toda tela cai em um de três padrões de frontend — **Grid+Modal** (`padrao-fr
 
 Registrar no plano da triagem **qual dos 3 passos resolveu** (sinalizado na task | inferido | perguntado ao dev) — é isso que permite auditar depois se a inferência está calibrada certo (ex.: se o passo 3 está sendo acionado com frequência alta para um tipo de tela, é sinal de que a regra de inferência do passo 2 precisa de mais um caso coberto).
 
+**Não confundir com AP-CONV-030**: esta decisão é sobre o padrão estrutural da tela **inteira** (qual dos três templates usar). O mapeamento `TPageControl`/`TTabSheet`/`TTabControl` → `AccordionGroup` (AP-CONV-030) é uma regra de **componente**, separada e incondicional — vale mesmo quando a tela inteira foi classificada em `crud-pai-filho`/`grid-procedure`/outro padrão por este AP-CONV-015, se ela tiver uma `TabSheet` isolada em algum lugar.
+
 ### AP-CONV-016 — Checklist LGPD para campo sensível
 
 Quando a tela manipula CPF, dado de saúde, dado financeiro sigiloso, ou outro campo classificável como dado pessoal sensível pela LGPD, `oai-kit-conversao-especificador` documenta e `oai-kit-conversao-backend`/`-frontend` implementam, e `oai-kit-conversao-paridade` verifica:
@@ -444,6 +446,16 @@ Ver detalhamento completo, com mecanismo e exemplos de código, em armadilha #99
 3. **`fitColumns={true}` sempre ligado**, com colunas dimensionadas para preencher 100% da largura horizontal do grid — nunca espaço em branco à direita. Colunas fixas/identificadoras usam a fórmula calibrada (armadilha #25: `~9px × caracteres do headerName + 90px`, arredondado); a coluna mais descritiva recebe `flex:1`+`minWidth` para absorver o espaço restante. Quando a soma excede o container, a rolagem horizontal nativa do grid assume — comportamento esperado, nunca "encolher" larguras para evitar o scroll.
 
 Receita completa em `{knowledgeBasePath}/catalogo-reuso/componentes/DataGridSearchServer.md` e nos dois arquétipos de frontend (`padrao-frontend-crud-grid-modal.md`/`padrao-frontend-crud-inline-grid.md`). `oai-kit-conversao-paridade` trata ausência de qualquer um dos três pontos acima (sem pedido explícito do usuário documentado) como bloqueante.
+
+### AP-CONV-030 — `TPageControl`/`TTabSheet`/`TTabControl` do legado sempre vira `AccordionGroup`, nunca `Tabs` — regra de componente, independente do arquétipo
+
+**Decisão institucional (2026-09-15), origem: padrão de erro recorrente identificado pelo dev** — telas com aba do Delphi convertidas para `Tabs`/`TabPanel` do UIKit em vez de accordion, mesmo com o arquétipo `accordion-secoes-indice-numerado` já existindo na base. Causa raiz: a regra só estava amarrada à receita de um arquétipo específico, acionado só quando a tela inteira era classificada (via AP-CONV-015) como um cadastro grande de múltiplas seções — uma `TabSheet` isolada numa tela classificada em outro arquétipo (`crud-pai-filho`, `grid-procedure`), ou o próprio arquétipo `consulta-filtro-tabs` (que usava `Tabs` deliberadamente), não disparavam a regra.
+
+1. **`TPageControl`/`TTabSheet`/`TTabControl` do `.dfm` sempre viram `AccordionGroup`** (UIKit) — é uma regra de **mapeamento de componente**, ortogonal à escolha de arquétipo/padrão estrutural de AP-CONV-015. Vale independente de quantas páginas existem (1 ou 200), independente do arquétipo de backend/frontend que a tela usa, e mesmo para abas aninhadas (`PageControl` dentro de uma `TabSheet`) — nunca `Tabs`/`TabPanel`, em nenhum nível.
+2. **`AccordionGroup` (não-controlado) é o componente padrão básico** — primeira opção sempre, inclusive em módulos novos sem `CustomAccordionGroup` copiado ainda.
+3. **`CustomAccordionGroup`** (controlado, com `readOnly` por seção e sincronizado com `AccordionSectionsNavRail`) só entra quando há necessidade real — índice lateral numerado (volume de seções grande, regra prática ~6-8+) e/ou permissionamento por seção — **e** já existe no módulo-alvo. **Se não existir, o agente pergunta ao dev antes de copiar/criar o arquivo** — nunca decide sozinho, mesmo com necessidade real identificada.
+
+O arquétipo `consulta-filtro-tabs` (`archetypes/consulta-filtro-tabs.md`) foi reescrito para usar `AccordionGroup` — o nome do arquivo/identificador ficou historicamente desatualizado (mantido por compatibilidade com `minerva-index.json`/`telas-referencia.md`), mas a receita de frontend já reflete AP-CONV-030. Receita completa em `{knowledgeBasePath}/catalogo-reuso/componentes/AccordionGroup.md`, `{knowledgeBasePath}/archetypes/accordion-secoes-indice-numerado.md` e armadilha #113 (`cheatsheets/armadilhas-comuns.md`). `oai-kit-conversao-paridade` trata `Tabs`/`TabsList`/`TabButton`/`TabPanel` originado de `TabSheet`/`PageControl` do legado como bloqueante.
 
 ## Ordem de referência para padrões (economia de tempo)
 

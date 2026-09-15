@@ -113,6 +113,8 @@ Aplica-se sempre que o arquétipo de backend for `crud-simples-*`/`crud-pai-filh
 
 Registre no plano (seção Frontend) o padrão decidido **e** a origem (sinalizado/inferido/perguntado).
 
+**Independente do padrão decidido acima (AP-CONV-030)**: qualquer `TPageControl`/`TTabSheet`/`TTabControl` que aparecer no `.dfm` da tela — mesmo se o padrão geral escolhido for Grid+Modal/Inline+Grid, não Accordion — vira `AccordionGroup` no frontend, nunca `Tabs`. Sinalize no plano se a tela tiver uma `TabSheet` isolada fora do padrão Accordion, para `oai-kit-conversao-frontend` não perder esse detalhe.
+
 ### 4e. Detectar ausência de precedente local — checagem cross-repo via `telas-referencia.md`
 
 **Se o front-end do módulo-alvo estiver em estágio esqueleto** (pasta `features/`/`src/features` vazia ou com só 1-2 features triviais, ex.: só `auth`) — ou seja, esta seria a primeira tela real convertida neste repositório com o padrão decidido no passo 4d — **consulte primeiro `{knowledgeBasePath}/catalogo-reuso/telas-referencia.md`** por uma entrada cuja tag bata com o padrão decidido (Grid+Modal, Inline+Grid ou Accordion+Índice — o catálogo cobre os 3, não só Grid+Modal). Se houver entrada aplicável, use o caminho indicado ali. **Só se o catálogo não tiver entrada aplicável**, caia para o comportamento anterior: verifique `knownRepos` (`.claude/.local-config.json`) por um repositório GlobusWeb irmão que já tenha uma tela do mesmo arquétipo implementada — **sincronize a `develop` desse repositório antes de olhar** (`git fetch`/`checkout develop`/`git pull`, mesmo princípio de nunca confiar numa cópia local desatualizada do AP-CONV-012/019). Se nenhum dos dois resolver, pergunte ao dev se ele conhece um caminho local — nunca invente ou assuma.

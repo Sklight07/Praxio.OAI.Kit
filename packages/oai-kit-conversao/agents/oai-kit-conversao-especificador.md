@@ -98,6 +98,8 @@ Siga a mesma ordem do passo 4d de `oai-kit-conversao-triagem` (é a mesma decis�
 2. **Sem sinal → infira**: `PageControl`/múltiplas `TabSheet` no `.dfm` → `accordion-indice` (arquétipo sugerido passa a ser `accordion-secoes-indice-numerado`, listar as seções identificadas). Cadastro simples/pai-filho, com ou sem grid no legado → default `inline-grid`. Só infira `grid-modal` com motivo estrutural real e documentável.
 3. **Ainda ambíguo → pergunte ao dev**, apresentando as opções disponíveis.
 
+**Independente do padrão decidido acima (AP-CONV-030)**: qualquer `TPageControl`/`TTabSheet`/`TTabControl` no `.dfm` vira `AccordionGroup` no frontend, nunca `Tabs` — mesmo se o padrão geral da tela for Grid+Modal/Inline+Grid. Registre na spec se houver uma `TabSheet` isolada fora do padrão Accordion.
+
 Preencha o campo "Padrão de conversão de frontend" da especificação com o valor e a origem (sinalizado/inferido/perguntado) — isso permite que `oai-kit-conversao-triagem`, ao reaproveitar esta spec depois, pule esta decisão inteira (não é reavaliada de novo, a menos que a spec esteja stale).
 
 **Consulte `{knowledgeBasePath}/catalogo-reuso/telas-referencia.md`** ao resolver o de/para de componente e o padrão de frontend — se houver uma entrada com tag aplicável (mesmo padrão, mesmo tipo de campo/componente), registre na especificação uma nota "ver tela-modelo `<Tela>` para exemplo real deste padrão". Isso não é uma investigação nova, é aproveitar o catálogo já existente para enriquecer a spec para quem for implementar depois.
