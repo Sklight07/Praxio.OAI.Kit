@@ -2,6 +2,17 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em ISO-8601.
 
+## [0.1.25] — 2026-09-15
+
+Origem: decisão institucional do dev — padronizar o grid de listagem de toda conversão em `DataGridSearchServer`, com `compliance`+`fitColumns` sempre ligados e colunas preenchendo 100% da largura horizontal, eliminando a decisão condicional anterior (tela a tela) e as alternativas de grid concorrentes.
+
+### Adicionado
+- **`AP-CONV-029`** (`conversion-policy.md`) — `DataGridSearchServer` é o único grid de listagem válido por padrão em qualquer arquétipo/padrão de frontend (Grid+Modal, Inline+Grid, Accordion, consultas somente-leitura), mesmo que o módulo-alvo nunca tenha usado nenhum grid antes. Configuração institucional obrigatória: `compliance={true}` sempre (com `onFilterChange` sempre real, nunca stub) e `fitColumns={true}` sempre (colunas preenchendo 100% da largura horizontal, fórmula calibrada da armadilha #25 + `flex` na coluna mais descritiva absorvendo o espaço restante). `Datagrid` e o modo `variant="data-grid"` de `Grid` passam a exigir pedido explícito do usuário — nunca mais escolha espontânea do agente nem herança de precedente do módulo. `MasterDetailGrid`/`ComboboxGrid` não são afetados (resolvem problemas de UI diferentes de um grid de listagem). Receita completa no Minerva: `catalogo-reuso/componentes/DataGridSearchServer.md`, `archetypes/padrao-frontend-crud-grid-modal.md`/`padrao-frontend-crud-inline-grid.md`, `cheatsheets/armadilhas-comuns.md` (#19/#24/#25/#44 atualizadas), `cheatsheets/paridade-checklist-transversal.md`/`cypress-checks-por-padrao.md`.
+
+### Alterado
+- **`conversion-policy.md`** — receita do Grid+Modal (AP-CONV-014) e o checklist final de `oai-kit-conversao-paridade` atualizados para refletir AP-CONV-029; a distinção de escopo antiga entre Grid+Modal (`fitColumns` proibido) e Inline+Grid (`fitColumns` permitido) deixou de existir — os dois padrões convergem para a mesma configuração de grid.
+- **`oai-kit-conversao-frontend.md`, `-paridade.md`, `-triagem.md`, `-aprendizado.md`** — todas as menções a "nunca ligar `compliance`"/"nunca `fitColumns` sem razão documentada" invertidas para a regra institucional nova. O incidente histórico de 2026-08-03 (origem da proibição antiga) foi recontextualizado nos 5 arquivos: a lição válida hoje é só a metade que sempre foi o problema real — `onFilterChange` nunca pode ser um stub quando `compliance` está ligado.
+
 ## [0.1.24] — 2026-09-14
 
 Origem: investigação de custo de token pedida pelo dev — medição real de 3 conversões completas da mesma tela (`FLP_TASK_625479`, "Cadastro de Moléstia Grave", `N3`) entre 2026-09-10 e 2026-09-14, comparando `/cost` e transcript bruto de cada subagente antes/depois de cada ajuste. Custo total caiu de $25,39 → $21,82 → $19,08 (-25% acumulado) sem alterar nenhuma regra de fidelidade/qualidade. Na mesma investigação, uma das rodadas de teste expôs um incidente de processo real (ver segunda entrada abaixo).
