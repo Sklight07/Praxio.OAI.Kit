@@ -2,6 +2,19 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em ISO-8601.
 
+## [0.1.26] — 2026-09-15
+
+Origem: padrão de erro recorrente identificado pelo dev — abas do Delphi (`TPageControl`/`TTabSheet`/`TTabControl`) sendo convertidas para `Tabs`/`TabPanel` do UIKit em vez de accordion, mesmo com o arquétipo `accordion-secoes-indice-numerado` já existindo na base. A regra estava amarrada só à receita de um arquétipo específico, acionada apenas quando a tela inteira era classificada como cadastro grande de múltiplas seções — não cobria uma `TabSheet` isolada numa tela de outro arquétipo, nem o próprio arquétipo `consulta-filtro-tabs` (que usava `Tabs` deliberadamente).
+
+### Adicionado
+- **`AP-CONV-030`** (`conversion-policy.md`) — `TPageControl`/`TTabSheet`/`TTabControl` do legado sempre vira `AccordionGroup` (UIKit), nunca `Tabs`/`TabPanel` — regra de **mapeamento de componente**, ortogonal à escolha de arquétipo/padrão estrutural (AP-CONV-015). Vale independente do arquétipo da tela, do número de páginas (1 ou 200), e mesmo para abas aninhadas (`PageControl` dentro de uma `TabSheet`). `AccordionGroup` (não-controlado) é o componente padrão básico — primeira opção sempre, inclusive em módulos novos sem `CustomAccordionGroup` copiado ainda. `CustomAccordionGroup` (controlado, com NavRail/permissionamento por seção) só entra com necessidade real **e** já existente no módulo — se não existir, o agente pergunta ao dev antes de copiar/criar, nunca decide sozinho. Receita completa no Minerva: `catalogo-reuso/componentes/AccordionGroup.md`, `archetypes/accordion-secoes-indice-numerado.md` (variante de sub-seções aninhadas reescrita: accordion aninhado, não mais `Tabs`), `archetypes/consulta-filtro-tabs.md` (reescrito de `Tabs` para `AccordionGroup`), armadilha #113 (`cheatsheets/armadilhas-comuns.md`).
+
+### Alterado
+- **`conversion-policy.md`** — AP-CONV-015 ganhou nota cruzando com AP-CONV-030: a escolha de padrão estrutural (Grid+Modal/Inline+Grid/Accordion) é independente da regra de mapeamento de componente (qualquer `TabSheet`, mesmo numa tela de outro padrão, ainda vira accordion).
+- **`oai-kit-conversao-frontend.md`, `-paridade.md`** — trechos que hoje diziam "nunca o `AccordionGroup` puro do UIKit, sempre `CustomAccordionGroup`" invertidos: `AccordionGroup` é o padrão, `CustomAccordionGroup` é a exceção condicionada a necessidade real + já existir no módulo ou aprovação do dev.
+- **`oai-kit-conversao-triagem.md`, `-especificador.md`** — nota cruzada acrescentada à lógica de inferência do padrão de frontend (duplicada entre os dois agentes), deixando explícito que o mapeamento de componente de aba é incondicional.
+- **`catalogo-reuso/componentes/Tabs.md`, `padroes-globusweb/patterns/legacy-uikit-mapping.md`/`component-catalog.md`, `cheatsheets/delphi-para-react.md`** (Minerva) — três tabelas de mapeamento Delphi→UIKit que apontavam `TPageControl`/`TabSheet`/`TabControl` para `Tabs` corrigidas para `AccordionGroup`.
+
 ## [0.1.25] — 2026-09-15
 
 Origem: decisão institucional do dev — padronizar o grid de listagem de toda conversão em `DataGridSearchServer`, com `compliance`+`fitColumns` sempre ligados e colunas preenchendo 100% da largura horizontal, eliminando a decisão condicional anterior (tela a tela) e as alternativas de grid concorrentes.
