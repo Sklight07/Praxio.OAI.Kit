@@ -2,6 +2,17 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em ISO-8601.
 
+## [0.1.27] — 2026-09-18
+
+Origem: análise do dev encontrou o pipeline de conversão desalinhado com uma migração real de estrutura de testes já em andamento no ecossistema GlobusWeb.* (ticket #629000) — 24 de ~28 módulos reais (incluindo Folha, Acidentes, Manutencao) já tinham migrado de `back-end/src/tests/<rotina>/` (imports relativos) para `back-end/test/unit/<rotina>/` (alias `@/`), com tiers adicionais `e2e-mock`/`e2e-real`. Sem correção, `oai-kit-conversao-backend` recriaria a pasta extinta e `oai-kit-conversao-guardiao` aprovaria o formato errado, reprovando specs corretas na estrutura nova.
+
+### Alterado
+- **`AP-CONV-027`** (`conversion-policy.md`) — revisado: a estrutura de testes deixa de ser fixa e passa a ser decidida **sempre localmente, dentro do próprio módulo-alvo**, nunca por precedente de outro módulo nem por leitura de outro repositório GlobusWeb.* (nem sempre clonado/atualizado na máquina de quem converte). Módulo com `back-end/test/unit/` já existente segue a estrutura nova (alias `@/`); módulo só com `back-end/src/tests/` segue a estrutura antiga (import relativo, nunca forçar migração); módulo sem nenhuma das duas (primeiro spec) usa um template autocontido — `jest-unit.config.js` completo agora documentado inline em `padroes-globusweb/patterns/backend-pattern.md` (Minerva), dispensando leitura de outro repo.
+- **`oai-kit-conversao-guardiao.md`** (item 19) e **`oai-kit-conversao-backend.md`** (passo 3b) — checklist e geração de specs atualizados para a mesma lógica de decisão local.
+
+### Adicionado
+- Armadilha #121 (Minerva, `cheatsheets/armadilhas-comuns.md`) registrando a migração, o sintoma do gate quebrado e o gap institucional: os commits de migração citam `docs/guia-implementacao-testes-subsistemas.md` como fonte oficial, mas esse arquivo não existe em nenhum repo verificado — `backend-pattern.md`/`conversion-policy.md` seguem como fonte provisória até lá.
+
 ## [0.1.26] — 2026-09-15
 
 Origem: padrão de erro recorrente identificado pelo dev — abas do Delphi (`TPageControl`/`TTabSheet`/`TTabControl`) sendo convertidas para `Tabs`/`TabPanel` do UIKit em vez de accordion, mesmo com o arquétipo `accordion-secoes-indice-numerado` já existindo na base. A regra estava amarrada só à receita de um arquétipo específico, acionada apenas quando a tela inteira era classificada como cadastro grande de múltiplas seções — não cobria uma `TabSheet` isolada numa tela de outro arquétipo, nem o próprio arquétipo `consulta-filtro-tabs` (que usava `Tabs` deliberadamente).
