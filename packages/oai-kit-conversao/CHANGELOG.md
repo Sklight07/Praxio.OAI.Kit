@@ -2,6 +2,17 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/). Datas em ISO-8601.
 
+## [0.1.28] — 2026-09-29
+
+Origem: análise do Minerva pedida pelo dev encontrou especificações descartando impressão com justificativas que deixaram de valer ("impressora matricial não existe na web", "mecanismo de relatório não definido") depois do motor `@praxio/globusweb-rdprint` e do componente `PraxioRdPrintPreview` (UIKit 0.5.601). Decisão do dev: relatório não está ligado só ao menu Relatórios — RDprint do Delphi vira RdPrint no GlobusWeb em qualquer tela; os demais geradores de relatório ficam a cargo do dev; relatório pós-processamento em lote fica fora.
+
+### Adicionado
+- **`AP-CONV-031`** (`conversion-policy.md`) — `TRDprint`/`EnviaGridParaRdPrint`/`ImpRDPrint`, em qualquer tela (gatilho procurado no `.pas`), usam a mecânica RdPrint (motor no backend + endpoint `?formato=` no `RelatoriosController` + `PraxioRdPrintPreview`); pdfmake/jsPDF ficam como opções secundárias, só com pedido explícito de uma pessoa registrado na task/spec/plano. QuickReport, Crystal, Rave e afins **não** usam a mecânica RdPrint: são `Decisão humana` e o dev direciona como implementar. Nenhum componente de relatório é descartado. Exceção para qualquer gerador: processamento em lote que segura a tela antes de exibir o relatório (tela `N-ESPECIAL`, relatório vira `GAP`). Item correspondente no checklist de `oai-kit-conversao-paridade`.
+
+### Alterado
+- Taxonomia de elemento sem equivalente visual (`conversion-policy.md`): componente de relatório nunca é "Descartar"; só o diálogo de configuração de impressora é.
+- **`oai-kit-conversao-triagem.md`**, **`oai-kit-conversao-especificador.md`**, **`oai-kit-conversao-backend.md`**, **`oai-kit-conversao-frontend.md`** — detecção do componente de relatório no `.pas`, verificação da exceção de lote, e receita de implementação apontando para `cheatsheets/conversao-relatorio-rdprint.md`, `archetypes/relatorio-rdprint.md` e `catalogo-reuso/componentes/PraxioRdPrintPreview.md` (Minerva).
+
 ## [0.1.27] — 2026-09-18
 
 Origem: análise do dev encontrou o pipeline de conversão desalinhado com uma migração real de estrutura de testes já em andamento no ecossistema GlobusWeb.* (ticket #629000) — 24 de ~28 módulos reais (incluindo Folha, Acidentes, Manutencao) já tinham migrado de `back-end/src/tests/<rotina>/` (imports relativos) para `back-end/test/unit/<rotina>/` (alias `@/`), com tiers adicionais `e2e-mock`/`e2e-real`. Sem correção, `oai-kit-conversao-backend` recriaria a pasta extinta e `oai-kit-conversao-guardiao` aprovaria o formato errado, reprovando specs corretas na estrutura nova.
